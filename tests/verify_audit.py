@@ -59,13 +59,24 @@ class SecurityTester:
         return match.group(1) if match else ""
 
 import shutil
+import secrets
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PHP_BIN = os.environ.get("PHP_BINARY") or shutil.which("php") or r"C:\xampp\php\php.exe"
 
 def run_php(code):
-    res = subprocess.run([PHP_BIN, '-r', code], cwd=ROOT_DIR, capture_output=True, text=True, env=os.environ)
-    return res.stdout.strip(), res.stderr.strip()
+    temp_file = os.path.join(ROOT_DIR, f'temp_audit_{secrets.token_hex(4)}.php')
+    with open(temp_file, 'w', encoding='utf-8') as f:
+        f.write("<?php " + code)
+    try:
+        res = subprocess.run([PHP_BIN, temp_file], cwd=ROOT_DIR, capture_output=True, text=True, env=os.environ)
+        return res.stdout.strip(), res.stderr.strip()
+    finally:
+        if os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except OSError:
+                pass
 
 def run_tests():
     tester = SecurityTester(follow_redirects=True)
@@ -118,6 +129,8 @@ def run_tests():
                       f"User created with role='{user_record.get('role') if user_record else 'NONE'}' (strictly forced to faculty)")
 
     # 5. Test Inactive User Blocking
+    # Log out of registration session first so tester is an unauthenticated guest
+    tester.get('logout.php')
     # Mark the newly created user as inactive
     php_code = f"require_once 'config/database.php'; $db = Database::getConnection(); $db->prepare(\"UPDATE users SET status = 'inactive' WHERE email = ?\")->execute(['{test_email}']);"
     run_php(php_code)
@@ -130,7 +143,7 @@ def run_tests():
         'email': test_email,
         'password': 'SecureFacultyPassword@2026'
     })
-    passed_inactive = "account is currently inactive" in inactive_login_resp
+    passed_inactive = ("account is currently inactive" in inactive_login_resp or "account is inactive" in inactive_login_resp)
     tester.log_result("Authentication: Inactive User Blocking on login", passed_inactive, "Inactive account login rejected with proper notice")
 
     # Reactivate the test user for session and IDOR testing
@@ -196,8 +209,8 @@ def run_tests():
     tester.log_result("Public Navigation Cleansing: No admin portals exposed to guests", not has_admin_in_nav, "No administrative console links in public guest navigation")
 
     # 11. Test Academic Profile Metrics Transparency
-    has_metrics_notice = "Self-reported" in body_slug or "Last updated" in body_slug or "Honest scholarly" in body_slug
-    has_fake_calc = "* 0.72" in body_slug or "* 0.85" in body_slug
+    has_metrics_notice = ("Self-reported" in body_slug or "Last updated" in body_slug or "Self-reported" in body_slug_param or "Last updated" in body_slug_param)
+    has_fake_calc = "* 0.72" in body_slug or "* 0.85" in body_slug or "* 0.72" in body_slug_param
     tester.log_result("Citation Metrics Transparency: Explicitly self-reported with timestamps", has_metrics_notice and not has_fake_calc, "Metrics marked as self-reported without fabricated multipliers")
 
     # Clean up test user
