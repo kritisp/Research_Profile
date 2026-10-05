@@ -10,6 +10,7 @@ if (php_sapi_name() !== 'cli') {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
 if (defined('APP_ENV') && APP_ENV === 'production') {
     die("Security Abort: Demo seed data cannot be executed in a production environment.\n");
@@ -308,6 +309,8 @@ try {
             }
         }
 
+        $slug = slugify($fData['name']);
+
         // Insert or update faculty_profile
         $pStmt = $db->prepare("SELECT id FROM faculty_profiles WHERE user_id = ?");
         $pStmt->execute([$userId]);
@@ -316,13 +319,13 @@ try {
         if (!$prof) {
             $insProf = $db->prepare("
                 INSERT INTO faculty_profiles (
-                    user_id, department_id, institution, salutation, designation, cabin, phone, bio, 
+                    user_id, department_id, slug, institution, salutation, designation, cabin, phone, bio, 
                     research_interests, google_scholar_url, orcid_id, scopus_id, 
                     total_citations, h_index, i10_index, is_verified
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
             ");
             $insProf->execute([
-                $userId, $fData['dept_id'], $fData['institution'] ?? 'ITER, SOA University',
+                $userId, $fData['dept_id'], $slug, $fData['institution'] ?? 'ITER, SOA University',
                 $fData['salutation'], $fData['designation'],
                 $fData['cabin'], $fData['phone'], $fData['bio'], $fData['interests'],
                 $fData['scholar_url'], $fData['orcid'], $fData['scopus'],
@@ -331,6 +334,7 @@ try {
             $profId = (int)$db->lastInsertId();
         } else {
             $profId = (int)$prof['id'];
+            $db->prepare("UPDATE faculty_profiles SET slug = ? WHERE id = ?")->execute([$slug, $profId]);
             if (!empty($fData['institution'])) {
                 $updProf = $db->prepare("UPDATE faculty_profiles SET institution = ? WHERE id = ?");
                 $updProf->execute([$fData['institution'], $profId]);
