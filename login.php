@@ -1,8 +1,6 @@
 <?php
 /**
- * Departmental Scholar — Faculty & Scholar Authentication
- * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Multi-Role Authentication Login Page
  */
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/csrf.php';
@@ -34,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db = Database::getConnection();
         $stmt = $db->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password_hash'])) {
             if ($user['status'] !== 'active') {
@@ -57,29 +55,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Sign In — Faculty & Researcher Portal';
+$pageTitle = 'Sign In to Research Portal';
 $activeNav = 'login';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="py-14 sm:py-20 bg-slate-50 flex flex-col justify-center">
+<div class="py-12 sm:py-16 bg-slate-50 flex flex-col justify-center">
     <div class="max-w-md w-full mx-auto px-4">
         
-        <!-- Header Masthead -->
+        <!-- Header Card -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-[8px] bg-oxford-navy text-white shadow-sm ring-4 ring-slate-100 mb-3">
-                <i class="fa-solid fa-lock text-lg"></i>
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-iter-900 text-white shadow-md ring-4 ring-iter-50 mb-3">
+                <i class="fa-solid fa-lock text-xl"></i>
             </div>
-            <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-oxford-navy">Portal Sign In</h1>
-            <p class="text-xs text-scholar-muted mt-1 font-sans">Faculty Researchers, Academic Delegates & Administrators</p>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-serif-title">Portal Sign In</h1>
+            <p class="text-xs text-slate-500 mt-1">ITER Faculty, Research Delegates & Administrators</p>
         </div>
 
         <!-- Form Card -->
-        <div class="academic-card p-6 sm:p-8">
+        <div class="bg-white py-8 px-6 sm:px-8 shadow-sm rounded-2xl border border-slate-200">
             <?php if ($error): ?>
-                <div class="mb-5 p-3.5 rounded-[6px] bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
-                    <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm flex-shrink-0"></i>
-                    <span class="font-medium"><?= e($error) ?></span>
+                <div class="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                    <span><?= e($error) ?></span>
                 </div>
             <?php endif; ?>
 
@@ -87,7 +85,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?= csrf_field() ?>
 
                 <div>
-                    <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                         Institutional Email
                     </label>
                     <div class="relative">
@@ -96,38 +94,41 @@ require_once __DIR__ . '/includes/header.php';
                         </span>
                         <input type="email" id="email" name="email" required autofocus
                             value="<?= e($_POST['email'] ?? '') ?>"
-                            placeholder="scholar@iter.ac.in or name@university.edu"
-                            class="academic-input pl-9 text-xs sm:text-sm">
+                            placeholder="name@iter.ac.in or name@soa.ac.in"
+                            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
                     </div>
                 </div>
 
                 <div>
-                    <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                        Password
-                    </label>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+                            Password
+                        </label>
+                    </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                             <i class="fa-solid fa-key text-xs"></i>
                         </span>
                         <input type="password" id="password" name="password" required
                             placeholder="••••••••••••"
-                            class="academic-input pl-9 text-xs sm:text-sm">
+                            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
                     </div>
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="btn-academic-primary w-full text-xs shadow-xs !py-2.5">
+                    <button type="submit"
+                        class="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-iter-800 hover:bg-iter-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-iter-500 transition">
                         <span>Sign In</span>
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
                     </button>
                 </div>
             </form>
 
-            <div class="mt-6 pt-6 border-t border-scholar-border text-center">
-                <p class="text-xs text-scholar-muted">
-                    New faculty member or researcher?
-                    <a href="<?= url('register.php') ?>" class="font-semibold text-oxford-blue hover:text-oxford-navy transition">
-                        Register profile here
+            <div class="mt-6 pt-6 border-t border-slate-100 text-center">
+                <p class="text-xs text-slate-600">
+                    New faculty member or research assistant?
+                    <a href="<?= url('register.php') ?>" class="font-semibold text-iter-700 hover:text-iter-900 transition">
+                        Register here
                     </a>
                 </p>
             </div>

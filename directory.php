@@ -1,8 +1,6 @@
 <?php
 /**
- * Departmental Scholar - Faculty Directory & Search Portal
- * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Faculty Directory & Search Portal
  */
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/csrf.php';
@@ -17,7 +15,7 @@ $inst   = trim($_GET['inst'] ?? '');
 $sort   = trim($_GET['sort'] ?? 'citations');
 
 // Fetch all departments for filter dropdown
-$deptList = $db->query("SELECT code, name FROM departments ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
+$deptList = $db->query("SELECT code, name FROM departments ORDER BY name ASC")->fetchAll();
 
 // Fetch distinct institutions for filter dropdown
 $institutionList = $db->query("
@@ -70,55 +68,45 @@ if ($sort === 'name') {
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
-$faculties = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$faculties = $stmt->fetchAll();
 
-// Helper for filter chip links
-function filter_url_without($key) {
-    $params = $_GET;
-    unset($params[$key]);
-    return url('directory.php' . (!empty($params) ? '?' . http_build_query($params) : ''));
-}
-
-$hasActiveFilters = (!empty($q) || !empty($dept) || !empty($inst));
-
-$pageTitle = 'Faculty Directory — Scholarly Profiles';
+$pageTitle = 'Faculty Directory';
 $activeNav = 'directory';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Directory Header Banner -->
-<section class="bg-oxford-navy text-white py-10 sm:py-12 border-b border-oxford-blue">
+<div class="bg-slate-900 text-white py-10 sm:py-12 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl">
-            <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">Collegiate Scholarly Directory</span>
-            <h1 class="font-serif text-2xl sm:text-4xl font-normal text-white mt-1.5 leading-tight">Faculty Researchers</h1>
-            <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed font-sans">
-                Browse verified academic scholars, publication bibliographies, citations, and research areas across institutional departments.
+            <span class="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">Departmental Scholarly Directory</span>
+            <h1 class="text-2xl sm:text-4xl font-bold font-serif-title mt-1.5 leading-tight">Faculty & Researchers</h1>
+            <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                Browse verified academic profiles, publication records, and citation metrics across collegiate departments and academic institutions.
             </p>
         </div>
     </div>
-</section>
+</div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
-    <!-- Unified Filter Panel -->
-    <div class="academic-card p-4 sm:p-5 mb-8">
+    <!-- Search & Filter Bar -->
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm mb-8">
         <form action="<?= url('directory.php') ?>" method="GET" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
             
-            <!-- Keyword Search -->
+            <!-- Query Search -->
             <div class="sm:col-span-4 relative">
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" name="q" value="<?= e($q) ?>" 
-                    placeholder="Search name or research topic..."
-                    class="academic-input pl-9 text-xs sm:text-sm"
-                    aria-label="Search scholars">
+                    placeholder="Search by faculty name or research topic..."
+                    class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
             </div>
 
             <!-- Institution Filter -->
             <div class="sm:col-span-3">
-                <select name="inst" class="academic-input text-xs sm:text-sm" aria-label="Filter by institution">
+                <select name="inst" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-700 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
                     <option value="">All Institutions</option>
                     <?php foreach ($institutionList as $instItem): ?>
                         <option value="<?= e($instItem) ?>" <?= $inst === $instItem ? 'selected' : '' ?>>
@@ -130,7 +118,8 @@ require_once __DIR__ . '/includes/header.php';
 
             <!-- Department Filter -->
             <div class="sm:col-span-2">
-                <select name="dept" class="academic-input text-xs sm:text-sm" aria-label="Filter by department">
+                <select name="dept" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-700 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
                     <option value="">All Departments</option>
                     <?php foreach ($deptList as $d): ?>
                         <option value="<?= e($d['code']) ?>" <?= $dept === $d['code'] ? 'selected' : '' ?>>
@@ -142,88 +131,64 @@ require_once __DIR__ . '/includes/header.php';
 
             <!-- Sort By -->
             <div class="sm:col-span-2">
-                <select name="sort" class="academic-input text-xs sm:text-sm" aria-label="Sort scholars">
+                <select name="sort" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-700 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
                     <option value="citations" <?= $sort === 'citations' ? 'selected' : '' ?>>Most Citations</option>
                     <option value="pubs" <?= $sort === 'pubs' ? 'selected' : '' ?>>Most Publications</option>
                     <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>Name (A-Z)</option>
                 </select>
             </div>
 
-            <!-- Filter Action -->
+            <!-- Submit Button -->
             <div class="sm:col-span-1">
-                <button type="submit" class="btn-academic-primary w-full text-xs !py-2.5 !px-3 shadow-xs">
-                    <span>Apply</span>
+                <button type="submit" 
+                    class="w-full py-2.5 px-3 bg-iter-800 hover:bg-iter-900 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1">
+                    <span>Filter</span>
                 </button>
             </div>
         </form>
 
-        <!-- Active Filter Chip Cluster -->
-        <?php if ($hasActiveFilters): ?>
-            <div class="mt-4 pt-3 border-t border-scholar-border flex flex-wrap items-center justify-between gap-2 text-xs">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="text-slate-500 font-medium">Active criteria:</span>
-                    <?php if (!empty($q)): ?>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-slate-100 text-oxford-navy border border-slate-300 font-sans">
-                            <span>Keyword: <strong>"<?= e($q) ?>"</strong></span>
-                            <a href="<?= filter_url_without('q') ?>" class="text-slate-400 hover:text-rose-600 transition" aria-label="Remove keyword filter">
-                                <i class="fa-solid fa-xmark text-[11px]"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                    <?php if (!empty($dept)): ?>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-slate-100 text-oxford-navy border border-slate-300 font-sans">
-                            <span>Department: <strong><?= e($dept) ?></strong></span>
-                            <a href="<?= filter_url_without('dept') ?>" class="text-slate-400 hover:text-rose-600 transition" aria-label="Remove department filter">
-                                <i class="fa-solid fa-xmark text-[11px]"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                    <?php if (!empty($inst)): ?>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-slate-100 text-oxford-navy border border-slate-300 font-sans">
-                            <span>Institution: <strong><?= e($inst) ?></strong></span>
-                            <a href="<?= filter_url_without('inst') ?>" class="text-slate-400 hover:text-rose-600 transition" aria-label="Remove institution filter">
-                                <i class="fa-solid fa-xmark text-[11px]"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                </div>
-                <a href="<?= url('directory.php') ?>" class="text-rose-700 hover:text-rose-900 font-medium flex items-center gap-1 transition">
-                    <i class="fa-solid fa-rotate-left text-[10px]"></i>
-                    <span>Reset All</span>
+        <?php if (!empty($q) || !empty($dept) || !empty($inst)): ?>
+            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <span>Showing filtered results: 
+                    <?= !empty($q) ? '<strong>"' . e($q) . '"</strong> ' : '' ?>
+                    <?= !empty($inst) ? 'at <strong>' . e($inst) . '</strong> ' : '' ?>
+                    <?= !empty($dept) ? 'in <strong>' . e($dept) . '</strong>' : '' ?>
+                </span>
+                <a href="<?= url('directory.php') ?>" class="text-rose-600 hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left text-[10px]"></i> Reset filters
                 </a>
             </div>
         <?php endif; ?>
     </div>
 
-    <!-- Results Status Count -->
+    <!-- Results Header -->
     <div class="flex items-center justify-between mb-6">
         <p class="text-xs font-mono font-semibold text-slate-500 uppercase tracking-wider">
-            Showing <?= count($faculties) ?> Verified Researcher<?= count($faculties) !== 1 ? 's' : '' ?>
+            Found <?= count($faculties) ?> Faculty Researcher<?= count($faculties) !== 1 ? 's' : '' ?>
         </p>
     </div>
 
     <!-- Faculty Cards Grid -->
     <?php if (empty($faculties)): ?>
-        <div class="academic-card p-12 text-center text-slate-500">
-            <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
-                <i class="fa-solid fa-user-slash text-xl"></i>
-            </div>
-            <h3 class="font-serif text-lg font-bold text-oxford-navy">No faculty profiles found</h3>
+        <div class="bg-white rounded-2xl p-12 text-center border border-slate-200 text-slate-500">
+            <i class="fa-solid fa-user-slash text-4xl text-slate-300 mb-3"></i>
+            <h3 class="text-base font-bold text-slate-800">No faculty members found</h3>
             <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                No verified profiles match the specified filters. Try broadening your keywords or resetting department criteria.
+                No profiles matched your search criteria. Try using different keywords or clear the department filter.
             </p>
-            <a href="<?= url('directory.php') ?>" class="mt-4 btn-academic-secondary text-xs">
-                <span>View All Researchers</span>
+            <a href="<?= url('directory.php') ?>" class="mt-4 inline-block px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">
+                View All Faculty
             </a>
         </div>
     <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($faculties as $fac): ?>
-                <div class="academic-card p-6 flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                     <div>
-                        <!-- Header with portrait -->
                         <div class="flex items-start gap-4">
-                            <div class="w-16 h-16 rounded-[8px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400 shadow-xs">
+                            <!-- Avatar -->
+                            <div class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400">
                                 <?php if (!empty($fac['photo_url'])): ?>
                                     <img src="<?= safe_url($fac['photo_url']) ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover">
                                 <?php else: ?>
@@ -232,20 +197,15 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
 
                             <div class="flex-grow min-w-0">
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    <span class="academic-tag font-mono text-[10px] font-bold">
-                                        <?= e($fac['department_code'] ?? 'RESEARCH') ?>
-                                    </span>
-                                    <span class="academic-tag academic-tag-green text-[10px] !py-0.5">
-                                        <i class="fa-solid fa-circle-check text-[10px]"></i> Verified
-                                    </span>
-                                </div>
-                                <h3 class="font-serif font-bold text-oxford-navy text-base leading-tight truncate mt-1">
-                                    <a href="<?= researcher_url($fac) ?>" class="hover:text-oxford-blue transition">
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-iter-50 text-iter-800 mb-1">
+                                    <?= e($fac['department_code'] ?? 'SCHOLAR') ?>
+                                </span>
+                                <h3 class="font-bold text-slate-900 text-base leading-tight truncate">
+                                    <a href="<?= researcher_url($fac) ?>" class="hover:text-iter-700 transition">
                                         <?= e($fac['salutation'] . ' ' . $fac['full_name']) ?>
                                     </a>
                                 </h3>
-                                <p class="text-xs text-scholar-muted mt-0.5 truncate font-medium"><?= e($fac['designation']) ?></p>
+                                <p class="text-xs text-slate-600 mt-0.5 truncate"><?= e($fac['designation']) ?></p>
                                 <p class="text-xs text-slate-500 truncate"><?= e($fac['department_name']) ?></p>
                                 <?php if (!empty($fac['institution'])): ?>
                                     <p class="text-[11px] text-slate-400 truncate mt-1 flex items-center gap-1.5">
@@ -256,19 +216,21 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         </div>
 
-                        <!-- Metrics Ribbon -->
-                        <div class="mt-4 grid grid-cols-3 gap-2 p-2.5 rounded-[6px] bg-slate-50 border border-scholar-border text-center">
-                            <div>
+                        <!-- Metrics pill -->
+                        <div class="mt-4 flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                            <div class="text-center flex-1">
                                 <span class="text-slate-400 text-[10px] uppercase font-mono block">Citations</span>
-                                <span class="font-bold text-oxford-navy font-mono text-sm"><?= number_format($fac['total_citations']) ?></span>
+                                <span class="font-bold text-slate-900 font-mono"><?= number_format($fac['total_citations']) ?></span>
                             </div>
-                            <div class="border-x border-slate-200">
+                            <div class="h-6 w-px bg-slate-200"></div>
+                            <div class="text-center flex-1">
                                 <span class="text-slate-400 text-[10px] uppercase font-mono block">h-index</span>
-                                <span class="font-bold text-oxford-navy font-mono text-sm"><?= (int)$fac['h_index'] ?></span>
+                                <span class="font-bold text-slate-900 font-mono"><?= (int)$fac['h_index'] ?></span>
                             </div>
-                            <div>
+                            <div class="h-6 w-px bg-slate-200"></div>
+                            <div class="text-center flex-1">
                                 <span class="text-slate-400 text-[10px] uppercase font-mono block">Papers</span>
-                                <span class="font-bold text-oxford-navy font-mono text-sm"><?= (int)$fac['publication_count'] ?></span>
+                                <span class="font-bold text-slate-900 font-mono"><?= (int)$fac['publication_count'] ?></span>
                             </div>
                         </div>
 
@@ -279,7 +241,7 @@ require_once __DIR__ . '/includes/header.php';
                                     $tags = array_map('trim', explode(',', $fac['research_interests']));
                                     foreach (array_slice($tags, 0, 3) as $tag):
                                 ?>
-                                    <span class="academic-tag text-[11px]">
+                                    <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">
                                         <?= e($tag) ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -287,24 +249,23 @@ require_once __DIR__ . '/includes/header.php';
                         <?php endif; ?>
                     </div>
 
-                    <!-- Footer Action -->
-                    <div class="mt-5 pt-4 border-t border-scholar-border flex items-center justify-between text-xs">
-                        <a href="<?= researcher_url($fac) ?>" class="btn-academic-secondary text-xs !py-1.5 !px-3 group-hover:border-oxford-blue">
-                            <span>View Profile</span>
+                    <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <a href="<?= researcher_url($fac) ?>" class="font-semibold text-iter-700 hover:text-iter-900 flex items-center gap-1 transition">
+                            <span>View Academic Profile</span>
                             <i class="fa-solid fa-arrow-right text-[10px]"></i>
                         </a>
 
-                        <div class="flex items-center gap-2.5 text-slate-400 text-sm">
+                        <div class="flex items-center gap-2 text-slate-400 text-sm">
                             <?php if (!empty($fac['orcid_id'])): ?>
                                 <?php $cleanOrcid = safe_orcid($fac['orcid_id']); ?>
                                 <?php if ($cleanOrcid): ?>
-                                    <a href="https://orcid.org/<?= $cleanOrcid ?>" target="_blank" rel="noopener noreferrer" title="ORCID Profile" class="text-slate-400 hover:text-emerald-700 transition">
+                                    <a href="https://orcid.org/<?= $cleanOrcid ?>" target="_blank" rel="noopener noreferrer" title="ORCID" class="hover:text-emerald-600 transition">
                                         <i class="fa-brands fa-orcid"></i>
                                     </a>
                                 <?php endif; ?>
                             <?php endif; ?>
                             <?php if (!empty($fac['google_scholar_url'])): ?>
-                                <a href="<?= safe_url($fac['google_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" title="Google Scholar Profile" class="text-slate-400 hover:text-blue-700 transition">
+                                <a href="<?= safe_url($fac['google_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" title="Google Scholar" class="hover:text-blue-600 transition">
                                     <i class="fa-brands fa-google"></i>
                                 </a>
                             <?php endif; ?>

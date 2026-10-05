@@ -1,7 +1,6 @@
 <?php
 /**
  * Super Administrator Central Management Console
- * Design: Oxford-Ivy Modernity × Swiss Academic Editorial
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -94,24 +93,20 @@ $pageTitle = 'Super Admin Console';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- Institutional Oversight Masthead -->
-<div class="bg-oxford-950 text-white py-10 border-b border-oxford-900">
+<div class="bg-slate-900 text-white py-10 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-[4px] bg-academic-gold/15 text-academic-gold border border-academic-gold/30 text-[11px] font-mono uppercase tracking-wider font-bold mb-2">
-                    <i class="fa-solid fa-shield-halved text-[10px]"></i>
-                    Institutional Oversight
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-bold font-serif-title tracking-tight text-white">Super Administration Console</h1>
-                <p class="text-xs text-slate-300 mt-1 max-w-2xl font-sans">
-                    System configuration, departmental management, user accounts, and immutable audit logging for the institutional repository.
+                <span class="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">Institutional Oversight</span>
+                <h1 class="text-2xl sm:text-3xl font-bold font-serif-title mt-1">Super Administration Console</h1>
+                <p class="text-xs text-slate-300 mt-1">
+                    System configuration, departmental management, user roles, and audit trail for ITER Research Portal.
                 </p>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="<?= url('assistant/index.php') ?>" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[6px] bg-oxford-900 hover:bg-oxford-800 text-slate-200 border border-oxford-800 hover:border-oxford-700 text-xs font-semibold shadow-sm transition">
-                    <i class="fa-solid fa-users-gear text-academic-gold text-xs"></i>
-                    <span>Manage Faculty as Assistant</span>
+            <div>
+                <a href="<?= url('assistant/index.php') ?>" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition">
+                    <i class="fa-solid fa-users-gear text-xs"></i>
+                    <span>Manage Any Faculty as Assistant</span>
                 </a>
             </div>
         </div>
@@ -120,125 +115,90 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
 
-    <!-- KPI Stats Ribbon -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <div class="academic-card p-5 bg-white">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold block">Departments</span>
+    <!-- KPI Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block">Departments</span>
             <div class="text-2xl font-bold font-mono text-slate-900 mt-1"><?= $metrics['departments'] ?></div>
-            <span class="text-[11px] text-slate-400 mt-1 block">Active faculties</span>
         </div>
-        <div class="academic-card p-5 bg-white">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold block">Registered Users</span>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block">Registered Users</span>
             <div class="text-2xl font-bold font-mono text-slate-900 mt-1"><?= $metrics['users'] ?></div>
-            <span class="text-[11px] text-slate-400 mt-1 block">System accounts</span>
         </div>
-        <div class="academic-card p-5 bg-white">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold block">Faculty Profiles</span>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block">Faculty Profiles</span>
             <div class="text-2xl font-bold font-mono text-slate-900 mt-1"><?= $metrics['faculties'] ?></div>
-            <span class="text-[11px] text-slate-400 mt-1 block">Public scholar pages</span>
         </div>
-        <div class="academic-card p-5 bg-white">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold block">Publications</span>
-            <div class="text-2xl font-bold font-mono text-oxford-800 mt-1"><?= $metrics['pubs'] ?></div>
-            <span class="text-[11px] text-slate-400 mt-1 block">Indexed records</span>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block">Total Publications</span>
+            <div class="text-2xl font-bold font-mono text-emerald-700 mt-1"><?= $metrics['pubs'] ?></div>
         </div>
-        <div class="academic-card p-5 bg-white col-span-2 sm:col-span-1">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold block">Indexed Citations</span>
-            <div class="text-2xl font-bold font-mono text-academic-gold mt-1"><?= number_format($metrics['citations']) ?></div>
-            <span class="text-[11px] text-slate-400 mt-1 block">Self-reported total</span>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block">Indexed Citations</span>
+            <div class="text-2xl font-bold font-mono text-blue-700 mt-1"><?= number_format($metrics['citations']) ?></div>
         </div>
     </div>
 
-    <!-- Section 1: User Accounts & Role Permissions -->
-    <div class="academic-card overflow-hidden bg-white">
-        <div class="p-6 border-b border-slate-200">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2 class="font-bold text-slate-900 text-lg font-serif-title">User Accounts & Role Permissions</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Control administrative roles, delegate permissions, and account activation states</p>
-                </div>
-                <div class="text-xs font-mono text-slate-400">
-                    Showing latest <?= count($users) ?> accounts
-                </div>
-            </div>
+    <!-- Section 1: User & Role Management -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-200">
+            <h2 class="font-bold text-slate-900 text-base font-serif-title">User Accounts & Role Permissions</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Control roles (Super Admin, Assistant / Delegate, Faculty) and account activation</p>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="academic-table w-full text-left text-xs">
-                <thead>
+            <table class="w-full text-left text-xs divide-y divide-slate-200">
+                <thead class="bg-slate-50 text-slate-500 font-mono text-[10px] uppercase">
                     <tr>
                         <th class="py-3 px-4 font-semibold">User</th>
                         <th class="py-3 px-4 font-semibold">Email</th>
                         <th class="py-3 px-4 font-semibold">Department</th>
-                        <th class="py-3 px-4 font-semibold">Role</th>
+                        <th class="py-3 px-4 font-semibold">Current Role</th>
                         <th class="py-3 px-4 font-semibold">Status</th>
                         <th class="py-3 px-4 font-semibold text-right">Update Permissions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-slate-700">
                     <?php foreach ($users as $usr): ?>
-                        <tr class="hover:bg-slate-50/70 transition">
-                            <td class="py-3.5 px-4 font-semibold text-slate-900 whitespace-nowrap">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full bg-oxford-100 text-oxford-800 flex items-center justify-center font-bold font-serif-title text-xs flex-shrink-0">
-                                        <?= strtoupper(substr($usr['full_name'], 0, 1)) ?>
-                                    </div>
-                                    <div>
-                                        <div class="font-medium text-slate-900"><?= e($usr['full_name']) ?></div>
-                                        <?php if (!empty($usr['profile_id'])): ?>
-                                            <a href="<?= url('profile.php?id=' . $usr['profile_id']) ?>" target="_blank" class="text-[11px] text-oxford-700 hover:text-oxford-900 inline-flex items-center gap-1">
-                                                <span>View Profile</span>
-                                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3 px-4 font-semibold text-slate-900">
+                                <?= e($usr['full_name']) ?>
                             </td>
-                            <td class="py-3.5 px-4 font-mono text-slate-500 whitespace-nowrap">
+                            <td class="py-3 px-4 font-mono text-slate-500">
                                 <?= e($usr['email']) ?>
                             </td>
-                            <td class="py-3.5 px-4 text-slate-600 whitespace-nowrap">
+                            <td class="py-3 px-4 text-slate-600">
                                 <?= e($usr['dept_name'] ?? '—') ?>
                             </td>
-                            <td class="py-3.5 px-4 whitespace-nowrap">
-                                <?php if ($usr['role'] === 'super_admin'): ?>
-                                    <span class="inline-block px-2.5 py-0.5 rounded-[4px] font-mono text-[10px] uppercase font-bold bg-rose-50 text-rose-800 border border-rose-200">
-                                        Super Admin
-                                    </span>
-                                <?php elseif ($usr['role'] === 'admin'): ?>
-                                    <span class="inline-block px-2.5 py-0.5 rounded-[4px] font-mono text-[10px] uppercase font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                        Assistant (Admin)
-                                    </span>
-                                <?php else: ?>
-                                    <span class="inline-block px-2.5 py-0.5 rounded-[4px] font-mono text-[10px] uppercase font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                                        Faculty
-                                    </span>
-                                <?php endif; ?>
+                            <td class="py-3 px-4">
+                                <span class="px-2 py-0.5 rounded font-mono text-[10px] uppercase font-bold <?= $usr['role'] === 'super_admin' ? 'bg-rose-100 text-rose-800' : ($usr['role'] === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700') ?>">
+                                    <?= e(str_replace('_', ' ', $usr['role'])) ?>
+                                </span>
                             </td>
-                            <td class="py-3.5 px-4 whitespace-nowrap">
-                                <span class="inline-flex items-center gap-1.5 text-xs <?= $usr['status'] === 'active' ? 'text-emerald-700 font-medium' : 'text-slate-400 font-medium' ?>">
-                                    <span class="w-2 h-2 rounded-full <?= $usr['status'] === 'active' ? 'bg-emerald-600' : 'bg-slate-400' ?>"></span>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex items-center gap-1 text-[11px] <?= $usr['status'] === 'active' ? 'text-emerald-700 font-semibold' : 'text-slate-400' ?>">
+                                    <span class="w-1.5 h-1.5 rounded-full <?= $usr['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-400' ?>"></span>
                                     <span class="capitalize"><?= e($usr['status']) ?></span>
                                 </span>
                             </td>
-                            <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                            <td class="py-3 px-4 text-right">
                                 <form action="<?= url('admin/index.php') ?>" method="POST" class="inline-flex items-center gap-2">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="action" value="update_user">
                                     <input type="hidden" name="target_user_id" value="<?= $usr['id'] ?>">
 
-                                    <select name="new_role" class="academic-input py-1 px-2 text-xs" aria-label="Select Role">
+                                    <select name="new_role" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[11px]">
                                         <option value="faculty" <?= $usr['role'] === 'faculty' ? 'selected' : '' ?>>Faculty</option>
                                         <option value="admin" <?= $usr['role'] === 'admin' ? 'selected' : '' ?>>Assistant (Admin)</option>
                                         <option value="super_admin" <?= $usr['role'] === 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
                                     </select>
 
-                                    <select name="new_status" class="academic-input py-1 px-2 text-xs" aria-label="Select Status">
+                                    <select name="new_status" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[11px]">
                                         <option value="active" <?= $usr['status'] === 'active' ? 'selected' : '' ?>>Active</option>
                                         <option value="inactive" <?= $usr['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
                                     </select>
 
-                                    <button type="submit" class="btn-academic-secondary py-1 px-3 text-xs font-semibold">
+                                    <button type="submit" class="px-2.5 py-1 rounded bg-slate-800 text-white font-semibold text-[11px] hover:bg-slate-900 transition">
                                         Save
                                     </button>
                                 </form>
@@ -252,29 +212,21 @@ require_once __DIR__ . '/../includes/header.php';
 
     <!-- Section 2: Department Management & Creation -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Department List -->
-        <div class="lg:col-span-2 academic-card p-6 bg-white">
-            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-                <div>
-                    <h2 class="font-bold text-slate-900 text-lg font-serif-title">Academic Departments</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Currently registered institutional departments (<?= count($departments) ?>)</p>
-                </div>
-            </div>
-
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 class="font-bold text-slate-900 text-base font-serif-title mb-4">ITER Academic Departments (<?= count($departments) ?>)</h2>
             <div class="divide-y divide-slate-100 text-xs">
                 <?php foreach ($departments as $d): ?>
-                    <div class="py-3.5 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3">
-                            <span class="academic-tag font-mono font-bold text-xs bg-slate-100 text-oxford-900 border border-slate-200">
+                    <div class="py-3 flex items-center justify-between gap-4">
+                        <div>
+                            <span class="inline-block px-2 py-0.5 rounded bg-iter-50 text-iter-900 font-mono font-bold text-[11px] mr-2">
                                 <?= e($d['code']) ?>
                             </span>
-                            <span class="font-semibold text-slate-900"><?= e($d['name']) ?></span>
+                            <span class="font-bold text-slate-800"><?= e($d['name']) ?></span>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-slate-500 font-mono text-xs"><?= (int)$d['faculty_count'] ?> faculty</span>
-                            <a href="<?= url('directory.php?dept=' . urlencode($d['code'])) ?>" target="_blank" class="text-oxford-700 hover:text-oxford-900 font-medium inline-flex items-center gap-1 underline underline-offset-2">
-                                <span>Directory</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 font-mono text-[11px]"><?= (int)$d['faculty_count'] ?> faculty</span>
+                            <a href="<?= url('directory.php?dept=' . urlencode($d['code'])) ?>" target="_blank" class="text-iter-700 hover:underline">
+                                Browse
                             </a>
                         </div>
                     </div>
@@ -282,76 +234,59 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <!-- Add Department Form -->
-        <div class="academic-card p-6 bg-white">
-            <h2 class="font-bold text-slate-900 text-lg font-serif-title mb-1">Add Department</h2>
-            <p class="text-xs text-slate-500 mb-5">Create a new academic unit or division</p>
-
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 class="font-bold text-slate-900 text-base font-serif-title mb-3">Add Department</h2>
             <form action="<?= url('admin/index.php') ?>" method="POST" class="space-y-4 text-xs">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="add_dept">
 
                 <div>
-                    <label class="block font-semibold text-slate-700 mb-1.5">Department Code</label>
+                    <label class="block font-semibold text-slate-700 mb-1">Department Code</label>
                     <input type="text" name="code" required placeholder="e.g. AI-ML / DS / BIOTECH"
-                        class="academic-input w-full font-mono uppercase text-xs">
-                    <span class="text-[11px] text-slate-400 mt-1 block">Unique identifier for URL filters and tags</span>
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono uppercase">
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-700 mb-1.5">Department Name</label>
+                    <label class="block font-semibold text-slate-700 mb-1">Department Name</label>
                     <input type="text" name="name" required placeholder="e.g. Artificial Intelligence & Data Science"
-                        class="academic-input w-full text-xs">
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-700 mb-1.5">Description</label>
-                    <textarea name="description" rows="3" placeholder="Department research scope and overview..."
-                        class="academic-input w-full text-xs"></textarea>
+                    <label class="block font-semibold text-slate-700 mb-1">Description</label>
+                    <textarea name="description" rows="3" placeholder="Department overview..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs"></textarea>
                 </div>
 
-                <button type="submit" class="btn-academic-primary w-full py-2.5 text-xs font-semibold justify-center">
-                    <i class="fa-solid fa-plus text-xs"></i>
-                    <span>Create Department</span>
+                <button type="submit" class="w-full py-2.5 px-4 bg-iter-800 hover:bg-iter-900 text-white rounded-xl font-semibold shadow-sm transition">
+                    Create Department
                 </button>
             </form>
         </div>
     </div>
 
     <!-- Section 3: Audit Trail -->
-    <div class="academic-card p-6 bg-white">
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-            <div>
-                <h2 class="font-bold text-slate-900 text-lg font-serif-title flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-academic-gold text-base"></i>
-                    <span>System Audit Trail</span>
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Immutable record of security-critical administrative actions</p>
-            </div>
-            <span class="text-[11px] font-mono text-slate-400">Latest <?= count($logs) ?> entries</span>
-        </div>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h2 class="font-bold text-slate-900 text-base font-serif-title mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-iter-700"></i>
+            <span>System Audit Trail</span>
+        </h2>
 
         <div class="divide-y divide-slate-100 text-xs">
             <?php foreach ($logs as $log): ?>
-                <div class="py-3 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <span class="academic-tag font-mono text-[10px] font-bold uppercase bg-slate-100 text-slate-800 border border-slate-200">
-                                <?= e($log['action']) ?>
-                            </span>
-                            <?php if (!empty($log['actor_name'])): ?>
-                                <span class="text-slate-600 font-medium">by <?= e($log['actor_name']) ?> <span class="font-mono text-slate-400">(<?= e($log['actor_email']) ?>)</span></span>
-                            <?php endif; ?>
-                        </div>
+                <div class="py-2.5 flex items-start justify-between gap-4 font-mono">
+                    <div>
+                        <span class="text-slate-900 font-bold"><?= e($log['action']) ?></span>
+                        <?php if (!empty($log['actor_name'])): ?>
+                            <span class="text-slate-500 font-sans">by <?= e($log['actor_name']) ?> (<?= e($log['actor_email']) ?>)</span>
+                        <?php endif; ?>
                         <?php if (!empty($log['details'])): ?>
-                            <p class="text-xs text-slate-600 bg-slate-50 p-2 rounded-[6px] border border-slate-100 font-sans"><?= e($log['details']) ?></p>
+                            <p class="text-[11px] text-slate-600 font-sans mt-0.5"><?= e($log['details']) ?></p>
                         <?php endif; ?>
                     </div>
-                    <div class="text-left sm:text-right flex-shrink-0 font-mono text-[11px] text-slate-400">
-                        <div><?= e($log['created_at']) ?></div>
-                        <?php if (!empty($log['ip_address'])): ?>
-                            <div class="text-[10px] text-slate-400 mt-0.5">IP: <?= e($log['ip_address']) ?></div>
-                        <?php endif; ?>
+                    <div class="text-right flex-shrink-0 text-[11px] text-slate-400">
+                        <span><?= e($log['created_at']) ?></span>
+                        <span class="block text-[10px] text-slate-400"><?= e($log['ip_address'] ?? '') ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>

@@ -1,8 +1,6 @@
 <?php
 /**
  * Global Academic Header Component
- * Design System: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
  */
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/csrf.php';
@@ -17,12 +15,12 @@ $flashes   = get_flashes();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($pageTitle) ?> | Departmental Scholar</title>
+    <title><?= e($pageTitle) ?> | ITER Bhubaneswar</title>
 
-    <!-- Google Fonts: EB Garamond (Scholar Serif), Plus Jakarta Sans (UI Body), JetBrains Mono (Identifiers) -->
+    <!-- Google Fonts: Inter (UI) & Merriweather (Academic serif) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,40 +29,27 @@ $flashes   = get_flashes();
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-                        serif: ['"EB Garamond"', 'Georgia', 'serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
                     },
                     colors: {
-                        oxford: {
-                            navy: '#0E1F38',
-                            dark: '#081324',
-                            blue: '#1E3A5F',
-                            light: '#2A4D7A',
-                            gold: '#9A6B1F',
-                            goldLight: '#FDF8ED',
+                        iter: {
+                            50: '#f0f5fa',
+                            100: '#dce8f3',
+                            200: '#bcd4e7',
+                            300: '#90b7d7',
+                            400: '#5e94c3',
+                            500: '#3c78ad',
+                            600: '#2b5f90',
+                            700: '#1d4872',
+                            800: '#16395b',
+                            900: '#0e263f',
+                            950: '#081728',
                         },
                         scholar: {
-                            bg: '#F8FAFC',
-                            surface: '#FFFFFF',
-                            text: '#0F172A',
-                            muted: '#475569',
-                            subtle: '#64748B',
-                            border: '#E2E8F0',
-                            green: '#0D7A53',
-                            danger: '#BE123C',
-                            link: '#1D4ED8',
+                            blue: '#1a0dab',
+                            green: '#006621',
                         }
-                    },
-                    borderRadius: {
-                        tag: '4px',
-                        control: '6px',
-                        card: '10px',
-                    },
-                    boxShadow: {
-                        academic: '0 1px 3px rgba(14, 31, 56, 0.05), 0 1px 2px rgba(14, 31, 56, 0.03)',
-                        academicHover: '0 6px 12px -2px rgba(14, 31, 56, 0.08), 0 3px 6px -2px rgba(14, 31, 56, 0.04)',
-                        modal: '0 20px 25px -5px rgba(14, 31, 56, 0.15), 0 8px 10px -6px rgba(14, 31, 56, 0.05)',
                     }
                 }
             }
@@ -74,68 +59,59 @@ $flashes   = get_flashes();
     <!-- FontAwesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Design System CSS Foundation -->
-    <link rel="stylesheet" href="<?= url('assets/css/scholar.css') ?>">
+    <style>
+        .font-serif-title { font-family: 'Merriweather', serif; }
+        .scholar-link { color: #1a0dab; text-decoration: none; }
+        .scholar-link:hover { text-decoration: underline; }
+    </style>
 </head>
-<body class="flex flex-col min-h-full font-sans text-scholar-text bg-scholar-bg antialiased selection:bg-slate-200 selection:text-oxford-navy">
+<body class="flex flex-col min-h-full font-sans text-slate-800 antialiased selection:bg-iter-100 selection:text-iter-900">
 
-    <!-- Accessibility Skip Link -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-
-    <!-- Institutional Top Masthead -->
-    <div class="bg-oxford-dark text-slate-300 text-xs py-2 px-4 border-b border-oxford-navy">
+    <!-- Institutional Top Bar -->
+    <div class="bg-iter-950 text-slate-300 text-xs py-1.5 px-4 border-b border-iter-900">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
             <div class="flex items-center gap-3">
-                <span class="font-bold tracking-wider text-amber-400 font-mono text-[11px] uppercase">Departmental Scholar</span>
-                <span class="text-slate-600">|</span>
-                <span class="text-slate-300 font-medium">Faculty Scholarly Directory & Academic Repository</span>
+                <span class="font-medium tracking-wide text-amber-300">DEPARTMENTAL RESEARCH PROFILE</span>
+                <span class="text-slate-500">|</span>
+                <span>Faculty Scholarly Directory & Academic Repository</span>
             </div>
-            <div class="flex items-center gap-4 text-slate-400 text-[11px]">
-                <span class="hidden sm:inline-flex items-center gap-1.5">
-                    <i class="fa-solid fa-graduation-cap text-amber-400/90 text-xs"></i>
-                    <span>Peer-Reviewed Scholarly Index</span>
-                </span>
-                <span class="hidden md:inline text-slate-600">|</span>
-                <span class="inline-flex items-center gap-1.5 text-emerald-400">
-                    <i class="fa-solid fa-shield-check text-xs"></i>
-                    <span>Institutional Repository</span>
-                </span>
+            <div class="flex items-center gap-4">
+                <span class="text-slate-400">Institutional Faculty Showcase</span>
             </div>
         </div>
     </div>
 
-    <!-- Main Academic Navigation Bar -->
-    <header class="bg-white border-b border-scholar-border sticky top-0 z-40 shadow-xs">
+    <!-- Main Academic Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                
-                <!-- Brand / Seal -->
-                <div class="flex items-center gap-6">
-                    <a href="<?= url() ?>" class="flex items-center gap-3 group focus:outline-none" aria-label="Departmental Scholar Home">
-                        <div class="w-10 h-10 rounded-[6px] bg-slate-50 border border-scholar-border flex items-center justify-center p-1.5 shadow-xs transition group-hover:border-oxford-blue group-hover:bg-slate-100">
-                            <img src="<?= url('assets/img/scholar_hat.svg') ?>" alt="Departmental Scholar Logo" class="w-full h-full object-contain">
+            <div class="flex justify-between h-16">
+                <!-- Branding -->
+                <div class="flex items-center">
+                    <a href="<?= url() ?>" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 p-1 flex items-center justify-center transition border border-slate-200 shadow-xs">
+                            <img src="<?= url('assets/img/scholar_hat.svg') ?>" alt="Departmental Scholar" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-serif font-bold text-lg text-oxford-navy tracking-tight leading-tight group-hover:text-oxford-blue transition">Departmental Scholar</span>
-                            <span class="text-[10px] font-semibold text-scholar-muted tracking-wider uppercase font-mono">Faculty Research Repository</span>
+                            <span class="font-bold text-lg text-slate-900 tracking-tight leading-tight group-hover:text-iter-700 transition">Departmental Scholar</span>
+                            <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">Faculty Research Directory</span>
                         </div>
                     </a>
 
-                    <!-- Desktop Navigation Links -->
-                    <nav class="hidden md:flex items-center space-x-1 pl-4 border-l border-scholar-border" aria-label="Primary Navigation">
-                        <a href="<?= url() ?>" class="px-3 py-2 rounded-[6px] text-sm font-medium transition <?= $activeNav === 'home' ? 'text-oxford-navy bg-slate-100 font-semibold border-b-2 border-oxford-navy' : 'text-slate-600 hover:text-oxford-navy hover:bg-slate-50' ?>">
-                            <i class="fa-solid fa-house-chimney text-xs mr-1.5 opacity-60"></i>Home
+                    <!-- Nav Links -->
+                    <div class="hidden md:flex md:ml-10 md:space-x-1">
+                        <a href="<?= url() ?>" class="px-3 py-2 rounded-md text-sm font-medium transition <?= $activeNav === 'home' ? 'text-iter-700 bg-iter-50 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' ?>">
+                            <i class="fa-solid fa-house-chimney text-xs mr-1.5 opacity-70"></i> Home
                         </a>
-                        <a href="<?= url('directory.php') ?>" class="px-3 py-2 rounded-[6px] text-sm font-medium transition <?= $activeNav === 'directory' ? 'text-oxford-navy bg-slate-100 font-semibold border-b-2 border-oxford-navy' : 'text-slate-600 hover:text-oxford-navy hover:bg-slate-50' ?>">
-                            <i class="fa-solid fa-users text-xs mr-1.5 opacity-60"></i>Faculty Directory
+                        <a href="<?= url('directory.php') ?>" class="px-3 py-2 rounded-md text-sm font-medium transition <?= $activeNav === 'directory' ? 'text-iter-700 bg-iter-50 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' ?>">
+                            <i class="fa-solid fa-users-viewfinder text-xs mr-1.5 opacity-70"></i> Faculty Directory
                         </a>
-                        <a href="<?= url('departments.php') ?>" class="px-3 py-2 rounded-[6px] text-sm font-medium transition <?= $activeNav === 'departments' ? 'text-oxford-navy bg-slate-100 font-semibold border-b-2 border-oxford-navy' : 'text-slate-600 hover:text-oxford-navy hover:bg-slate-50' ?>">
-                            <i class="fa-solid fa-building-columns text-xs mr-1.5 opacity-60"></i>Departments
+                        <a href="<?= url('departments.php') ?>" class="px-3 py-2 rounded-md text-sm font-medium transition <?= $activeNav === 'departments' ? 'text-iter-700 bg-iter-50 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' ?>">
+                            <i class="fa-solid fa-building-columns text-xs mr-1.5 opacity-70"></i> Departments
                         </a>
-                    </nav>
+                    </div>
                 </div>
 
-                <!-- Right Side: Auth / Dashboard Controls -->
+                <!-- Right Side: Auth / Profile Controls -->
                 <div class="flex items-center gap-3">
                     <?php if (is_logged_in()): ?>
                         <?php 
@@ -148,99 +124,66 @@ $flashes   = get_flashes();
                             }
                         ?>
                         <div class="flex items-center gap-3">
-                            <a href="<?= url($dashboardUrl) ?>" class="btn-academic-primary text-xs !py-2 !px-3.5 shadow-sm">
-                                <i class="fa-solid fa-gauge text-xs"></i>
+                            <a href="<?= url($dashboardUrl) ?>" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium bg-iter-800 text-white hover:bg-iter-900 transition shadow-sm">
+                                <i class="fa-solid fa-gauge-high text-xs"></i>
                                 <span>Dashboard</span>
                             </a>
 
-                            <div class="hidden lg:flex flex-col text-right">
-                                <span class="text-xs font-semibold text-oxford-navy leading-tight"><?= e($u['full_name']) ?></span>
+                            <div class="hidden sm:flex flex-col text-right">
+                                <span class="text-xs font-semibold text-slate-800 leading-tight"><?= e($u['full_name']) ?></span>
                                 <span class="text-[10px] text-slate-500 uppercase tracking-wider font-mono">
                                     <?= e(str_replace('_', ' ', $u['role'])) ?>
                                 </span>
                             </div>
 
-                            <a href="<?= url('logout.php') ?>" title="Sign Out" class="p-2 text-slate-500 hover:text-rose-700 hover:bg-rose-50 rounded-[6px] transition border border-transparent hover:border-rose-200" aria-label="Sign Out">
+                            <a href="<?= url('logout.php') ?>" title="Sign Out" class="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
                                 <i class="fa-solid fa-right-from-bracket"></i>
                             </a>
                         </div>
                     <?php else: ?>
-                        <div class="hidden sm:flex items-center gap-2">
-                            <a href="<?= url('login.php') ?>" class="btn-academic-secondary text-xs !py-2 !px-3.5">
-                                <i class="fa-solid fa-arrow-right-to-bracket text-xs opacity-70"></i>
-                                <span>Sign In</span>
-                            </a>
-                            <a href="<?= url('register.php') ?>" class="btn-academic-primary text-xs !py-2 !px-3.5 shadow-sm">
-                                <i class="fa-solid fa-user-plus text-xs"></i>
-                                <span>Register</span>
-                            </a>
-                        </div>
+                        <a href="<?= url('login.php') ?>" class="text-sm font-medium text-slate-700 hover:text-iter-800 px-3 py-2 transition">
+                            Sign In
+                        </a>
+                        <a href="<?= url('register.php') ?>" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium bg-iter-800 text-white hover:bg-iter-900 transition shadow-sm">
+                            <i class="fa-solid fa-user-plus text-xs"></i>
+                            <span>Register</span>
+                        </a>
                     <?php endif; ?>
-
-                    <!-- Mobile Menu Hamburger Button -->
-                    <button type="button" id="mobileNavToggle" aria-expanded="false" aria-controls="mobileNavMenu" class="md:hidden p-2 rounded-[6px] text-slate-600 hover:text-oxford-navy hover:bg-slate-100 border border-slate-200 transition focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Toggle navigation menu">
-                        <i class="fa-solid fa-bars text-base"></i>
-                    </button>
                 </div>
             </div>
         </div>
+    </nav>
 
-        <!-- Mobile Navigation Menu -->
-        <div id="mobileNavMenu" class="hidden md:hidden border-t border-scholar-border bg-white px-4 pt-3 pb-4 space-y-2 shadow-md">
-            <a href="<?= url() ?>" class="block px-3 py-2.5 rounded-[6px] text-sm font-medium transition <?= $activeNav === 'home' ? 'text-oxford-navy bg-slate-100 font-semibold' : 'text-slate-700 hover:bg-slate-50' ?>">
-                <i class="fa-solid fa-house-chimney text-xs mr-2 opacity-60"></i>Home
-            </a>
-            <a href="<?= url('directory.php') ?>" class="block px-3 py-2.5 rounded-[6px] text-sm font-medium transition <?= $activeNav === 'directory' ? 'text-oxford-navy bg-slate-100 font-semibold' : 'text-slate-700 hover:bg-slate-50' ?>">
-                <i class="fa-solid fa-users text-xs mr-2 opacity-60"></i>Faculty Directory
-            </a>
-            <a href="<?= url('departments.php') ?>" class="block px-3 py-2.5 rounded-[6px] text-sm font-medium transition <?= $activeNav === 'departments' ? 'text-oxford-navy bg-slate-100 font-semibold' : 'text-slate-700 hover:bg-slate-50' ?>">
-                <i class="fa-solid fa-building-columns text-xs mr-2 opacity-60"></i>Academic Departments
-            </a>
-            <?php if (!is_logged_in()): ?>
-                <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
-                    <a href="<?= url('login.php') ?>" class="btn-academic-secondary w-full justify-center text-center">
-                        <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
-                        <span>Sign In</span>
-                    </a>
-                    <a href="<?= url('register.php') ?>" class="btn-academic-primary w-full justify-center text-center">
-                        <i class="fa-solid fa-user-plus text-xs"></i>
-                        <span>Register Profile</span>
-                    </a>
-                </div>
-            <?php endif; ?>
-        </div>
-    </header>
-
-    <!-- Global Toast & Flash Messages -->
+    <!-- Flash Messages Container -->
     <?php if (!empty($flashes)): ?>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2.5" role="status" aria-live="polite">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2">
             <?php foreach ($flashes as $flash): ?>
                 <?php 
                     $colors = match($flash['type']) {
-                        'success' => 'bg-emerald-50 text-emerald-900 border-emerald-200',
-                        'danger'  => 'bg-rose-50 text-rose-900 border-rose-200',
-                        'warning' => 'bg-amber-50 text-amber-900 border-amber-200',
-                        default   => 'bg-slate-50 text-oxford-navy border-slate-300',
+                        'success' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+                        'danger'  => 'bg-rose-50 text-rose-800 border-rose-200',
+                        'warning' => 'bg-amber-50 text-amber-800 border-amber-200',
+                        default   => 'bg-blue-50 text-blue-800 border-blue-200',
                     };
                     $icon = match($flash['type']) {
                         'success' => 'fa-circle-check text-emerald-600',
                         'danger'  => 'fa-circle-xmark text-rose-600',
                         'warning' => 'fa-triangle-exclamation text-amber-600',
-                        default   => 'fa-circle-info text-oxford-blue',
+                        default   => 'fa-circle-info text-blue-600',
                     };
                 ?>
-                <div class="scholar-toast flex items-center justify-between p-3.5 rounded-[6px] border text-sm <?= $colors ?> shadow-xs">
+                <div class="flex items-center justify-between p-3.5 rounded-lg border text-sm <?= $colors ?>">
                     <div class="flex items-center gap-2.5">
-                        <i class="fa-solid <?= $icon ?> text-base flex-shrink-0"></i>
-                        <span class="font-medium"><?= e($flash['message']) ?></span>
+                        <i class="fa-solid <?= $icon ?>"></i>
+                        <span><?= e($flash['message']) ?></span>
                     </div>
-                    <button type="button" data-dismiss="toast" class="text-slate-400 hover:text-slate-700 transition p-1 ml-2 focus:outline-none" aria-label="Dismiss message">
-                        <i class="fa-solid fa-xmark text-sm"></i>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700 transition">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 
-    <!-- Main Content Area -->
-    <main id="main-content" class="flex-grow">
+    <!-- Main Content Slot -->
+    <main class="flex-grow">
