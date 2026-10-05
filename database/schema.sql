@@ -47,6 +47,9 @@ CREATE TABLE `faculty_profiles` (
     `orcid_id` VARCHAR(50) NULL,
     `scopus_id` VARCHAR(50) NULL,
     `researchgate_url` VARCHAR(255) NULL,
+    `semantic_scholar_url` VARCHAR(255) NULL,
+    `dblp_url` VARCHAR(255) NULL,
+    `website_url` VARCHAR(255) NULL,
     `slug` VARCHAR(191) NULL UNIQUE,
     `wos_id` VARCHAR(50) NULL,
     `total_citations` INT DEFAULT 0,
@@ -98,6 +101,8 @@ CREATE TABLE `publications` (
     `publisher` VARCHAR(150) NULL,
     `doi` VARCHAR(150) NULL,
     `url` VARCHAR(255) NULL,
+    `pdf_url` VARCHAR(255) NULL,
+    `is_open_access` TINYINT(1) DEFAULT 0,
     `abstract` TEXT NULL,
     `indexing` VARCHAR(100) NULL,
     `citation_count` INT DEFAULT 0,
@@ -196,7 +201,24 @@ CREATE TABLE `teaching` (
     CONSTRAINT `fk_teach_profile` FOREIGN KEY (`faculty_profile_id`) REFERENCES `faculty_profiles` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 11. Audit Logs Table (Full accountability for who modified what)
+-- 11. Academic Career & Appointments Table
+DROP TABLE IF EXISTS `academic_experience`;
+CREATE TABLE `academic_experience` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `faculty_profile_id` INT NOT NULL,
+    `position_title` VARCHAR(191) NOT NULL,
+    `organization` VARCHAR(255) NOT NULL,
+    `department` VARCHAR(191) NULL,
+    `start_year` INT NULL,
+    `end_year` INT NULL,
+    `is_current` TINYINT(1) DEFAULT 0,
+    `description` TEXT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_exp_profile` (`faculty_profile_id`),
+    CONSTRAINT `fk_exp_profile` FOREIGN KEY (`faculty_profile_id`) REFERENCES `faculty_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 12. Audit Logs Table (Full accountability for who modified what)
 DROP TABLE IF EXISTS `audit_logs`;
 CREATE TABLE `audit_logs` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,

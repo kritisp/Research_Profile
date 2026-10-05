@@ -42,13 +42,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $publisher   = trim($_POST['publisher'] ?? '');
     $doi         = trim($_POST['doi'] ?? '');
     $url         = trim($_POST['url'] ?? '');
+    $pdf_url     = trim($_POST['pdf_url'] ?? '');
+    $is_oa       = isset($_POST['is_open_access']) ? 1 : 0;
     $indexing    = trim($_POST['indexing'] ?? '');
     $citations   = (int)($_POST['citation_count'] ?? 0);
     $abstract    = trim($_POST['abstract'] ?? '');
 
-    // Sanitize URL scheme
+    // Sanitize URL schemes
     if (!empty($url) && !preg_match('~^https?://~i', $url)) {
         $url = 'https://' . ltrim($url, '/');
+    }
+    if (!empty($pdf_url) && !preg_match('~^https?://~i', $pdf_url)) {
+        $pdf_url = 'https://' . ltrim($pdf_url, '/');
     }
 
     if (empty($title) || empty($authors) || empty($venue) || empty($year)) {
@@ -59,13 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 UPDATE publications SET
                     title = ?, authors = ?, publication_type = ?, journal_conference_name = ?,
                     publication_year = ?, volume = ?, issue = ?, pages = ?, publisher = ?,
-                    doi = ?, url = ?, indexing = ?, citation_count = ?, abstract = ?
+                    doi = ?, url = ?, pdf_url = ?, is_open_access = ?, indexing = ?, citation_count = ?, abstract = ?
                 WHERE id = ?
             ");
             $updateStmt->execute([
                 $title, $authors, $type, $venue,
                 $year, $volume, $issue, $pages, $publisher,
-                $doi, $url, $indexing, $citations, $abstract, $pubId
+                $doi, $url, $pdf_url, $is_oa, $indexing, $citations, $abstract, $pubId
             ]);
 
             record_audit('publication_updated', 'publications', $pubId, "Updated publication: {$title}");
@@ -190,9 +195,24 @@ require_once __DIR__ . '/../includes/header.php';
                     class="academic-input text-xs">
             </div>
             <div>
+                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Open Access Full-Text PDF URL</label>
+                <input type="url" name="pdf_url" value="<?= e($pub['pdf_url'] ?? '') ?>" placeholder="https://arxiv.org/pdf/... or repository link"
+                    class="academic-input text-xs">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div>
                 <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Citation Count</label>
                 <input type="number" name="citation_count" min="0" value="<?= e($pub['citation_count'] ?? '0') ?>"
                     class="academic-input text-xs font-mono">
+            </div>
+            <div class="pt-3 sm:pt-4">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-oxford-navy select-none">
+                    <input type="checkbox" name="is_open_access" value="1" <?= !empty($pub['is_open_access']) ? 'checked' : '' ?>
+                        class="rounded border-scholar-border text-oxford-blue focus:ring-oxford-blue w-4 h-4">
+                    <span><i class="fa-solid fa-lock-open text-emerald-600 mr-1"></i> Mark as Open Access (freely accessible full-text)</span>
+                </label>
             </div>
         </div>
 

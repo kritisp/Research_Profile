@@ -250,3 +250,39 @@ function record_audit(string $action, ?string $targetType = null, ?int $targetId
         error_log("Audit log failed: " . $e->getMessage());
     }
 }
+
+/**
+ * Validate and clean a DOI string
+ */
+function safe_doi(?string $doi): string {
+    if (empty($doi)) {
+        return '';
+    }
+    $doi = trim($doi);
+    // Remove leading https://doi.org/ or http://dx.doi.org/ if present
+    $doi = preg_replace('~^https?://(dx\.)?doi\.org/~i', '', $doi);
+    if (preg_match('~^10\.\d{4,9}/[-._;()/:A-Za-z0-9]+$~', $doi)) {
+        return htmlspecialchars($doi, ENT_QUOTES, 'UTF-8');
+    }
+    return htmlspecialchars($doi, ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Convert DOI to full official resolver URL
+ */
+function doi_url(?string $doi): string {
+    $clean = safe_doi($doi);
+    return $clean ? 'https://doi.org/' . $clean : '';
+}
+
+/**
+ * Format INR Lakhs nicely into human-readable currency
+ */
+function format_currency_lakhs(float $amountLakhs): string {
+    if ($amountLakhs >= 100) {
+        $crores = $amountLakhs / 100;
+        return '₹' . number_format($crores, 2) . ' Cr';
+    }
+    return '₹' . number_format($amountLakhs, 2) . ' Lakhs';
+}
+

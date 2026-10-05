@@ -58,17 +58,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cvUrl           = trim($_POST['cv_url'] ?? $profile['cv_url'] ?? '');
     $bio             = trim($_POST['bio'] ?? '');
     $interests       = trim($_POST['research_interests'] ?? '');
-    $scholarUrl      = trim($_POST['google_scholar_url'] ?? '');
-    $orcid           = trim($_POST['orcid_id'] ?? '');
-    $scopus          = trim($_POST['scopus_id'] ?? '');
-    $researchgateUrl = trim($_POST['researchgate_url'] ?? '');
-    $wosId           = trim($_POST['wos_id'] ?? '');
-    $citations       = (int)($_POST['total_citations'] ?? 0);
-    $hIndex          = (int)($_POST['h_index'] ?? 0);
-    $i10Index        = (int)($_POST['i10_index'] ?? 0);
-    $phdSupervised   = (int)($_POST['phd_supervised'] ?? 0);
-    $memberships     = trim($_POST['memberships'] ?? '');
-    $editorialRoles  = trim($_POST['editorial_roles'] ?? '');
+    $scholarUrl         = trim($_POST['google_scholar_url'] ?? '');
+    $orcid              = trim($_POST['orcid_id'] ?? '');
+    $scopus             = trim($_POST['scopus_id'] ?? '');
+    $researchgateUrl    = trim($_POST['researchgate_url'] ?? '');
+    $semanticScholarUrl = trim($_POST['semantic_scholar_url'] ?? '');
+    $dblpUrl            = trim($_POST['dblp_url'] ?? '');
+    $websiteUrl         = trim($_POST['website_url'] ?? '');
+    $wosId              = trim($_POST['wos_id'] ?? '');
+    $citations          = (int)($_POST['total_citations'] ?? 0);
+    $hIndex             = (int)($_POST['h_index'] ?? 0);
+    $i10Index           = (int)($_POST['i10_index'] ?? 0);
+    $phdSupervised      = (int)($_POST['phd_supervised'] ?? 0);
+    $memberships        = trim($_POST['memberships'] ?? '');
+    $editorialRoles     = trim($_POST['editorial_roles'] ?? '');
 
     // Handle profile photo file upload
     try {
@@ -100,6 +103,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (!empty($researchgateUrl) && !preg_match('~^https?://~i', $researchgateUrl)) {
         $researchgateUrl = 'https://' . ltrim($researchgateUrl, '/');
+    }
+    if (!empty($semanticScholarUrl) && !preg_match('~^https?://~i', $semanticScholarUrl)) {
+        $semanticScholarUrl = 'https://' . ltrim($semanticScholarUrl, '/');
+    }
+    if (!empty($dblpUrl) && !preg_match('~^https?://~i', $dblpUrl)) {
+        $dblpUrl = 'https://' . ltrim($dblpUrl, '/');
+    }
+    if (!empty($websiteUrl) && !preg_match('~^https?://~i', $websiteUrl)) {
+        $websiteUrl = 'https://' . ltrim($websiteUrl, '/');
     }
     if (!empty($photoUrl) && !preg_match('~^(https?://|uploads/)~i', $photoUrl)) {
         $photoUrl = '';
@@ -152,6 +164,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     orcid_id = ?,
                     scopus_id = ?,
                     researchgate_url = ?,
+                    semantic_scholar_url = ?,
+                    dblp_url = ?,
+                    website_url = ?,
                     wos_id = ?,
                     total_citations = ?,
                     h_index = ?,
@@ -164,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pUpdate->execute([
                 $departmentId, $institution, $currentSlug, $salutation, $designation, $cabin, $phone,
                 $photoUrl, $cvUrl, $bio, $interests, $scholarUrl, $orcid, $scopus,
-                $researchgateUrl, $wosId,
+                $researchgateUrl, $semanticScholarUrl, $dblpUrl, $websiteUrl, $wosId,
                 $citations, $hIndex, $i10Index, $phdSupervised, $memberships, $editorialRoles,
                 $profileId
             ]);
@@ -371,6 +386,27 @@ require_once __DIR__ . '/../includes/header.php';
                     <input type="text" name="wos_id" value="<?= e($profile['wos_id'] ?? '') ?>"
                         placeholder="e.g. A-1234-2020 or Web of Science ID"
                         class="academic-input text-xs font-mono">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">DBLP Bibliography URL</label>
+                    <input type="url" name="dblp_url" value="<?= e($profile['dblp_url'] ?? '') ?>"
+                        placeholder="https://dblp.org/pid/..."
+                        class="academic-input text-xs">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Semantic Scholar URL</label>
+                    <input type="url" name="semantic_scholar_url" value="<?= e($profile['semantic_scholar_url'] ?? '') ?>"
+                        placeholder="https://www.semanticscholar.org/author/..."
+                        class="academic-input text-xs">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Academic / Lab Website URL</label>
+                    <input type="url" name="website_url" value="<?= e($profile['website_url'] ?? '') ?>"
+                        placeholder="https://faculty.iter.ac.in/~scholar"
+                        class="academic-input text-xs">
                 </div>
             </div>
         </div>

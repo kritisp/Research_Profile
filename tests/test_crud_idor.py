@@ -100,12 +100,15 @@ def run_crud_idor_tests():
     $db->prepare("INSERT INTO teaching (faculty_profile_id, course_title) VALUES ($prof_b, 'Distributed Systems')")->execute();
     $teach_b = (int)$db->lastInsertId();
 
+    $db->prepare("INSERT INTO academic_experience (faculty_profile_id, position_title, organization, start_year) VALUES ($prof_b, 'Visiting Scientist', 'MIT', 2022)")->execute();
+    $exp_b = (int)$db->lastInsertId();
+
     echo json_encode([
         'uid_a' => $uid_a, 'prof_a' => $prof_a,
         'uid_b' => $uid_b, 'prof_b' => $prof_b,
         'proj_b' => $proj_b, 'pat_b' => $pat_b,
         'award_b' => $award_b, 'edu_b' => $edu_b,
-        'teach_b' => $teach_b
+        'teach_b' => $teach_b, 'exp_b' => $exp_b
     ]);
     """
     stdout, stderr = run_php(php_setup)
@@ -123,6 +126,7 @@ def run_crud_idor_tests():
     award_b = data['award_b']
     edu_b = data['edu_b']
     teach_b = data['teach_b']
+    exp_b = data['exp_b']
 
     # 2. Login as Faculty A
     status, login_html = tester.get('login.php')
@@ -147,22 +151,28 @@ def run_crud_idor_tests():
     tester.post('dashboard/delete_item.php', {'csrf_token': dash_csrf, 'type': 'education', 'id': edu_b})
     # 7. Faculty A attempts IDOR delete on Faculty B's teaching
     tester.post('dashboard/delete_item.php', {'csrf_token': dash_csrf, 'type': 'teaching', 'id': teach_b})
+    # 8. Faculty A attempts IDOR delete on Faculty B's experience/appointment
+    tester.post('dashboard/delete_item.php', {'csrf_token': dash_csrf, 'type': 'experience', 'id': exp_b})
 
-    # 8. Faculty A attempts IDOR edit on Faculty B's profile
+    # 9. Faculty A attempts IDOR edit on Faculty B's profile
     status_edit, body_edit = tester.get(f'dashboard/edit_profile.php?profile_id={prof_b}')
     passed_edit_profile = (status_edit == 403 or "Unauthorized" in body_edit)
 
-    # 9. Faculty A attempts IDOR add publication to Faculty B's profile
+    # 10. Faculty A attempts IDOR add publication to Faculty B's profile
     status_add_pub, body_add_pub = tester.get(f'dashboard/add_publication.php?profile_id={prof_b}')
     passed_add_pub = (status_add_pub == 403 or "Unauthorized" in body_add_pub)
 
-    # 10. Faculty A attempts IDOR add project to Faculty B's profile
+    # 11. Faculty A attempts IDOR add project to Faculty B's profile
     status_add_proj, body_add_proj = tester.get(f'dashboard/add_project.php?profile_id={prof_b}')
     passed_add_proj = (status_add_proj == 403 or "Unauthorized" in body_add_proj)
 
-    # 11. Faculty A attempts IDOR add patent to Faculty B's profile
+    # 12. Faculty A attempts IDOR add patent to Faculty B's profile
     status_add_pat, body_add_pat = tester.get(f'dashboard/add_patent.php?profile_id={prof_b}')
     passed_add_pat = (status_add_pat == 403 or "Unauthorized" in body_add_pat)
+
+    # 13. Faculty A attempts IDOR add appointment to Faculty B's profile
+    status_add_app, body_add_app = tester.get(f'dashboard/add_appointment.php?profile_id={prof_b}')
+    passed_add_app = (status_add_app == 403 or "Unauthorized" in body_add_app)
 
     # Verify that all Faculty B records are STILL in database!
     php_verify = f"""
@@ -173,10 +183,11 @@ def run_crud_idor_tests():
     $award_exists = (int)$db->query("SELECT COUNT(*) FROM awards WHERE id = {award_b}")->fetchColumn();
     $edu_exists = (int)$db->query("SELECT COUNT(*) FROM education WHERE id = {edu_b}")->fetchColumn();
     $teach_exists = (int)$db->query("SELECT COUNT(*) FROM teaching WHERE id = {teach_b}")->fetchColumn();
+    $exp_exists = (int)$db->query("SELECT COUNT(*) FROM academic_experience WHERE id = {exp_b}")->fetchColumn();
     echo json_encode([
         'proj' => $proj_exists, 'pat' => $pat_exists,
         'award' => $award_exists, 'edu' => $edu_exists,
-        'teach' => $teach_exists
+        'teach' => $teach_exists, 'exp' => $exp_exists
     ]);
     """
     stdout, _ = run_php(php_verify)
@@ -187,10 +198,12 @@ def run_crud_idor_tests():
     print(f"Award preserved: {results['award'] == 1}")
     print(f"Education preserved: {results['edu'] == 1}")
     print(f"Teaching preserved: {results['teach'] == 1}")
+    print(f"Experience preserved: {results['exp'] == 1}")
     print(f"Edit Profile IDOR Blocked: {passed_edit_profile}")
     print(f"Add Publication IDOR Blocked: {passed_add_pub}")
     print(f"Add Project IDOR Blocked: {passed_add_proj}")
     print(f"Add Patent IDOR Blocked: {passed_add_pat}")
+    print(f"Add Appointment IDOR Blocked: {passed_add_app}")
 
     # Cleanup
     php_cleanup = f"""
@@ -206,10 +219,12 @@ def run_crud_idor_tests():
         results['award'] == 1 and
         results['edu'] == 1 and
         results['teach'] == 1 and
+        results['exp'] == 1 and
         passed_edit_profile and
         passed_add_pub and
         passed_add_proj and
-        passed_add_pat
+        passed_add_pat and
+        passed_add_app
     )
     print("=" * 65)
     print(f"CRUD IDOR VERIFICATION RESULT: {'ALL PASS' if all_passed else 'FAIL'}")

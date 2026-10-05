@@ -110,6 +110,20 @@ switch ($type) {
         }
         break;
 
+    case 'experience':
+        $stmt = $db->prepare("SELECT faculty_profile_id, position_title, organization FROM academic_experience WHERE id = ?");
+        $stmt->execute([$id]);
+        $item = $stmt->fetch();
+        if ($item && can_manage_faculty_profile((int)$item['faculty_profile_id'])) {
+            $del = $db->prepare("DELETE FROM academic_experience WHERE id = ?");
+            $del->execute([$id]);
+            record_audit('experience_deleted', 'academic_experience', $id, "Deleted appointment: {$item['position_title']} at {$item['organization']}");
+            set_flash('success', 'Academic appointment removed successfully.');
+        } else {
+            set_flash('danger', 'Unauthorized or appointment does not exist.');
+        }
+        break;
+
     default:
         set_flash('danger', 'Invalid item type specified.');
         break;

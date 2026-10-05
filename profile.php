@@ -116,6 +116,21 @@ $teachStmt = $db->prepare("
 $teachStmt->execute([$profileId]);
 $teaching = $teachStmt->fetchAll(PDO::FETCH_ASSOC);
 
+// 8. Fetch Academic Appointments & Career History
+$expStmt = $db->prepare("
+    SELECT * FROM academic_experience 
+    WHERE faculty_profile_id = ? 
+    ORDER BY is_current DESC, COALESCE(end_year, 9999) DESC, start_year DESC, id DESC
+");
+$expStmt->execute([$profileId]);
+$experience = $expStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate total grants value
+$totalGrantsAmount = 0.0;
+foreach ($projects as $proj) {
+    $totalGrantsAmount += (float)($proj['amount_lakhs'] ?? 0);
+}
+
 $pageTitle = ($faculty['salutation'] ? $faculty['salutation'] . ' ' : '') . $faculty['full_name'];
 $activeNav = 'directory';
 require_once __DIR__ . '/includes/header.php';
@@ -250,6 +265,39 @@ require_once __DIR__ . '/includes/header.php';
                         </a>
                     <?php endif; ?>
 
+                    <?php if (!empty($faculty['dblp_url'])): ?>
+                        <a href="<?= safe_url($faculty['dblp_url']) ?>" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center justify-between p-2 rounded-[6px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium transition">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-code text-indigo-700"></i>
+                                <span>DBLP Bibliography</span>
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if (!empty($faculty['semantic_scholar_url'])): ?>
+                        <a href="<?= safe_url($faculty['semantic_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center justify-between p-2 rounded-[6px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium transition">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-brain text-sky-700"></i>
+                                <span>Semantic Scholar</span>
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if (!empty($faculty['website_url'])): ?>
+                        <a href="<?= safe_url($faculty['website_url']) ?>" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center justify-between p-2 rounded-[6px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium transition">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-globe text-slate-700"></i>
+                                <span>Academic Website</span>
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                        </a>
+                    <?php endif; ?>
+
                     <?php if (!empty($faculty['cv_url'])): ?>
                         <a href="<?= safe_url($faculty['cv_url']) ?>" target="_blank" rel="noopener noreferrer" download
                            class="flex items-center justify-between p-2 rounded-[6px] bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-900 font-semibold transition mt-2">
@@ -331,6 +379,27 @@ require_once __DIR__ . '/includes/header.php';
                                 <td class="text-right font-bold text-oxford-navy"><?= count($publications) ?></td>
                                 <td class="text-right text-[11px] text-emerald-700 font-sans">System-recorded</td>
                             </tr>
+                            <?php if ($totalGrantsAmount > 0): ?>
+                            <tr>
+                                <td class="font-sans font-medium text-slate-700">Funded Grants</td>
+                                <td class="text-right font-bold text-oxford-navy font-mono"><?= format_currency_lakhs($totalGrantsAmount) ?></td>
+                                <td class="text-right text-[11px] text-emerald-700 font-sans">System-recorded</td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (count($patents) > 0): ?>
+                            <tr>
+                                <td class="font-sans font-medium text-slate-700">Patents / IP</td>
+                                <td class="text-right font-bold text-oxford-navy font-mono"><?= count($patents) ?></td>
+                                <td class="text-right text-[11px] text-emerald-700 font-sans">System-recorded</td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if ((int)($faculty['phd_supervised'] ?? 0) > 0): ?>
+                            <tr>
+                                <td class="font-sans font-medium text-slate-700">PhD Supervised</td>
+                                <td class="text-right font-bold text-oxford-navy font-mono"><?= (int)$faculty['phd_supervised'] ?></td>
+                                <td class="text-right text-[11px] text-slate-500 font-sans">Self-reported</td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -432,6 +501,15 @@ require_once __DIR__ . '/includes/header.php';
                         <i class="fa-solid fa-trophy text-xs"></i>
                         <span>Honors & Awards</span>
                         <span class="px-2 py-0.5 rounded-[4px] bg-slate-100 text-slate-700 font-mono text-[11px]"><?= count($awards) ?></span>
+                    </button>
+                    <?php endif; ?>
+
+                    <?php if (!empty($experience)): ?>
+                    <button type="button" onclick="switchTab('experience')" id="tab-btn-experience" role="tab" aria-selected="false" aria-controls="tab-content-experience"
+                        class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-oxford-navy whitespace-nowrap flex items-center gap-2 transition focus:outline-none">
+                        <i class="fa-solid fa-briefcase text-xs"></i>
+                        <span>Appointments</span>
+                        <span class="px-2 py-0.5 rounded-[4px] bg-slate-100 text-slate-700 font-mono text-[11px]"><?= count($experience) ?></span>
                     </button>
                     <?php endif; ?>
 
@@ -543,6 +621,12 @@ require_once __DIR__ . '/includes/header.php';
                                                     <?= e(str_replace('_', ' ', $pub['publication_type'])) ?>
                                                 </span>
 
+                                                <?php if (!empty($pub['is_open_access']) || !empty($pub['pdf_url'])): ?>
+                                                    <span class="academic-tag academic-tag-oa font-mono">
+                                                        <i class="fa-solid fa-lock-open text-[9px]"></i> Open Access
+                                                    </span>
+                                                <?php endif; ?>
+
                                                 <?php if (!empty($pub['indexing'])): ?>
                                                     <span class="academic-tag academic-tag-gold font-semibold">
                                                         <?= e($pub['indexing']) ?>
@@ -552,6 +636,14 @@ require_once __DIR__ . '/includes/header.php';
                                                 <?php if (!empty($pub['doi'])): ?>
                                                     <a href="https://doi.org/<?= e($pub['doi']) ?>" target="_blank" rel="noopener" class="text-slate-500 hover:text-oxford-navy transition font-mono">
                                                         <i class="fa-solid fa-link text-[10px]"></i> DOI: <?= e($pub['doi']) ?>
+                                                    </a>
+                                                <?php endif; ?>
+
+                                                <?php if (!empty($pub['pdf_url'])): ?>
+                                                    <a href="<?= safe_url($pub['pdf_url']) ?>" target="_blank" rel="noopener noreferrer" 
+                                                       class="inline-flex items-center gap-1 text-rose-700 hover:text-rose-900 font-semibold px-2 py-0.5 rounded-[4px] bg-rose-50 border border-rose-200 transition text-[11px]">
+                                                        <i class="fa-solid fa-file-pdf text-[11px]"></i>
+                                                        <span>PDF</span>
                                                     </a>
                                                 <?php endif; ?>
 
@@ -576,6 +668,18 @@ require_once __DIR__ . '/includes/header.php';
                                                     <span>Cite</span>
                                                 </button>
                                             </div>
+
+                                            <?php if (!empty($pub['abstract'])): ?>
+                                                <details class="text-xs text-slate-600 mt-2 bg-slate-50/70 p-2.5 rounded-[6px] border border-slate-200/60 group">
+                                                    <summary class="cursor-pointer font-semibold text-oxford-blue hover:text-oxford-navy flex items-center gap-1.5 select-none text-[11px]">
+                                                        <i class="fa-solid fa-align-left text-[10px]"></i>
+                                                        <span>View Abstract</span>
+                                                    </summary>
+                                                    <p class="mt-2 text-slate-700 leading-relaxed font-sans text-xs pt-1 border-t border-slate-200/60">
+                                                        <?= nl2br(e($pub['abstract'])) ?>
+                                                    </p>
+                                                </details>
+                                            <?php endif; ?>
                                         </div>
 
                                         <!-- Citations Counter in JetBrains Mono -->
@@ -701,6 +805,40 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     <?php endif; ?>
                 </div>
+
+                <!-- ========================================== -->
+                <!-- TAB: Academic Career & Appointments        -->
+                <!-- ========================================== -->
+                <?php if (!empty($experience)): ?>
+                <div id="tab-content-experience" class="tab-pane hidden p-6" role="tabpanel" aria-labelledby="tab-btn-experience">
+                    <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-5 font-mono flex items-center gap-2">
+                        <i class="fa-solid fa-briefcase text-academic-gold"></i>
+                        <span>Academic Appointments & Professional Career</span>
+                    </h3>
+                    <div class="academic-timeline">
+                        <?php foreach ($experience as $exp): ?>
+                            <div class="timeline-item <?= !empty($exp['is_current']) ? 'is-current' : '' ?>">
+                                <div class="timeline-dot"></div>
+                                <div class="p-4 rounded-[8px] bg-slate-50 border border-scholar-border">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                                        <h4 class="font-serif text-base font-bold text-oxford-navy"><?= e($exp['position_title']) ?></h4>
+                                        <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-[4px] self-start sm:self-auto <?= !empty($exp['is_current']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-white text-slate-600 border border-scholar-border' ?>">
+                                            <?= e($exp['start_year'] ?? '') ?> — <?= !empty($exp['is_current']) ? 'Present' : e($exp['end_year'] ?? 'Present') ?>
+                                        </span>
+                                    </div>
+                                    <p class="text-xs font-semibold text-oxford-blue"><?= e($exp['organization']) ?></p>
+                                    <?php if (!empty($exp['department'])): ?>
+                                        <p class="text-xs text-slate-500 mt-0.5 font-medium"><?= e($exp['department']) ?></p>
+                                    <?php endif; ?>
+                                    <?php if (!empty($exp['description'])): ?>
+                                        <p class="text-xs text-slate-600 mt-2 leading-relaxed font-sans"><?= nl2br(e($exp['description'])) ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- ========================================== -->
                 <!-- TAB 4: Honors & Awards                     -->

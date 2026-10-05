@@ -83,6 +83,11 @@ $teachStmt = $db->prepare("SELECT * FROM teaching WHERE faculty_profile_id = ? O
 $teachStmt->execute([$profileId]);
 $teaching = $teachStmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Fetch Academic Experience / Appointments
+$expStmt = $db->prepare("SELECT * FROM academic_experience WHERE faculty_profile_id = ? ORDER BY start_year DESC, is_current DESC, id DESC");
+$expStmt->execute([$profileId]);
+$experience = $expStmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Fetch Active Delegates
 $delStmt = $db->prepare("
     SELECT fd.*, u.full_name, u.email 
@@ -202,6 +207,9 @@ require_once __DIR__ . '/../includes/header.php';
         </a>
         <a href="#section-patents" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
             Patents (<?= count($patents) ?>)
+        </a>
+        <a href="#section-experience" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+            Appointments (<?= count($experience) ?>)
         </a>
         <a href="<?= url('dashboard/delegates.php?profile_id=' . $faculty['id']) ?>" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
             <i class="fa-solid fa-users-gear mr-1 text-slate-400"></i> Delegates (<?= count($delegates) ?>)
@@ -415,6 +423,70 @@ require_once __DIR__ . '/../includes/header.php';
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="type" value="patent">
                                 <input type="hidden" name="id" value="<?= (int)$pat['id'] ?>">
+                                <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- SECTION 4: Academic Appointments & Career History -->
+    <div id="section-experience" class="academic-card overflow-hidden">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <h2 class="font-serif font-bold text-oxford-navy text-lg">Academic Appointments & Career History</h2>
+                <p class="text-xs text-scholar-muted mt-0.5">Faculty positions, postdoctoral fellowships, and academic leadership roles</p>
+            </div>
+            <a href="<?= url('dashboard/add_appointment.php?profile_id=' . $faculty['id']) ?>" 
+               class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Add Appointment</span>
+            </a>
+        </div>
+
+        <?php if (empty($experience)): ?>
+            <div class="p-10 text-center text-slate-500 text-xs">
+                <i class="fa-solid fa-briefcase text-2xl text-slate-300 mb-2"></i>
+                <p class="font-serif text-sm font-bold text-oxford-navy">No academic appointments recorded</p>
+                <a href="<?= url('dashboard/add_appointment.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                    Add Appointment
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="divide-y divide-slate-100 p-5 space-y-4">
+                <?php foreach ($experience as $exp): ?>
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pt-3 first:pt-0">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <?php if ($exp['is_current']): ?>
+                                    <span class="academic-tag academic-tag-gold font-mono text-[10px] font-bold uppercase">
+                                        Current
+                                    </span>
+                                <?php endif; ?>
+                                <h3 class="font-serif font-bold text-base text-oxford-navy"><?= e($exp['position_title']) ?></h3>
+                            </div>
+                            <p class="text-xs text-slate-700 mt-1 font-medium">
+                                <?= e($exp['organization']) ?>
+                                <?php if (!empty($exp['department'])): ?>
+                                    <span class="text-slate-400 font-normal">•</span> <?= e($exp['department']) ?>
+                                <?php endif; ?>
+                            </p>
+                            <?php if (!empty($exp['description'])): ?>
+                                <p class="text-xs text-slate-500 mt-1"><?= nl2br(e($exp['description'])) ?></p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="flex items-center sm:flex-col sm:items-end justify-between sm:justify-start gap-2 flex-shrink-0">
+                            <span class="text-xs font-mono font-semibold text-oxford-navy">
+                                <?= e($exp['start_year']) ?> — <?= $exp['is_current'] ? 'Present' : e($exp['end_year'] ?? '') ?>
+                            </span>
+                            <form action="<?= url('dashboard/delete_item.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove this appointment record?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="experience">
+                                <input type="hidden" name="id" value="<?= (int)$exp['id'] ?>">
                                 <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
                                     Delete
                                 </button>

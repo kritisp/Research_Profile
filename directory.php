@@ -308,6 +308,16 @@ require_once __DIR__ . '/includes/header.php';
                                     <i class="fa-brands fa-google"></i>
                                 </a>
                             <?php endif; ?>
+                            <?php if (!empty($fac['scopus_id'])): ?>
+                                <a href="https://www.scopus.com/authid/detail.uri?authorId=<?= urlencode($fac['scopus_id']) ?>" target="_blank" rel="noopener noreferrer" title="Scopus Profile" class="text-slate-400 hover:text-amber-700 transition">
+                                    <i class="fa-solid fa-chart-line text-xs"></i>
+                                </a>
+                            <?php endif; ?>
+                            <?php if (!empty($fac['dblp_url'])): ?>
+                                <a href="<?= safe_url($fac['dblp_url']) ?>" target="_blank" rel="noopener noreferrer" title="DBLP Profile" class="text-slate-400 hover:text-cyan-700 transition">
+                                    <i class="fa-solid fa-book-open text-xs"></i>
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
