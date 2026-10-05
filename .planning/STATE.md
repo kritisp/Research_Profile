@@ -9,7 +9,7 @@
 
 ## Recent Decisions
 - **2026-10-05**: Initialized workspace with GSD (Spec-Driven Development) framework.
-- **2026-10-05**: Git repository initialized.
+- **2026-10-05**: Git repository initialized and connected to remote `https://github.com/kritisp/Research_Profile.git` (pushed to `origin/main`).
 
 ---
 
