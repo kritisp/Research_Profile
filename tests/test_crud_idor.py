@@ -81,36 +81,47 @@ def run_crud_idor_tests():
     require_once 'config/database.php';
     $db = Database::getConnection();
     $hash = password_hash('{password}', PASSWORD_DEFAULT);
+    $deptId = (int)$db->query("SELECT id FROM departments LIMIT 1")->fetchColumn();
     
     // User A
-    $db->prepare("INSERT INTO users (full_name, email, password_hash, role, status) VALUES ('Faculty A', '{email_a}', '$hash', 'faculty', 'active')")->execute();
+    $uStmt = $db->prepare("INSERT INTO users (full_name, email, password_hash, role, status) VALUES (?, ?, ?, 'faculty', 'active')");
+    $uStmt->execute(['Faculty A', '{email_a}', $hash]);
     $uid_a = (int)$db->lastInsertId();
-    $db->prepare("INSERT INTO faculty_profiles (user_id, department_id, slug, is_verified) VALUES ($uid_a, 1, 'faculty-a-{timestamp}', 1)")->execute();
+
+    $pStmt = $db->prepare("INSERT INTO faculty_profiles (user_id, department_id, slug, is_verified) VALUES (?, ?, ?, 1)");
+    $pStmt->execute([$uid_a, $deptId, 'faculty-a-{timestamp}']);
     $prof_a = (int)$db->lastInsertId();
 
     // User B
-    $db->prepare("INSERT INTO users (full_name, email, password_hash, role, status) VALUES ('Faculty B', '{email_b}', '$hash', 'faculty', 'active')")->execute();
+    $uStmt->execute(['Faculty B', '{email_b}', $hash]);
     $uid_b = (int)$db->lastInsertId();
-    $db->prepare("INSERT INTO faculty_profiles (user_id, department_id, slug, is_verified) VALUES ($uid_b, 1, 'faculty-b-{timestamp}', 1)")->execute();
+
+    $pStmt->execute([$uid_b, $deptId, 'faculty-b-{timestamp}']);
     $prof_b = (int)$db->lastInsertId();
 
     // Create records belonging to Faculty B
-    $db->prepare("INSERT INTO projects (faculty_profile_id, title, funding_agency) VALUES ($prof_b, 'Faculty B Project', 'DST')")->execute();
+    $prStmt = $db->prepare("INSERT INTO projects (faculty_profile_id, title, funding_agency) VALUES (?, 'Faculty B Project', 'DST')");
+    $prStmt->execute([$prof_b]);
     $proj_b = (int)$db->lastInsertId();
 
-    $db->prepare("INSERT INTO patents (faculty_profile_id, title) VALUES ($prof_b, 'Faculty B Patent')")->execute();
+    $ptStmt = $db->prepare("INSERT INTO patents (faculty_profile_id, title) VALUES (?, 'Faculty B Patent')");
+    $ptStmt->execute([$prof_b]);
     $pat_b = (int)$db->lastInsertId();
 
-    $db->prepare("INSERT INTO awards (faculty_profile_id, title) VALUES ($prof_b, 'Faculty B Award')")->execute();
+    $awStmt = $db->prepare("INSERT INTO awards (faculty_profile_id, title) VALUES (?, 'Faculty B Award')");
+    $awStmt->execute([$prof_b]);
     $award_b = (int)$db->lastInsertId();
 
-    $db->prepare("INSERT INTO education (faculty_profile_id, degree, institution) VALUES ($prof_b, 'Ph.D.', 'IIT')")->execute();
+    $edStmt = $db->prepare("INSERT INTO education (faculty_profile_id, degree, institution) VALUES (?, 'Ph.D.', 'IIT')");
+    $edStmt->execute([$prof_b]);
     $edu_b = (int)$db->lastInsertId();
 
-    $db->prepare("INSERT INTO teaching (faculty_profile_id, course_title) VALUES ($prof_b, 'Distributed Systems')")->execute();
+    $tcStmt = $db->prepare("INSERT INTO teaching (faculty_profile_id, course_title) VALUES (?, 'Distributed Systems')");
+    $tcStmt->execute([$prof_b]);
     $teach_b = (int)$db->lastInsertId();
 
-    $db->prepare("INSERT INTO academic_experience (faculty_profile_id, position_title, organization, start_year) VALUES ($prof_b, 'Visiting Scientist', 'MIT', 2022)")->execute();
+    $exStmt = $db->prepare("INSERT INTO academic_experience (faculty_profile_id, position_title, organization, start_year) VALUES (?, 'Visiting Scientist', 'MIT', 2022)");
+    $exStmt->execute([$prof_b]);
     $exp_b = (int)$db->lastInsertId();
 
     echo json_encode([
@@ -141,7 +152,7 @@ def run_crud_idor_tests():
     # 2. Login as Faculty A
     status, login_html = tester.get('login.php')
     login_csrf = tester.extract_csrf(login_html)
-    tester.post('login.php', {
+    st_log, body_log = tester.post('login.php', {
         'csrf_token': login_csrf,
         'email': email_a,
         'password': password

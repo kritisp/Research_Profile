@@ -72,9 +72,11 @@ def test_session():
     require_once 'config/database.php';
     $db = Database::getConnection();
     $hash = password_hash('{password}', PASSWORD_DEFAULT);
-    $db->prepare("INSERT INTO users (full_name, email, password_hash, role, status) VALUES ('Session Test User', '{email}', '$hash', 'faculty', 'active')")->execute();
+    $deptId = (int)$db->query("SELECT id FROM departments LIMIT 1")->fetchColumn();
+    $stmt = $db->prepare("INSERT INTO users (full_name, email, password_hash, role, status) VALUES ('Session Test User', ?, ?, 'faculty', 'active')");
+    $stmt->execute(['{email}', $hash]);
     $uid = (int)$db->lastInsertId();
-    $db->prepare("INSERT INTO faculty_profiles (user_id, department_id, slug, is_verified) VALUES ($uid, 1, 'session-test-{timestamp}', 1)")->execute();
+    $db->prepare("INSERT INTO faculty_profiles (user_id, department_id, slug, is_verified) VALUES (?, ?, 'session-test-{timestamp}', 1)")->execute([$uid, $deptId]);
     echo $uid;
     """
     uid, _ = run_php(php_create)
