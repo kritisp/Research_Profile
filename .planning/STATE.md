@@ -1,25 +1,28 @@
 # Current Project State
 
 ## Active Context
-- **Current Phase**: Phase 0 — Discovery & Setup
-- **Current Milestone**: Project Definition & Architectural Alignment
-- **Status**: Waiting on user input for project vision and target stack
+- **Current Phase**: Phase 1 — Database Architecture, Security Core & RBAC Authentication
+- **Current Milestone**: Core Schema & Foundation Scaffolding
+- **Status**: Requirements analyzed from user voice brief; planning documents finalized in `.planning/`; ready to execute Phase 1
 
 ---
 
 ## Recent Decisions
 - **2026-10-05**: Initialized workspace with GSD (Spec-Driven Development) framework.
-- **2026-10-05**: Git repository initialized and connected to remote `https://github.com/kritisp/Research_Profile.git` (pushed to `origin/main`).
+- **2026-10-05**: Configured Apache & MySQL on XAMPP; created database `research_profile_db`.
+- **2026-10-05**: Gathered user requirements for **ITER Bhubaneswar Departmental Research Profile**.
+- **2026-10-05**: Established multi-tier RBAC architecture: `super_admin`, `admin` (faculty delegate/coordinator), and `faculty`.
+- **2026-10-05**: Formatted full academic specification with Google Scholar parity, zero AI slop, BibTeX export, and assistant delegation.
 
 ---
 
 ## Blockers & Risks
-- *None identified at this time.*
+- *None identified.*
 
 ---
 
 ## Next Steps
-1. Interview user to clarify what we are building, key features, and preferred tech stack.
-2. Populate `PROJECT.md` and `REQUIREMENTS.md` with concrete goals and constraints.
-3. Establish architecture blueprint and scaffold directory structure.
-4. Begin atomic execution of Phase 1 tasks.
+1. Create `database/schema.sql` and run `database/migrate.php` to establish all 11 tables and seed ITER departments.
+2. Build security utilities (`includes/helpers.php`, `includes/csrf.php`, `includes/auth.php`).
+3. Scaffold academic navigation shell (`includes/header.php`, `includes/footer.php`).
+4. Implement and verify authentication (`login.php`, `register.php`, `logout.php`).
