@@ -2,8 +2,8 @@
 
 ## Active Context
 - **Current Phase**: Phase 4 — Institutional Preloader & Visual Experience
-- **Current Milestone**: Redesigning Atmospheric SOA/ITER Preloader with Active Motion & Guaranteed Dismissal
-- **Status**: Executing GSD phase spec `.planning/phases/04-landing-preloader.md` based on user visual feedback.
+- **Current Milestone**: Enhanced Luminous Progress Bar, Shimmer Beam & 2.4s Cinematic Pacing Completed
+- **Status**: Visual feedback addressed: bar glow unclipped, travelling laser shimmer added, orbiting comet added, pacing tuned to 2.4s.
 
 ---
 
