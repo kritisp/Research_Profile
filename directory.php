@@ -264,16 +264,16 @@ require_once __DIR__ . '/includes/header.php';
                         <!-- Metrics Ribbon -->
                         <div class="mt-4 grid grid-cols-3 gap-2 p-2.5 rounded-[6px] bg-slate-50 border border-scholar-border text-center">
                             <div>
-                                <span class="text-slate-400 text-[10px] uppercase font-mono block">Citations</span>
-                                <span class="font-bold text-oxford-navy font-mono text-sm"><?= number_format($fac['total_citations']) ?></span>
+                                <span class="text-slate-500 text-xs font-sans block">Citations</span>
+                                <span class="font-bold text-oxford-navy font-serif text-base"><?= number_format($fac['total_citations']) ?></span>
                             </div>
                             <div class="border-x border-slate-200">
-                                <span class="text-slate-400 text-[10px] uppercase font-mono block">h-index</span>
-                                <span class="font-bold text-oxford-navy font-mono text-sm"><?= (int)$fac['h_index'] ?></span>
+                                <span class="text-slate-500 text-xs font-sans block">h-index</span>
+                                <span class="font-bold text-oxford-navy font-serif text-base"><?= (int)$fac['h_index'] ?></span>
                             </div>
                             <div>
-                                <span class="text-slate-400 text-[10px] uppercase font-mono block">Papers</span>
-                                <span class="font-bold text-oxford-navy font-mono text-sm"><?= (int)$fac['publication_count'] ?></span>
+                                <span class="text-slate-500 text-xs font-sans block">Papers</span>
+                                <span class="font-bold text-oxford-navy font-serif text-base"><?= (int)$fac['publication_count'] ?></span>
                             </div>
                         </div>
 

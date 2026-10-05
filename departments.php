@@ -31,7 +31,7 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Header Banner -->
 <section class="bg-oxford-navy text-white py-10 sm:py-12 border-b border-oxford-blue/60">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">Collegiate Academic Structure</span>
+        <span class="text-xs font-semibold text-amber-300 uppercase tracking-widest font-sans">Collegiate Academic Structure</span>
         <h1 class="font-serif text-2xl sm:text-4xl font-normal text-white mt-1.5 leading-tight">Academic Departments</h1>
         <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl leading-relaxed font-sans">
             Explore departmental research output, publication volumes, and faculty directories across collegiate divisions.
@@ -50,7 +50,7 @@ require_once __DIR__ . '/includes/header.php';
                         <span class="px-2.5 py-1 rounded-[4px] bg-oxford-navy text-white text-xs font-mono font-bold">
                             <?= e($dept['code']) ?>
                         </span>
-                        <div class="flex items-center gap-3 text-xs text-slate-500 font-mono">
+                        <div class="flex items-center gap-3 text-xs text-slate-500 font-sans">
                             <span><i class="fa-solid fa-users text-oxford-slate mr-1"></i><?= (int)$dept['faculty_count'] ?> Faculty</span>
                             <span>•</span>
                             <span><i class="fa-solid fa-file-lines text-oxford-slate mr-1"></i><?= (int)$dept['publication_count'] ?> Works</span>
@@ -69,8 +69,8 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
 
                 <div class="mt-6 pt-4 border-t border-scholar-border flex items-center justify-between">
-                    <span class="text-xs font-mono text-slate-500">
-                        Citations: <strong class="text-oxford-navy font-mono font-bold"><?= number_format($dept['dept_citations']) ?></strong>
+                    <span class="text-xs text-slate-500 font-sans">
+                        Citations: <strong class="text-oxford-navy font-serif font-bold text-sm"><?= number_format($dept['dept_citations']) ?></strong>
                     </span>
                     <a href="<?= url('directory.php?dept=' . urlencode($dept['code'])) ?>" 
                        class="btn-academic-secondary text-xs !py-1.5 !px-3 group-hover:border-oxford-slate">

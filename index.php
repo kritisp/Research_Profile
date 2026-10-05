@@ -114,24 +114,24 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- Institutional Impact Metrics Ribbon -->
         <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-7 border-t border-white/10 text-left">
-            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
-                <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Departments</div>
-                <div class="text-2xl sm:text-3xl font-bold font-mono text-white mt-1"><?= number_format(count($departments)) ?></div>
+            <div class="p-4 rounded-[6px] bg-white/5 border border-white/10">
+                <div class="text-xs font-sans text-slate-300 font-medium">Departments</div>
+                <div class="text-2xl sm:text-3xl font-serif font-bold text-white mt-1"><?= number_format(count($departments)) ?></div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Academic Divisions</div>
             </div>
-            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
-                <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Active Faculty</div>
-                <div class="text-2xl sm:text-3xl font-bold font-mono text-white mt-1"><?= number_format($totalFaculties) ?></div>
+            <div class="p-4 rounded-[6px] bg-white/5 border border-white/10">
+                <div class="text-xs font-sans text-slate-300 font-medium">Active Faculty</div>
+                <div class="text-2xl sm:text-3xl font-serif font-bold text-white mt-1"><?= number_format($totalFaculties) ?></div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Verified Scholars</div>
             </div>
-            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
-                <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Indexed Works</div>
-                <div class="text-2xl sm:text-3xl font-bold font-mono text-amber-300 mt-1"><?= number_format($totalPubs) ?></div>
+            <div class="p-4 rounded-[6px] bg-white/5 border border-white/10">
+                <div class="text-xs font-sans text-slate-300 font-medium">Indexed Works</div>
+                <div class="text-2xl sm:text-3xl font-serif font-bold text-amber-300 mt-1"><?= number_format($totalPubs) ?></div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Journals & Conferences</div>
             </div>
-            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
-                <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Citations Recorded</div>
-                <div class="text-2xl sm:text-3xl font-bold font-mono text-emerald-300 mt-1"><?= number_format($totalCitations) ?></div>
+            <div class="p-4 rounded-[6px] bg-white/5 border border-white/10">
+                <div class="text-xs font-sans text-slate-300 font-medium">Citations Recorded</div>
+                <div class="text-2xl sm:text-3xl font-serif font-bold text-emerald-300 mt-1"><?= number_format($totalCitations) ?></div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Peer Citations</div>
             </div>
         </div>
@@ -143,7 +143,7 @@ require_once __DIR__ . '/includes/header.php';
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
     <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-3.5 border-b border-scholar-border">
         <div>
-            <span class="text-xs font-semibold text-academic-gold uppercase tracking-wider font-mono">Scholarly Directory</span>
+            <span class="text-xs font-semibold text-academic-gold uppercase tracking-wider font-sans">Scholarly Directory</span>
             <h2 class="font-serif text-2xl sm:text-3xl font-bold text-oxford-navy mt-1">Distinguished Researchers</h2>
         </div>
         <a href="<?= url('directory.php') ?>" class="text-xs font-semibold text-oxford-slate hover:text-oxford-navy flex items-center gap-1.5 mt-2 sm:mt-0 transition group">
@@ -197,16 +197,16 @@ require_once __DIR__ . '/includes/header.php';
                     <!-- Metrics Grid -->
                     <div class="mt-4 grid grid-cols-3 gap-2 p-2.5 rounded-[6px] bg-slate-50 border border-scholar-border text-center">
                         <div>
-                            <span class="text-slate-400 text-[10px] uppercase font-mono block">Citations</span>
-                            <span class="font-bold text-oxford-navy font-mono text-sm"><?= number_format($fac['total_citations']) ?></span>
+                            <span class="text-slate-500 text-xs font-sans block">Citations</span>
+                            <span class="font-bold text-oxford-navy font-serif text-base"><?= number_format($fac['total_citations']) ?></span>
                         </div>
                         <div class="border-x border-slate-200">
-                            <span class="text-slate-400 text-[10px] uppercase font-mono block">h-index</span>
-                            <span class="font-bold text-oxford-navy font-mono text-sm"><?= (int)$fac['h_index'] ?></span>
+                            <span class="text-slate-500 text-xs font-sans block">h-index</span>
+                            <span class="font-bold text-oxford-navy font-serif text-base"><?= (int)$fac['h_index'] ?></span>
                         </div>
                         <div>
-                            <span class="text-slate-400 text-[10px] uppercase font-mono block">i10-index</span>
-                            <span class="font-bold text-oxford-navy font-mono text-sm"><?= (int)$fac['i10_index'] ?></span>
+                            <span class="text-slate-500 text-xs font-sans block">i10-index</span>
+                            <span class="font-bold text-oxford-navy font-serif text-base"><?= (int)$fac['i10_index'] ?></span>
                         </div>
                     </div>
 
