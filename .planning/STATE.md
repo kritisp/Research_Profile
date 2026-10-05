@@ -12,7 +12,8 @@
 - **2026-10-05**: Configured Apache & MySQL on XAMPP; created database `research_profile_db`.
 - **2026-10-05**: Gathered user requirements for **ITER Bhubaneswar Departmental Research Profile**.
 - **2026-10-05**: Established multi-tier RBAC architecture: `super_admin`, `admin` (faculty delegate/coordinator), and `faculty`.
-- **2026-10-05**: Formatted full academic specification with Google Scholar parity, zero AI slop, BibTeX export, and assistant delegation.
+- **2026-10-05**: Built complete application (11 DB tables, multi-role auth, assistant delegation, Google Scholar UI, directory, admin panel).
+- **2026-10-05**: Committed and pushed changes to GitHub (`origin/main`).
 
 ---
 
