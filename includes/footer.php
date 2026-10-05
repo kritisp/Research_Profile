@@ -7,17 +7,15 @@
                 <!-- Col 1: Institute Info -->
                 <div class="md:col-span-2 space-y-3">
                     <div class="flex items-center gap-2.5 text-white font-bold text-lg">
-                        <i class="fa-solid fa-graduation-cap text-iter-400"></i>
-                        <span>ITER Research Portal</span>
+                        <img src="<?= url('assets/img/scholar_hat.svg') ?>" alt="Departmental Scholar" class="w-6 h-6 object-contain">
+                        <span>Departmental Scholar</span>
                     </div>
                     <p class="text-xs text-slate-400 leading-relaxed max-w-md">
-                        Official scholarly repository and faculty research showcase of the 
-                        <strong class="text-slate-300">Institute of Technical Education and Research (ITER)</strong>, 
-                        Faculty of Engineering & Technology, Siksha 'O' Anusandhan (Deemed to be University), Bhubaneswar, Odisha, India.
+                        Official scholarly repository and faculty research showcase across collegiate departments, engineering colleges, and academic research institutions.
                     </p>
                     <div class="flex items-center gap-2 pt-1 text-xs text-slate-400">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-700 font-mono">NIRF Top Ranked</span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-800 text-emerald-300 border border-slate-700 font-mono">NAAC A++ Grade</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-700 font-mono">Scholarly Citations</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-800 text-emerald-300 border border-slate-700 font-mono">NAAC & NIRF Ready</span>
                     </div>
                 </div>
 
@@ -46,7 +44,7 @@
             </div>
 
             <div class="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
-                <p>&copy; <?= date('Y') ?> ITER, Siksha 'O' Anusandhan. All scholarly rights reserved.</p>
+                <p>&copy; <?= date('Y') ?> Departmental Scholar. All academic rights reserved.</p>
                 <p class="flex items-center gap-3">
                     <span>Designed for Scholarly Excellence</span>
                     <span>•</span>

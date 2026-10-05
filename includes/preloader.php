@@ -134,43 +134,30 @@
 
     <div class="relative z-10 flex flex-col items-center text-center px-6 max-w-md w-full">
 
-        <!-- Logo Container with Orbital Ring and Aura -->
-        <div class="relative w-36 h-36 sm:w-40 sm:h-40 mb-6 flex items-center justify-center soa-logo-card">
-            
-            <!-- Intense Breathing Aura -->
-            <div class="absolute inset-2 rounded-full bg-gradient-to-tr from-rose-600/40 via-amber-500/30 to-emerald-500/30 soa-aura"></div>
+        <!-- Pure Floating Scholar Hat (Clean, Not a Round Coin) -->
+        <div class="relative mb-5 flex items-center justify-center">
+            <!-- Subtle luminous ambient glow -->
+            <div class="absolute w-32 h-32 rounded-full bg-gradient-to-tr from-blue-600/30 via-amber-500/20 to-cyan-500/30 blur-2xl soa-aura"></div>
 
-            <!-- Rotating Dual-Accent Orbital Ring with Orbiting Comet Head -->
-            <div class="absolute -inset-2.5 rounded-full p-[2px] bg-gradient-to-tr from-rose-600 via-amber-400 to-emerald-500 opacity-80 soa-orbit-ring shadow-[0_0_20px_rgba(225,29,72,0.4)]">
-                <!-- Inner cutout -->
-                <div class="w-full h-full rounded-full bg-[#080d1a]/90 relative">
-                    <!-- Comet Head particle -->
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_10px_#ffffff,0_0_15px_#f59e0b]"></div>
-                </div>
-            </div>
-
-            <!-- Crisp White Disc Housing Scholar Hat Logo -->
-            <div class="relative w-30 h-30 sm:w-34 sm:h-34 rounded-full p-1 bg-white shadow-2xl ring-2 ring-white/30 flex items-center justify-center overflow-hidden">
-                <img src="<?= url('assets/img/scholar_logo.png') ?>" 
-                     alt="Departmental Research Profile" 
-                     class="w-full h-full object-contain drop-shadow">
+            <!-- Clean floating scholar cap -->
+            <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center filter drop-shadow-[0_12px_24px_rgba(37,99,235,0.45)]">
+                <img src="<?= url('assets/img/scholar_hat.svg') ?>" 
+                     alt="Departmental Scholar" 
+                     class="w-full h-full object-contain transform hover:scale-105 transition duration-300">
             </div>
         </div>
 
-        <!-- Institutional Typography -->
+        <!-- Clean Typography -->
         <div class="space-y-1.5 mb-7">
             <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono tracking-widest text-amber-300 uppercase font-semibold shadow-sm">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                <span>Scholarly Research Network</span>
+                <span>Faculty Research Network</span>
             </span>
             <h1 class="text-xl sm:text-2xl font-bold font-serif tracking-wider text-slate-100 uppercase drop-shadow-sm pt-1">
-                Departmental Research Profile
+                Departmental Scholar
             </h1>
             <p class="text-[11px] font-mono tracking-widest text-slate-400 uppercase">
-                Faculty Scholarly Directory & Academic Repository
-            </p>
-            <p class="text-xs font-semibold text-rose-400/90 pt-0.5 tracking-wide">
-                Excellence in Research, Grants & Publications
+                Faculty Research Directory & Profile System
             </p>
         </div>
 

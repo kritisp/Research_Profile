@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <defs>
+        <linearGradient id="capTop" x1="6" y1="12" x2="58" y2="35" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#3b82f6"/>
+            <stop offset="0.45" stop-color="#1d4ed8"/>
+            <stop offset="1" stop-color="#1e3a8a"/>
+        </linearGradient>
+        <linearGradient id="capDark" x1="17" y1="31" x2="47" y2="48.5" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#2563eb"/>
+            <stop offset="1" stop-color="#172554"/>
+        </linearGradient>
+        <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#fef08a"/>
+            <stop offset="0.5" stop-color="#f59e0b"/>
+            <stop offset="1" stop-color="#b45309"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Mortarboard Skull Underneath -->
+    <path d="M17 31V41.5C17 45.5 23 49 32 49C41 49 47 45.5 47 41.5V31" fill="url(#capDark)" stroke="#60a5fa" stroke-width="1.2" stroke-linejoin="round"/>
+    
+    <!-- Mortarboard Diamond Top -->
+    <path d="M32 11L5 23.5L32 36L59 23.5L32 11Z" fill="url(#capTop)" stroke="#93c5fd" stroke-width="1.2" stroke-linejoin="round"/>
+    <!-- Top inner highlight line -->
+    <path d="M32 13.5L8.5 23.5L32 33.5L55.5 23.5L32 13.5Z" fill="none" stroke="#bfdbfe" stroke-width="0.8" opacity="0.45"/>
+    
+    <!-- Cap Center Button -->
+    <ellipse cx="32" cy="23.5" rx="3.2" ry="2.2" fill="url(#goldGrad)" stroke="#78350f" stroke-width="0.6"/>
+    
+    <!-- Golden Tassel Cord -->
+    <path d="M32 24.5C38 26 44.5 29 47 34C48.5 37 49 41 49 43.5" stroke="url(#goldGrad)" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- Tassel Ring -->
+    <circle cx="49" cy="44" r="2" fill="#f59e0b" stroke="#78350f" stroke-width="0.5"/>
+    <!-- Tassel Fringe Brush -->
+    <path d="M47 46H51L52.5 55H45.5L47 46Z" fill="url(#goldGrad)" stroke="#78350f" stroke-width="0.6"/>
+    <line x1="49" y1="46" x2="49" y2="55" stroke="#fffbeb" stroke-width="0.8"/>
+</svg>

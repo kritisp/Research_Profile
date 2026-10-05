@@ -88,12 +88,12 @@ $flashes   = get_flashes();
                 <!-- Branding -->
                 <div class="flex items-center">
                     <a href="<?= url() ?>" class="flex items-center gap-3 group">
-                        <div class="w-10 h-10 rounded-full bg-white p-0.5 shadow-sm ring-1 ring-slate-200 overflow-hidden flex items-center justify-center">
-                            <img src="<?= url('assets/img/scholar_logo.png') ?>" alt="Scholar Logo" class="w-full h-full object-contain">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 p-1 flex items-center justify-center transition border border-slate-200 shadow-xs">
+                            <img src="<?= url('assets/img/scholar_hat.svg') ?>" alt="Departmental Scholar" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-bold text-lg text-slate-900 tracking-tight leading-tight group-hover:text-iter-700 transition">ResearchProfile</span>
-                            <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">Departmental Faculty Directory</span>
+                            <span class="font-bold text-lg text-slate-900 tracking-tight leading-tight group-hover:text-iter-700 transition">Departmental Scholar</span>
+                            <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">Faculty Research Directory</span>
                         </div>
                     </a>
 
