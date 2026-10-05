@@ -27,8 +27,9 @@ class Database {
             try {
                 self::$instance = new PDO($dsn, DB_USER, DB_PASS, $options);
             } catch (PDOException $e) {
-                // In production, log error and display generic message
-                die('Database Connection Error: ' . htmlspecialchars($e->getMessage()));
+                // Log detailed error internally and display safe user message
+                error_log('Database Connection Error: ' . $e->getMessage());
+                die('Database Connection Failure. Please verify that the MySQL service is active and configured in XAMPP.');
             }
         }
 

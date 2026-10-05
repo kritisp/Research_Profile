@@ -50,15 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Handle Revoke Delegate
-if (isset($_GET['revoke']) && isset($_GET['csrf_token'])) {
-    if (verify_csrf_token($_GET['csrf_token'])) {
-        $delId = (int)$_GET['revoke'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'revoke_delegate') {
+    require_csrf();
+    $delId = (int)($_POST['delegate_id'] ?? 0);
+    if ($delId > 0) {
         $del = $db->prepare("DELETE FROM faculty_delegates WHERE id = ? AND faculty_user_id = ?");
         $del->execute([$delId, $facultyUserId]);
         record_audit('delegate_revoked', 'faculty_delegates', $delId, 'Revoked delegate access');
         set_flash('info', 'Delegate access revoked.');
-        redirect('dashboard/delegates.php');
     }
+    redirect('dashboard/delegates.php');
 }
 
 // Fetch currently authorized delegates
@@ -138,11 +139,14 @@ require_once __DIR__ . '/../includes/header.php';
                                     <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">
                                         Granted: <?= date('M d, Y', strtotime($del['granted_date'])) ?>
                                     </span>
-                                    <a href="<?= url('dashboard/delegates.php?revoke=' . $del['delegate_rel_id'] . '&csrf_token=' . csrf_token()) ?>"
-                                       onclick="return confirm('Revoke edit access for this assistant?');"
-                                       class="px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition border border-rose-200">
-                                        Revoke
-                                    </a>
+                                    <form method="POST" action="<?= url('dashboard/delegates.php') ?>" onsubmit="return confirm('Revoke edit access for this assistant?');" class="inline">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="action" value="revoke_delegate">
+                                        <input type="hidden" name="delegate_id" value="<?= $del['delegate_rel_id'] ?>">
+                                        <button type="submit" class="px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition border border-rose-200">
+                                            Revoke
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>

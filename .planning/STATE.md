@@ -1,19 +1,23 @@
 # Current Project State
 
 ## Active Context
-- **Current Phase**: Phase 1 — Database Architecture, Security Core & RBAC Authentication
-- **Current Milestone**: Core Schema & Foundation Scaffolding
-- **Status**: Requirements analyzed from user voice brief; planning documents finalized in `.planning/`; ready to execute Phase 1
+- **Current Phase**: Phase 1 & 2 — Security Hardening, Code Quality Gate & CI
+- **Current Milestone**: CodeRabbit Quality & Security Gate Audit Completed
+- **Status**: CodeRabbit configuration created; security vulnerabilities audited, fixed, verified, and CI workflow configured.
 
 ---
 
 ## Recent Decisions
 - **2026-10-05**: Initialized workspace with GSD (Spec-Driven Development) framework.
 - **2026-10-05**: Configured Apache & MySQL on XAMPP; created database `research_profile_db`.
-- **2026-10-05**: Gathered user requirements for **ITER Bhubaneswar Departmental Research Profile**.
-- **2026-10-05**: Established multi-tier RBAC architecture: `super_admin`, `admin` (faculty delegate/coordinator), and `faculty`.
 - **2026-10-05**: Built complete application (11 DB tables, multi-role auth, assistant delegation, Google Scholar UI, directory, admin panel).
-- **2026-10-05**: Committed and pushed changes to GitHub (`origin/main`).
+- **2026-10-05**: Conducted comprehensive CodeRabbit Quality & Security Gate audit:
+  - Enforced strict HTTP POST method on all deletion and revocation mutations.
+  - Hardened session cookies with `HttpOnly`, `SameSite=Lax`, and `session.use_strict_mode=1`.
+  - Added URL protocol sanitization (`safe_url()` and `safe_orcid()`) to prevent XSS via `javascript:` links.
+  - Eliminated raw database exception disclosures in `config/database.php`.
+  - Added `.coderabbit.yaml` repository configuration with assertive review instructions.
+  - Added `.github/workflows/security-quality.yml` GitHub Actions CI workflow.
 
 ---
 

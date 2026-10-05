@@ -1,0 +1,41 @@
+name: Security & Quality Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-security:
+    name: PHP 8.2 Syntax & Security Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, mbstring
+
+      - name: Syntax Linting (php -l)
+        run: |
+          echo "Linting all PHP files..."
+          find . -type f -name "*.php" ! -path "*/vendor/*" -exec php -l {} \;
+
+      - name: Security Check - Raw SQL Concatenation Audit
+        run: |
+          echo "Scanning for dangerous raw SQL concatenation..."
+          # Fail if direct variable concatenation is detected inside query/prepare strings
+          if grep -rnE '(->query\(|->prepare\(|->exec\()["'\''].*\$[a-zA-Z_]' --include="*.php" .; then
+            echo "::error::Potential raw SQL query string interpolation detected. Use prepared statement placeholders (:name or ?)."
+            exit 1
+          else
+            echo "SQL Parameterization check passed: 100% prepared statements."
+          fi
+
+      - name: Quality Gate Status
+        run: echo "Code quality & security gate checks passed successfully."

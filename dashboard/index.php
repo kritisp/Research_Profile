@@ -254,11 +254,14 @@ require_once __DIR__ . '/../includes/header.php';
                                            class="p-1.5 text-slate-500 hover:text-iter-800 hover:bg-slate-100 rounded transition" title="Edit">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <a href="<?= url('dashboard/delete_item.php?type=publication&id=' . $pub['id'] . '&csrf_token=' . csrf_token()) ?>" 
-                                           onclick="return confirm('Are you sure you want to delete this publication?');"
-                                           class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition" title="Delete">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </a>
+                                        <form method="POST" action="<?= url('dashboard/delete_item.php') ?>" class="inline" onsubmit="return confirm('Are you sure you want to delete this publication?');">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="type" value="publication">
+                                            <input type="hidden" name="id" value="<?= $pub['id'] ?>">
+                                            <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition" title="Delete">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -305,11 +308,14 @@ require_once __DIR__ . '/../includes/header.php';
                                 <span class="text-xs font-bold text-emerald-700 font-mono">₹<?= number_format((float)$proj['amount_lakhs'], 2) ?> Lakhs</span>
                                 <span class="block text-[10px] text-slate-400 font-mono"><?= e($proj['start_year'] ?? '') ?> - <?= e($proj['end_year'] ?? 'Present') ?></span>
                             </div>
-                            <a href="<?= url('dashboard/delete_item.php?type=project&id=' . $proj['id'] . '&csrf_token=' . csrf_token()) ?>"
-                               onclick="return confirm('Delete this project?');"
-                               class="p-1 text-slate-400 hover:text-rose-600 transition">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </a>
+                            <form method="POST" action="<?= url('dashboard/delete_item.php') ?>" class="inline" onsubmit="return confirm('Delete this project?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="project">
+                                <input type="hidden" name="id" value="<?= $proj['id'] ?>">
+                                <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition" title="Delete">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -350,11 +356,14 @@ require_once __DIR__ . '/../includes/header.php';
                         </div>
                         <div class="text-right flex items-center gap-3">
                             <span class="text-xs font-mono text-slate-500"><?= e($pat['grant_date'] ?? $pat['filing_date'] ?? '') ?></span>
-                            <a href="<?= url('dashboard/delete_item.php?type=patent&id=' . $pat['id'] . '&csrf_token=' . csrf_token()) ?>"
-                               onclick="return confirm('Delete this patent?');"
-                               class="p-1 text-slate-400 hover:text-rose-600 transition">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </a>
+                            <form method="POST" action="<?= url('dashboard/delete_item.php') ?>" class="inline" onsubmit="return confirm('Delete this patent?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="patent">
+                                <input type="hidden" name="id" value="<?= $pat['id'] ?>">
+                                <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition" title="Delete">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 <?php endforeach; ?>

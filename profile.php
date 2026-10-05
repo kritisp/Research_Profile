@@ -142,7 +142,7 @@ require_once __DIR__ . '/includes/header.php';
                     <!-- Avatar Photo -->
                     <div class="relative w-36 h-36 rounded-2xl bg-slate-100 border-2 border-white shadow-md overflow-hidden flex-shrink-0 flex items-center justify-center ring-1 ring-slate-200">
                         <?php if (!empty($faculty['photo_url'])): ?>
-                            <img src="<?= e($faculty['photo_url']) ?>" alt="<?= e($faculty['full_name']) ?>" class="w-full h-full object-cover">
+                            <img src="<?= safe_url($faculty['photo_url']) ?>" alt="<?= e($faculty['full_name']) ?>" class="w-full h-full object-cover">
                         <?php else: ?>
                             <div class="flex flex-col items-center justify-center text-slate-300">
                                 <i class="fa-solid fa-user-graduate text-5xl"></i>
@@ -171,7 +171,7 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- Academic Identifiers -->
                 <div class="mt-6 pt-5 border-t border-slate-100 space-y-2.5 text-xs">
                     <?php if (!empty($faculty['google_scholar_url'])): ?>
-                        <a href="<?= e($faculty['google_scholar_url']) ?>" target="_blank" rel="noopener" 
+                        <a href="<?= safe_url($faculty['google_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" 
                            class="flex items-center justify-between p-2 rounded-lg bg-blue-50/60 hover:bg-blue-100/60 text-blue-900 font-medium transition">
                             <span class="flex items-center gap-2">
                                 <i class="fa-brands fa-google text-blue-600"></i>
@@ -182,14 +182,17 @@ require_once __DIR__ . '/includes/header.php';
                     <?php endif; ?>
 
                     <?php if (!empty($faculty['orcid_id'])): ?>
-                        <a href="https://orcid.org/<?= e($faculty['orcid_id']) ?>" target="_blank" rel="noopener"
-                           class="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 hover:bg-emerald-100/60 text-emerald-900 font-medium transition">
-                            <span class="flex items-center gap-2">
-                                <i class="fa-brands fa-orcid text-emerald-600"></i>
-                                <span>ORCID: <?= e($faculty['orcid_id']) ?></span>
-                            </span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-emerald-500"></i>
-                        </a>
+                        <?php $cleanOrcid = safe_orcid($faculty['orcid_id']); ?>
+                        <?php if ($cleanOrcid): ?>
+                            <a href="https://orcid.org/<?= $cleanOrcid ?>" target="_blank" rel="noopener noreferrer"
+                               class="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 hover:bg-emerald-100/60 text-emerald-900 font-medium transition">
+                                <span class="flex items-center gap-2">
+                                    <i class="fa-brands fa-orcid text-emerald-600"></i>
+                                    <span>ORCID: <?= e($cleanOrcid) ?></span>
+                                </span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-emerald-500"></i>
+                            </a>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if (!empty($faculty['scopus_id'])): ?>
@@ -411,7 +414,7 @@ require_once __DIR__ . '/includes/header.php';
                                             <!-- Title -->
                                             <h3 class="text-sm font-semibold text-slate-900 leading-snug">
                                                 <?php if (!empty($pub['url'])): ?>
-                                                    <a href="<?= e($pub['url']) ?>" target="_blank" rel="noopener" class="hover:text-iter-700 hover:underline transition">
+                                                    <a href="<?= safe_url($pub['url']) ?>" target="_blank" rel="noopener noreferrer" class="hover:text-iter-700 hover:underline transition">
                                                         <?= e($pub['title']) ?>
                                                     </a>
                                                 <?php else: ?>

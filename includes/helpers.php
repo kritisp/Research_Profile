@@ -4,6 +4,17 @@
  */
 
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443;
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => $isSecure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     session_start();
 }
 
@@ -15,6 +26,35 @@ require_once __DIR__ . '/../config/database.php';
  */
 function e(?string $value): string {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Sanitize URLs to prevent XSS via javascript: or data: schemes
+ */
+function safe_url(?string $url): string {
+    if (empty($url)) {
+        return '#';
+    }
+    $url = trim($url);
+    // Allow only http://, https://, or root-relative paths
+    if (preg_match('~^(https?://|/[^/])~i', $url)) {
+        return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    }
+    return '#';
+}
+
+/**
+ * Validate and sanitize ORCID identifier
+ */
+function safe_orcid(?string $orcid): string {
+    if (empty($orcid)) {
+        return '';
+    }
+    $orcid = trim($orcid);
+    if (preg_match('/^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$/i', $orcid)) {
+        return htmlspecialchars($orcid, ENT_QUOTES, 'UTF-8');
+    }
+    return '';
 }
 
 /**
