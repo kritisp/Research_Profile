@@ -39,6 +39,7 @@ $featuredFaculty = $facultyStmt->fetchAll();
 $pageTitle = 'Home - Faculty Research Portal';
 $activeNav = 'home';
 require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/preloader.php';
 ?>
 
 <!-- Hero Showcase Section -->
