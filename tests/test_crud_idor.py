@@ -45,16 +45,25 @@ class SecurityTester:
         match = re.search(r'value=["\']([a-f0-9]+)["\']\s+name=["\']csrf_token["\']', html)
         return match.group(1) if match else ""
 
-import os
+import shutil
+import secrets
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PHP_BIN = os.environ.get("PHP_BINARY") or shutil.which("php") or r"C:\xampp\php\php.exe"
 
 def run_php(code):
-    temp_file = os.path.join(r'C:\xampp\htdocs\research_profile', 'temp_run_test.php')
+    temp_file = os.path.join(ROOT_DIR, f'temp_crud_{secrets.token_hex(4)}.php')
     with open(temp_file, 'w', encoding='utf-8') as f:
         f.write("<?php " + code)
-    res = subprocess.run([r'C:\xampp\php\php.exe', temp_file], cwd=r'C:\xampp\htdocs\research_profile', capture_output=True, text=True)
-    if os.path.exists(temp_file):
-        os.remove(temp_file)
-    return res.stdout.strip(), res.stderr.strip()
+    try:
+        res = subprocess.run([PHP_BIN, temp_file], cwd=ROOT_DIR, capture_output=True, text=True, env=os.environ)
+        return res.stdout.strip(), res.stderr.strip()
+    finally:
+        if os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except OSError:
+                pass
 
 def run_crud_idor_tests():
     print("=" * 65)

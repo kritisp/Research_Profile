@@ -61,7 +61,8 @@ def run_php(code: str):
             [PHP_BIN, temp_file],
             cwd=ROOT_DIR,
             capture_output=True,
-            text=True
+            text=True,
+            env=os.environ
         )
         return res.stdout.strip(), res.stderr.strip()
     finally:

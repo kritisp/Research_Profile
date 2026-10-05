@@ -58,9 +58,13 @@ class SecurityTester:
         match = re.search(r'value=["\']([a-f0-9]+)["\']\s+name=["\']csrf_token["\']', html)
         return match.group(1) if match else ""
 
+import shutil
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PHP_BIN = os.environ.get("PHP_BINARY") or shutil.which("php") or r"C:\xampp\php\php.exe"
+
 def run_php(code):
-    wrapper = f"<?php {code} ?>"
-    res = subprocess.run([r'C:\xampp\php\php.exe', '-r', code], cwd=r'C:\xampp\htdocs\research_profile', capture_output=True, text=True)
+    res = subprocess.run([PHP_BIN, '-r', code], cwd=ROOT_DIR, capture_output=True, text=True, env=os.environ)
     return res.stdout.strip(), res.stderr.strip()
 
 def run_tests():

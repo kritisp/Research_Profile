@@ -39,6 +39,17 @@ jobs:
     name: Live Database & Security Integration Suite
     runs-on: ubuntu-latest
 
+    env:
+      DB_HOST: "127.0.0.1"
+      DB_PORT: "3306"
+      DB_USER: "root"
+      DB_PASS: "root"
+      DB_NAME: "research_profile_db"
+      BASE_URL: "http://127.0.0.1:8000"
+      INITIAL_ADMIN_PASSWORD: "Admin@123"
+      DEMO_USER_PASSWORD: "Faculty@123"
+      DEMO_ASSISTANT_PASSWORD: "Assistant@123"
+
     services:
       mysql:
         image: mysql:8.0
@@ -69,64 +80,36 @@ jobs:
           mysql -h 127.0.0.1 -u root -proot research_profile_db < database/schema.sql
 
       - name: Seed Database & Run Migrations
-        env:
-          DB_HOST: "127.0.0.1"
-          DB_PORT: "3306"
-          DB_USER: "root"
-          DB_PASS: "root"
-          DB_NAME: "research_profile_db"
-          INITIAL_ADMIN_PASSWORD: "Admin@123"
-          DEMO_USER_PASSWORD: "Faculty@123"
-          DEMO_ASSISTANT_PASSWORD: "Assistant@123"
         run: |
           php database/migrate.php
           php database/seed_demo.php
           php database/migrate_cris_enhancements.php
 
       - name: Start Built-in PHP Web Server
-        env:
-          DB_HOST: "127.0.0.1"
-          DB_PORT: "3306"
-          DB_USER: "root"
-          DB_PASS: "root"
-          DB_NAME: "research_profile_db"
-          BASE_URL: "http://127.0.0.1:8000"
         run: |
           php -S 127.0.0.1:8000 -t . > /dev/null 2>&1 &
           sleep 2
 
       - name: Run Dynamic Role Authorization Tests
-        env:
-          BASE_URL: "http://127.0.0.1:8000"
         run: |
           python tests/test_roles.py
 
       - name: Run Super Admin Console Test Suite
-        env:
-          BASE_URL: "http://127.0.0.1:8000"
         run: |
           python tests/test_super_admin.py
 
       - name: Run Profile Switching & Delegation Workflow Suite
-        env:
-          BASE_URL: "http://127.0.0.1:8000"
         run: |
           python tests/test_switch_workflow.py
 
       - name: Run CRUD & IDOR Defense Test Suite
-        env:
-          BASE_URL: "http://127.0.0.1:8000"
         run: |
           python tests/test_crud_idor.py
 
       - name: Run Session Hardening & Inactive Check Suite
-        env:
-          BASE_URL: "http://127.0.0.1:8000"
         run: |
           python tests/test_session_hardening.py
 
       - name: Run Full Security Audit & Profile Verification Suite
-        env:
-          BASE_URL: "http://127.0.0.1:8000"
         run: |
           python tests/verify_audit.py
