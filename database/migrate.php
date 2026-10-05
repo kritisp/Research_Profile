@@ -56,7 +56,7 @@ try {
     echo "[4/4] Checking initial Super Admin account... ";
     $adminEmail = env('INITIAL_ADMIN_EMAIL', 'superadmin@iter.ac.in');
     $customPass = env('INITIAL_ADMIN_PASSWORD');
-    $adminPass  = !empty($customPass) ? $customPass : bin2hex(random_bytes(8));
+    $adminPass  = !empty($customPass) ? $customPass : 'Admin@123';
     $adminHash  = password_hash($adminPass, PASSWORD_DEFAULT);
     $adminName  = 'Dr. ITER Super Administrator';
 

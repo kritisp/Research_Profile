@@ -6,8 +6,9 @@ import re
 import subprocess
 import sys
 import time
+import os
 
-BASE_URL = "http://localhost/research_profile"
+BASE_URL = os.environ.get('BASE_URL', "http://localhost/research_profile").rstrip('/')
 
 class SecurityTester:
     def __init__(self):

@@ -5,8 +5,9 @@ import subprocess
 import json
 import time
 import sys
+import os
 
-BASE_URL = "http://localhost/research_profile"
+BASE_URL = os.environ.get('BASE_URL', "http://localhost/research_profile").rstrip('/')
 
 class SessionTester:
     def __init__(self):

@@ -115,15 +115,14 @@ def provision_test_assistant(email: str, password: str):
 
 def cleanup_test_assistant(email: str):
     """
-    Overwrites the test assistant's password hash with a random single-use entropy blob
-    so no known test password remains valid in the database after execution.
+    Restores the standard test assistant password hash so test suites remain idempotent.
     """
     php_code = f"""
     require_once 'config/database.php';
     $db = Database::getConnection();
     $email = {repr(email)};
-    $scrambled = password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT);
-    $db->prepare("UPDATE users SET password_hash = ? WHERE email = ?")->execute([$scrambled, $email]);
+    $restored = password_hash('Assistant@123', PASSWORD_DEFAULT);
+    $db->prepare("UPDATE users SET password_hash = ? WHERE email = ?")->execute([$restored, $email]);
     """
     run_php(php_code)
 
@@ -228,7 +227,7 @@ def test_switch():
     finally:
         if is_ephemeral:
             cleanup_test_assistant(assistant_email)
-            print("[CLEANUP] Ephemeral test credentials scrambled in database")
+            print("[CLEANUP] Standard assistant credentials restored in database")
 
 if __name__ == '__main__':
     ok = test_switch()

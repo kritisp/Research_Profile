@@ -3,8 +3,9 @@ import urllib.parse
 import http.cookiejar
 import re
 import sys
+import os
 
-BASE_URL = "http://localhost/research_profile"
+BASE_URL = os.environ.get('BASE_URL', "http://localhost/research_profile").rstrip('/')
 
 class AdminTester:
     def __init__(self):

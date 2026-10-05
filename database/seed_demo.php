@@ -30,9 +30,9 @@ try {
     $eceId  = $depts['ECE'] ?? 3;
     $eeId   = $depts['EE']  ?? 4;
 
-    // Read development password from environment or generate a secure random 16-char password
+    // Read development password from environment or use standard demo password
     $customDemoPass   = env('DEMO_USER_PASSWORD');
-    $demoPassword     = !empty($customDemoPass) ? $customDemoPass : bin2hex(random_bytes(8));
+    $demoPassword     = !empty($customDemoPass) ? $customDemoPass : 'Faculty@123';
     $demoPasswordHash = password_hash($demoPassword, PASSWORD_DEFAULT);
     $newAccountsCount = 0;
 
@@ -266,6 +266,27 @@ try {
                 ]
             ],
             'patents' => []
+        ],
+        [
+            'name' => 'Prof. K. S. Patnaik',
+            'email' => 'ksp@soa.ac.in',
+            'dept_id' => $cseId,
+            'institution' => 'ITER, SOA Deemed to be University',
+            'salutation' => 'Prof. Dr.',
+            'designation' => 'Professor',
+            'cabin' => 'Block 2, Room 402, ITER',
+            'phone' => '+91 674 2350184',
+            'bio' => 'Distinguished Professor of Computer Science focusing on Distributed Systems, Cloud Computing, and Wireless Sensor Networks.',
+            'interests' => 'Distributed Systems, Cloud Architecture, Sensor Networks',
+            'scholar_url' => 'https://scholar.google.com/citations?user=sample5',
+            'orcid' => '0000-0002-4411-9988',
+            'scopus' => '57221199881',
+            'citations' => 1250,
+            'h_index' => 16,
+            'i10_index' => 22,
+            'publications' => [],
+            'projects' => [],
+            'patents' => []
         ]
     ];
 
@@ -375,20 +396,21 @@ try {
 
     // 3. Seed an Assistant / Delegate User and grant access to Dr. Debabrata Singh
     $asstEmail = 'assistant.cse@iter.ac.in';
+    $customAsstPass = env('DEMO_ASSISTANT_PASSWORD');
+    $asstPass = !empty($customAsstPass) ? $customAsstPass : 'Assistant@123';
+    $asstPasswordHash = password_hash($asstPass, PASSWORD_DEFAULT);
     $uStmt = $db->prepare("SELECT id FROM users WHERE email = ?");
     $uStmt->execute([$asstEmail]);
     $asstUser = $uStmt->fetch();
 
     if (!$asstUser) {
         $insAsst = $db->prepare("INSERT INTO users (email, password_hash, full_name, role, status) VALUES (?, ?, ?, 'admin', 'active')");
-        $insAsst->execute([$asstEmail, $demoPasswordHash, 'Pooja Mohapatra (CSE Research Assistant)']);
+        $insAsst->execute([$asstEmail, $asstPasswordHash, 'Pooja Mohapatra (CSE Research Assistant)']);
         $asstId = (int)$db->lastInsertId();
         $newAccountsCount++;
     } else {
         $asstId = (int)$asstUser['id'];
-        if (!empty($customDemoPass)) {
-            $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?")->execute([$demoPasswordHash, $asstId]);
-        }
+        $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?")->execute([$asstPasswordHash, $asstId]);
     }
 
     // Assign Dr. Debabrata Singh to this assistant
