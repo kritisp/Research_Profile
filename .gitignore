@@ -24,3 +24,10 @@ Thumbs.db
 # Uploads
 uploads/avatars/*
 !uploads/avatars/.gitkeep
+
+# Local AI Agent Skills & Tooling (Kept locally on disk, not on GitHub)
+.agent/
+.planning/
+.coderabbit.yaml
+.github/
+
