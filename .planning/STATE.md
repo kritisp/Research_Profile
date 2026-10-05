@@ -1,9 +1,9 @@
 # Current Project State
 
 ## Active Context
-- **Current Phase**: Phase 1 & 2 — Security Hardening, Code Quality Gate & CI
-- **Current Milestone**: CodeRabbit Quality & Security Gate Audit Completed
-- **Status**: CodeRabbit configuration created; security vulnerabilities audited, fixed, verified, and CI workflow configured.
+- **Current Phase**: Phase 4 — Institutional Preloader & Visual Experience
+- **Current Milestone**: Redesigning Atmospheric SOA/ITER Preloader with Active Motion & Guaranteed Dismissal
+- **Status**: Executing GSD phase spec `.planning/phases/04-landing-preloader.md` based on user visual feedback.
 
 ---
 
