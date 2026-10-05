@@ -108,7 +108,7 @@ def run_crud_idor_tests():
     $ptStmt->execute([$prof_b]);
     $pat_b = (int)$db->lastInsertId();
 
-    $awStmt = $db->prepare("INSERT INTO awards (faculty_profile_id, title) VALUES (?, 'Faculty B Award')");
+    $awStmt = $db->prepare("INSERT INTO awards (faculty_profile_id, title, awarding_body, year) VALUES (?, 'Faculty B Award', 'IEEE Society', 2023)");
     $awStmt->execute([$prof_b]);
     $award_b = (int)$db->lastInsertId();
 
