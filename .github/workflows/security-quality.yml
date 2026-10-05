@@ -1,0 +1,132 @@
+name: Security & Quality Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  syntax-and-static-security:
+    name: PHP 8.2 Syntax & Static Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, mbstring
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: PHP Syntax Linting (php -l)
+        run: |
+          echo "Linting all PHP files for syntax validity..."
+          find . -type f -name "*.php" ! -path "*/vendor/*" -exec php -l {} \;
+
+      - name: Static Security Audit
+        run: |
+          python tests/security_static_checks.py
+
+  integration-security-suite:
+    name: Live Database & Security Integration Suite
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: research_profile_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, mbstring
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Initialize Database Schema
+        run: |
+          mysql -h 127.0.0.1 -u root -proot research_profile_db < database/schema.sql
+
+      - name: Seed Database & Run Migrations
+        env:
+          DB_HOST: "127.0.0.1"
+          DB_PORT: "3306"
+          DB_USER: "root"
+          DB_PASS: "root"
+          DB_NAME: "research_profile_db"
+          INITIAL_ADMIN_PASSWORD: "Admin@123"
+          DEMO_USER_PASSWORD: "Faculty@123"
+          DEMO_ASSISTANT_PASSWORD: "Assistant@123"
+        run: |
+          php database/migrate.php
+          php database/seed_demo.php
+          php database/migrate_cris_enhancements.php
+
+      - name: Start Built-in PHP Web Server
+        env:
+          DB_HOST: "127.0.0.1"
+          DB_PORT: "3306"
+          DB_USER: "root"
+          DB_PASS: "root"
+          DB_NAME: "research_profile_db"
+          BASE_URL: "http://127.0.0.1:8000"
+        run: |
+          php -S 127.0.0.1:8000 -t . > /dev/null 2>&1 &
+          sleep 2
+
+      - name: Run Dynamic Role Authorization Tests
+        env:
+          BASE_URL: "http://127.0.0.1:8000"
+        run: |
+          python tests/test_roles.py
+
+      - name: Run Super Admin Console Test Suite
+        env:
+          BASE_URL: "http://127.0.0.1:8000"
+        run: |
+          python tests/test_super_admin.py
+
+      - name: Run Profile Switching & Delegation Workflow Suite
+        env:
+          BASE_URL: "http://127.0.0.1:8000"
+        run: |
+          python tests/test_switch_workflow.py
+
+      - name: Run CRUD & IDOR Defense Test Suite
+        env:
+          BASE_URL: "http://127.0.0.1:8000"
+        run: |
+          python tests/test_crud_idor.py
+
+      - name: Run Session Hardening & Inactive Check Suite
+        env:
+          BASE_URL: "http://127.0.0.1:8000"
+        run: |
+          python tests/test_session_hardening.py
+
+      - name: Run Full Security Audit & Profile Verification Suite
+        env:
+          BASE_URL: "http://127.0.0.1:8000"
+        run: |
+          python tests/verify_audit.py
