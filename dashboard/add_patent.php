@@ -1,6 +1,8 @@
 <?php
 /**
- * Add Patent / IP Form
+ * Departmental Scholar — Add Patent / IP Form
+ * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
+ * Authority: design-system/departmental-scholar/MASTER.md
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -58,88 +60,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Patent / IP';
+$pageTitle = 'Add Patent / IP — Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-8 pb-4 border-b border-slate-200">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-iter-700 hover:underline flex items-center gap-1 mb-1 font-semibold">
+    <div class="mb-8 pb-4 border-b border-scholar-border">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
-        <h1 class="text-2xl font-bold text-slate-900 font-serif-title">Add Patent / Invention</h1>
-        <p class="text-xs text-slate-500 mt-0.5">Record patents filed, published, or granted by Indian or International patent offices</p>
+        <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Patent / Invention</h1>
+        <p class="text-xs text-scholar-muted mt-0.5 font-sans">Record intellectual property filed, published, or granted by patent offices</p>
     </div>
 
     <?php if ($error): ?>
-        <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+        <div class="mb-6 p-4 rounded-[6px] bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-exclamation text-rose-600 text-sm flex-shrink-0"></i>
             <span><?= e($error) ?></span>
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_patent.php?profile_id=' . $profileId) ?>" method="POST" class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+    <form action="<?= url('dashboard/add_patent.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
         <?= csrf_field() ?>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                Invention / Patent Title <span class="text-rose-500">*</span>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                Patent Title / Invention Name <span class="text-rose-600">*</span>
             </label>
             <input type="text" name="title" required value="<?= e($_POST['title'] ?? '') ?>"
-                placeholder="e.g. Reconfigurable Multi-Band Microstrip Patch Antenna for Satellite Ground Stations"
-                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none">
+                placeholder="e.g. Automated Early Screening System for Retinal Disorders"
+                class="academic-input text-xs sm:text-sm">
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Patent Number / App No.
+                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    Patent / Application Number
                 </label>
                 <input type="text" name="patent_number" value="<?= e($_POST['patent_number'] ?? '') ?>"
-                    placeholder="e.g. IN202331019284"
-                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 font-mono">
+                    placeholder="e.g. 202431005892 A"
+                    class="academic-input text-xs font-mono">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Jurisdiction / Country
+                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    Country / Jurisdiction
                 </label>
                 <input type="text" name="country" value="<?= e($_POST['country'] ?? 'India') ?>"
-                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    placeholder="e.g. India / United States"
+                    class="academic-input text-xs">
             </div>
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                Current Status
+            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                Patent Status
             </label>
-            <select name="status" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium">
+            <select name="status" class="academic-input text-xs font-medium">
                 <option value="granted">Granted</option>
                 <option value="published">Published</option>
-                <option value="filed">Filed</option>
+                <option value="filed">Filed / Pending Examination</option>
             </select>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Filing Date</label>
+                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Filing Date</label>
                 <input type="date" name="filing_date" value="<?= e($_POST['filing_date'] ?? '') ?>"
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono">
+                    class="academic-input text-xs font-mono">
             </div>
+
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Grant Date (if granted)</label>
+                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Grant Date (if granted)</label>
                 <input type="date" name="grant_date" value="<?= e($_POST['grant_date'] ?? '') ?>"
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono">
+                    class="academic-input text-xs font-mono">
             </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-            <a href="<?= url('dashboard/index.php') ?>" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+        <div class="pt-4 border-t border-scholar-border flex items-center justify-end gap-3">
+            <a href="<?= url('dashboard/index.php') ?>" class="btn-academic-secondary text-xs !py-2.5 !px-5 shadow-xs">
                 Cancel
             </a>
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-iter-800 hover:bg-iter-900 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+            <button type="submit" class="btn-academic-primary text-xs !py-2.5 !px-6 shadow-xs">
                 <i class="fa-solid fa-plus text-xs"></i>
-                <span>Save Patent</span>
+                <span>Save Patent Record</span>
             </button>
         </div>
     </form>
