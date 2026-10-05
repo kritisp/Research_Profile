@@ -29,8 +29,10 @@ jobs:
       - name: Security Check - Raw SQL Concatenation Audit
         run: |
           echo "Scanning for dangerous raw SQL concatenation..."
-          # Fail if direct variable concatenation is detected inside query/prepare strings
-          if grep -rnE '(->query\(|->prepare\(|->exec\()["'\''].*\$[a-zA-Z_]' --include="*.php" .; then
+          # Fail if a variable is interpolated inside the SQL string literal ("... $var ...")
+          # or concatenated onto it ("..." . $var). The match is bounded to the string literal
+          # itself, so parameters passed to ->execute([...]) on the same line are not flagged.
+          if grep -rnE '(->query\(|->prepare\(|->exec\()\s*("[^"]*\$[a-zA-Z_{]|["'\''][^"'\'']*["'\'']\s*\.\s*\$[a-zA-Z_])' --include="*.php" .; then
             echo "::error::Potential raw SQL query string interpolation detected. Use prepared statement placeholders (:name or ?)."
             exit 1
           else
