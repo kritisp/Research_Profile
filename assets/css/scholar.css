@@ -393,129 +393,342 @@ body {
 }
 
 /* ========================================================= */
-/* PROFILE SCROLL-SIDEBAR ANIMATION                          */
+/* PROFILE SCROLL-SIDEBAR — PREMIUM FLOATING PROFILE CARD    */
 /* ========================================================= */
 
-/* The outer wrapper — becomes a two-column layout once scrolled */
 #profile-page-wrapper {
   position: relative;
 }
 
-/* === FIXED PROFILE SIDEBAR (appears on scroll) === */
+/* === FIXED PROFILE CARD (slides in from the left on scroll) === */
 #profile-sidebar-fixed {
   position: fixed;
-  top: 64px; /* below the global sticky site header */
-  left: 0;
-  height: calc(100vh - 64px);
-  width: 240px;
-  background-color: #ffffff;
-  border-right: 1px solid var(--scholar-border);
-  padding: 1.5rem 1.25rem;
-  z-index: 40;
+  top: 68px;
+  left: 12px;
+  width: 256px;
+  max-height: calc(100vh - 80px);
+  z-index: 38;
+
+  /* Premium glass card look */
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 32px rgba(10, 25, 47, 0.10),
+    0 2px 8px rgba(10, 25, 47, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+
+  /* Layout */
   display: flex;
   flex-direction: column;
-
-  gap: 0.875rem;
-  box-shadow: 2px 0 16px rgba(10,25,47,0.06);
-
-  /* Hidden initially — slides in from the left */
-  transform: translateX(-100%);
-  opacity: 0;
-  transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 300ms ease;
+  overflow: hidden;
   pointer-events: none;
-  overflow-y: auto;
-  overflow-x: hidden;
+
+  /* Entrance animation: slides in from left + scales up */
+  transform: translateX(calc(-100% - 20px)) scale(0.96);
+  opacity: 0;
+  transition:
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 240ms ease;
 }
 
 #profile-sidebar-fixed.sidebar-visible {
-  transform: translateX(0);
+  transform: translateX(0) scale(1);
   opacity: 1;
   pointer-events: auto;
 }
 
-/* Sidebar content elements */
-.sidebar-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 6px;
-  border: 1px solid var(--scholar-border);
-  object-fit: cover;
+#profile-sidebar-fixed:hover {
+  box-shadow:
+    0 16px 48px rgba(10, 25, 47, 0.14),
+    0 4px 12px rgba(10, 25, 47, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+/* Scrollable inner area */
+.sidebar-inner {
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  /* Custom elegant scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(10,25,47,0.12) transparent;
+}
+.sidebar-inner::-webkit-scrollbar { width: 4px; }
+.sidebar-inner::-webkit-scrollbar-track { background: transparent; }
+.sidebar-inner::-webkit-scrollbar-thumb { background: rgba(10,25,47,0.12); border-radius: 99px; }
+
+/* ── Card Header: Gradient banner + centered avatar ── */
+.sidebar-header {
+  position: relative;
+  background: linear-gradient(145deg, #0A192F 0%, #162C4E 55%, #1E3A5F 100%);
+  padding: 1.5rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
   flex-shrink: 0;
-  background: var(--scholar-surface-muted);
+}
+
+/* Subtle decorative dots */
+.sidebar-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 60%),
+                    radial-gradient(circle at 80% 80%, rgba(37,99,235,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Avatar circle with glow ring */
+.sidebar-avatar-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  margin-bottom: 0.875rem;
+}
+.sidebar-avatar-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(37,99,235,0.3) 100%);
+}
+.sidebar-avatar-wrap img,
+.sidebar-avatar-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.9);
+  background: #1E3A5F;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
 }
 
+/* Department tag */
+.sidebar-dept-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 3px;
+  padding: 0.175rem 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Name + designation on dark header */
 .sidebar-name {
   font-family: var(--font-serif);
-  font-size: 0.95rem;
+  font-size: 1.0rem;
   font-weight: 700;
-  color: var(--oxford-navy);
+  color: #ffffff;
   line-height: 1.3;
+  margin-bottom: 0.2rem;
 }
 
 .sidebar-designation {
-  font-size: 0.72rem;
+  font-size: 0.71rem;
   font-weight: 500;
-  color: var(--scholar-muted);
+  color: rgba(255,255,255,0.72);
   font-family: var(--font-sans);
   line-height: 1.4;
 }
 
-.sidebar-dept {
-  font-size: 0.68rem;
+.sidebar-institution {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--font-sans);
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
+/* Verified badge on header */
+.sidebar-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(134, 239, 172, 0.95);
+  letter-spacing: 0.02em;
+}
+
+/* ── Metrics Strip ── */
+.sidebar-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid rgba(10,25,47,0.07);
+  flex-shrink: 0;
+}
+
+.sidebar-metric-item {
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  border-right: 1px solid rgba(10,25,47,0.07);
+  transition: background 160ms ease;
+}
+.sidebar-metric-item:last-child { border-right: none; }
+.sidebar-metric-item:hover { background: rgba(10,25,47,0.02); }
+
+.sidebar-metric-val {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--oxford-navy);
+  line-height: 1.1;
+}
+
+.sidebar-metric-label {
+  font-size: 0.58rem;
+  font-weight: 600;
   color: var(--scholar-subtle);
   font-family: var(--font-sans);
-  line-height: 1.4;
-  margin-top: 0.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.2rem;
+  line-height: 1.3;
 }
 
-.sidebar-divider {
-  border: 0;
-  border-top: 1px solid var(--scholar-border-light);
-  margin: 0.25rem 0;
+/* ── Body Sections ── */
+.sidebar-body {
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
-.sidebar-registry-link {
+.sidebar-section-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--scholar-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-sans);
+  padding: 0.6rem 0 0.3rem;
+}
+
+.sidebar-contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.325rem 0.35rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 130ms ease;
+  cursor: default;
+}
+a.sidebar-contact-row { cursor: pointer; }
+a.sidebar-contact-row:hover,
+.sidebar-contact-row:hover { background: rgba(10,25,47,0.04); }
+
+.sidebar-contact-icon {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(10,25,47,0.05);
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: center;
+  font-size: 0.58rem;
+  color: var(--scholar-muted);
+  margin-top: 1px;
+}
+
+.sidebar-contact-text {
+  font-size: 0.685rem;
+  color: var(--scholar-text-secondary);
+  font-family: var(--font-sans);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.sidebar-registry-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.68rem;
   font-weight: 500;
   color: var(--scholar-text-secondary);
   text-decoration: none;
-  padding: 0.3rem 0.4rem;
-  border-radius: 4px;
-  transition: background-color 120ms ease;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(10,25,47,0.08);
+  background: rgba(10,25,47,0.025);
+  transition: all 150ms ease;
   font-family: var(--font-sans);
+  margin-bottom: 0.3rem;
+  width: 100%;
+}
+.sidebar-registry-pill:hover {
+  background: rgba(10,25,47,0.06);
+  border-color: rgba(10,25,47,0.15);
+  color: var(--oxford-navy);
 }
 
-.sidebar-registry-link:hover {
-  background-color: var(--scholar-surface-muted);
-  color: var(--oxford-navy);
+.sidebar-divider {
+  border: 0;
+  border-top: 1px solid rgba(10,25,47,0.06);
+  margin: 0.4rem 0;
+}
+
+/* Edit profile button at bottom of card */
+.sidebar-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.25rem 1rem 0.875rem;
+  padding: 0.5rem;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #0A192F 0%, #162C4E 100%);
+  color: rgba(255,255,255,0.9);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: all 160ms ease;
+  flex-shrink: 0;
+}
+.sidebar-edit-btn:hover {
+  background: linear-gradient(135deg, #162C4E 0%, #1E3A5F 100%);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(10,25,47,0.2);
+  transform: translateY(-1px);
 }
 
 /* Main content area shifts right when sidebar visible */
 #profile-main-area {
-  transition: margin-left 380ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: margin-left 420ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #profile-main-area.sidebar-pushed {
-  margin-left: 240px;
+  margin-left: 280px;
 }
 
-/* Hide sidebar on small screens regardless */
-@media (max-width: 768px) {
-  #profile-sidebar-fixed {
-    display: none !important;
-  }
-  #profile-main-area.sidebar-pushed {
-    margin-left: 0 !important;
-  }
+/* Hide sidebar on small screens */
+@media (max-width: 900px) {
+  #profile-sidebar-fixed { display: none !important; }
+  #profile-main-area.sidebar-pushed { margin-left: 0 !important; }
 }
-
 
 
 /* Publications Editorial Entry */
