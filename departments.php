@@ -1,6 +1,8 @@
 <?php
 /**
- * ITER Academic Departments Overview
+ * Departmental Scholar - Academic Departments Overview
+ * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
+ * Authority: design-system/departmental-scholar/MASTER.md
  */
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/csrf.php';
@@ -19,56 +21,59 @@ $deptStmt = $db->query("
     GROUP BY d.id
     ORDER BY faculty_count DESC, d.name ASC
 ");
-$departments = $deptStmt->fetchAll();
+$departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Academic Departments';
+$pageTitle = 'Collegiate Academic Departments — Faculty Profiles';
 $activeNav = 'departments';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="bg-slate-900 text-white py-12 border-b border-slate-800">
+<!-- Header Banner -->
+<section class="bg-oxford-navy text-white py-12 border-b border-oxford-blue">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <span class="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">Academic Structure</span>
-        <h1 class="text-3xl sm:text-4xl font-bold font-serif-title mt-2">ITER Departments</h1>
-        <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl leading-relaxed">
-            Explore faculty research profiles, citation impacts, and scholarly publications across all academic engineering departments of ITER, SOA University Bhubaneswar.
+        <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">Academic Architecture</span>
+        <h1 class="font-serif text-3xl sm:text-4xl font-normal text-white mt-2 leading-tight">Academic Departments</h1>
+        <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl leading-relaxed font-sans">
+            Explore departmental research output, publication volumes, and faculty directories across collegiate divisions.
         </p>
     </div>
-</div>
+</section>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<!-- Departments Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <?php foreach ($departments as $dept): ?>
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div class="academic-card p-6 flex flex-col justify-between group">
                 <div>
+                    <!-- Header with code & metrics -->
                     <div class="flex items-center justify-between mb-3">
-                        <span class="px-3 py-1 rounded-lg bg-iter-900 text-white text-xs font-mono font-bold">
+                        <span class="px-2.5 py-1 rounded-[4px] bg-oxford-navy text-white text-xs font-mono font-bold">
                             <?= e($dept['code']) ?>
                         </span>
                         <div class="flex items-center gap-3 text-xs text-slate-500 font-mono">
-                            <span><i class="fa-solid fa-users text-iter-600 mr-1"></i><?= (int)$dept['faculty_count'] ?> Faculty</span>
+                            <span><i class="fa-solid fa-users text-oxford-blue mr-1"></i><?= (int)$dept['faculty_count'] ?> Faculty</span>
                             <span>•</span>
-                            <span><i class="fa-solid fa-file-lines text-iter-600 mr-1"></i><?= (int)$dept['publication_count'] ?> Papers</span>
+                            <span><i class="fa-solid fa-file-lines text-oxford-blue mr-1"></i><?= (int)$dept['publication_count'] ?> Works</span>
                         </div>
                     </div>
 
-                    <h2 class="text-lg font-bold text-slate-900 font-serif-title leading-snug">
-                        <a href="<?= url('directory.php?dept=' . urlencode($dept['code'])) ?>" class="hover:text-iter-800 transition">
+                    <h2 class="font-serif font-bold text-xl text-oxford-navy leading-snug group-hover:text-oxford-blue transition">
+                        <a href="<?= url('directory.php?dept=' . urlencode($dept['code'])) ?>">
                             <?= e($dept['name']) ?>
                         </a>
                     </h2>
 
-                    <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                        <?= e($dept['description'] ?? 'Department of ' . $dept['name'] . ', ITER, SOA University.') ?>
+                    <p class="text-xs text-scholar-muted mt-2.5 leading-relaxed font-sans">
+                        <?= e($dept['description'] ?? 'Academic department of ' . $dept['name'] . ', conducting peer-reviewed research and scholarly mentoring.') ?>
                     </p>
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div class="mt-6 pt-4 border-t border-scholar-border flex items-center justify-between">
                     <span class="text-xs font-mono text-slate-500">
-                        Total Citations: <strong class="text-slate-800"><?= number_format($dept['dept_citations']) ?></strong>
+                        Citations: <strong class="text-oxford-navy font-mono font-bold"><?= number_format($dept['dept_citations']) ?></strong>
                     </span>
                     <a href="<?= url('directory.php?dept=' . urlencode($dept['code'])) ?>" 
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-iter-50 text-iter-800 hover:bg-iter-800 hover:text-white transition">
+                       class="btn-academic-secondary text-xs !py-1.5 !px-3 group-hover:border-oxford-blue">
                         <span>Browse Faculty</span>
                         <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </a>

@@ -1,6 +1,8 @@
 <?php
 /**
- * Add Funded Research Project Form
+ * Departmental Scholar — Add Funded Research Project Form
+ * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
+ * Authority: design-system/departmental-scholar/MASTER.md
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -60,78 +62,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Sponsored Research Project';
+$pageTitle = 'Add Sponsored Research Project — Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-8 pb-4 border-b border-slate-200">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-iter-700 hover:underline flex items-center gap-1 mb-1 font-semibold">
+    <div class="mb-8 pb-4 border-b border-scholar-border">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
-        <h1 class="text-2xl font-bold text-slate-900 font-serif-title">Add Sponsored Research Grant</h1>
-        <p class="text-xs text-slate-500 mt-0.5">Record extramural funding from SERB, DST, DRDO, AICTE, or industry</p>
+        <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Sponsored Research Grant</h1>
+        <p class="text-xs text-scholar-muted mt-0.5 font-sans">Record extramural funding from SERB, DST, DRDO, AICTE, or industry partners</p>
     </div>
 
     <?php if ($error): ?>
-        <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+        <div class="mb-6 p-4 rounded-[6px] bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-exclamation text-rose-600 text-sm flex-shrink-0"></i>
             <span><?= e($error) ?></span>
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_project.php?profile_id=' . $profileId) ?>" method="POST" class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+    <form action="<?= url('dashboard/add_project.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
         <?= csrf_field() ?>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                Project Title <span class="text-rose-500">*</span>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                Project Title <span class="text-rose-600">*</span>
             </label>
             <input type="text" name="title" required value="<?= e($_POST['title'] ?? '') ?>"
-                placeholder="e.g. Design of Edge-AI Embedded IoT Devices for Automated Crop Disease Diagnostic"
-                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none">
+                placeholder="e.g. Edge-AI Framework for Autonomous Agricultural Monitoring"
+                class="academic-input text-xs sm:text-sm">
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Funding Agency / Sponsor <span class="text-rose-500">*</span>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    Funding Agency <span class="text-rose-600">*</span>
                 </label>
                 <input type="text" name="funding_agency" required value="<?= e($_POST['funding_agency'] ?? '') ?>"
                     placeholder="e.g. SERB / DST / AICTE / DRDO"
-                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none">
+                    class="academic-input text-xs">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Sanction / Project Code
+                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    Project Sanction Code
                 </label>
                 <input type="text" name="project_code" value="<?= e($_POST['project_code'] ?? '') ?>"
-                    placeholder="e.g. CRG/2023/004812"
-                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 font-mono">
+                    placeholder="e.g. CRG/2023/004521"
+                    class="academic-input text-xs font-mono">
             </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Role</label>
-                <select name="role" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    Role in Project
+                </label>
+                <select name="role" class="academic-input text-xs font-medium">
                     <option value="pi">Principal Investigator (PI)</option>
-                    <option value="copi">Co-Investigator (Co-PI)</option>
+                    <option value="co_pi">Co-Principal Investigator (Co-PI)</option>
+                    <option value="coordinator">Program Coordinator</option>
+                    <option value="mentor">Faculty Mentor</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Sanctioned Amount (₹ Lakhs)
+                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    Grant Amount (in Lakhs INR)
                 </label>
                 <input type="number" step="0.01" min="0" name="amount_lakhs" value="<?= e($_POST['amount_lakhs'] ?? '0.00') ?>"
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono font-bold">
+                    class="academic-input text-xs font-mono">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Status</label>
-                <select name="status" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
+                    Project Status
+                </label>
+                <select name="status" class="academic-input text-xs font-medium">
                     <option value="ongoing">Ongoing</option>
                     <option value="completed">Completed</option>
                 </select>
@@ -140,24 +148,24 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Start Year</label>
+                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Start Year</label>
                 <input type="number" name="start_year" min="1990" max="2035" value="<?= e($_POST['start_year'] ?? date('Y')) ?>"
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono">
+                    class="academic-input text-xs font-mono">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">End Year (or Expected)</label>
+                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">End Year (or Expected)</label>
                 <input type="number" name="end_year" min="1990" max="2035" value="<?= e($_POST['end_year'] ?? (date('Y') + 3)) ?>"
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono">
+                    class="academic-input text-xs font-mono">
             </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-            <a href="<?= url('dashboard/index.php') ?>" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+        <div class="pt-4 border-t border-scholar-border flex items-center justify-end gap-3">
+            <a href="<?= url('dashboard/index.php') ?>" class="btn-academic-secondary text-xs !py-2.5 !px-5 shadow-xs">
                 Cancel
             </a>
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-iter-800 hover:bg-iter-900 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+            <button type="submit" class="btn-academic-primary text-xs !py-2.5 !px-6 shadow-xs">
                 <i class="fa-solid fa-plus text-xs"></i>
-                <span>Save Project</span>
+                <span>Save Project Record</span>
             </button>
         </div>
     </form>

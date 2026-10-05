@@ -1,6 +1,8 @@
 <?php
 /**
- * Faculty Delegates & Assistant Management
+ * Departmental Scholar — Faculty Delegates & Assistant Management
+ * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
+ * Authority: design-system/departmental-scholar/MASTER.md
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -12,7 +14,7 @@ $db = Database::getConnection();
 
 $pStmt = $db->prepare("SELECT id, user_id FROM faculty_profiles WHERE user_id = ?");
 $pStmt->execute([user_id()]);
-$faculty = $pStmt->fetch();
+$faculty = $pStmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$faculty) {
     set_flash('danger', 'Faculty profile not found.');
@@ -32,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         $uStmt = $db->prepare("SELECT id, full_name, role FROM users WHERE email = ? LIMIT 1");
         $uStmt->execute([$email]);
-        $targetUser = $uStmt->fetch();
+        $targetUser = $uStmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$targetUser) {
             $error = 'No registered user found with that email address. Please ask them to register an Assistant/Coordinator account first.';
@@ -71,7 +73,7 @@ $delStmt = $db->prepare("
     ORDER BY fd.created_at DESC
 ");
 $delStmt->execute([$facultyUserId]);
-$delegates = $delStmt->fetchAll();
+$delegates = $delStmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch available assistants/admins for quick selection
 $availStmt = $db->prepare("
@@ -80,57 +82,57 @@ $availStmt = $db->prepare("
     ORDER BY full_name ASC
 ");
 $availStmt->execute([$facultyUserId]);
-$availableAssistants = $availStmt->fetchAll();
+$availableAssistants = $availStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Manage Research Assistants & Delegates';
+$pageTitle = 'Manage Research Assistants & Delegates — Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-8 pb-4 border-b border-slate-200">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-iter-700 hover:underline flex items-center gap-1 mb-1 font-semibold">
+    <div class="mb-8 pb-4 border-b border-scholar-border">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
-        <h1 class="text-2xl font-bold text-slate-900 font-serif-title">Assistant & Delegate Access</h1>
-        <p class="text-xs text-slate-500 mt-0.5">Authorize trusted research scholars or departmental coordinators to update your publications and achievements on your behalf</p>
+        <h1 class="font-serif text-2xl font-bold text-oxford-navy">Assistant & Delegate Access</h1>
+        <p class="text-xs text-scholar-muted mt-0.5 font-sans">Authorize research assistants or departmental coordinators to curate your scholarly works on your behalf</p>
     </div>
 
     <?php if ($error): ?>
-        <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+        <div class="mb-6 p-4 rounded-[6px] bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-exclamation text-rose-600 text-sm flex-shrink-0"></i>
             <span><?= e($error) ?></span>
         </div>
     <?php endif; ?>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Left: Current Delegates List -->
+        <!-- Left: Authorized Delegates List -->
         <div class="lg:col-span-2 space-y-4">
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <h2 class="text-sm font-bold text-slate-900 uppercase font-mono tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-user-shield text-iter-700"></i>
+            <div class="academic-card p-6">
+                <h2 class="text-xs font-bold text-oxford-navy uppercase font-mono tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-academic-gold"></i>
                     <span>Authorized Delegates (<?= count($delegates) ?>)</span>
                 </h2>
 
                 <?php if (empty($delegates)): ?>
-                    <div class="p-8 text-center text-slate-500 text-xs border border-dashed border-slate-200 rounded-xl">
+                    <div class="p-8 text-center text-slate-500 text-xs border border-dashed border-scholar-border rounded-[8px]">
                         <i class="fa-solid fa-user-lock text-3xl text-slate-300 mb-2"></i>
-                        <p class="font-semibold text-slate-700">No delegates assigned yet</p>
-                        <p class="text-[11px] text-slate-400 mt-1">You can grant edit permissions to departmental research assistants using the form on the right.</p>
+                        <p class="font-serif text-sm font-bold text-oxford-navy">No delegates assigned yet</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Grant edit permissions to registered research assistants using the form on the right.</p>
                     </div>
                 <?php else: ?>
                     <div class="divide-y divide-slate-100">
                         <?php foreach ($delegates as $del): ?>
-                            <div class="py-3.5 flex items-center justify-between gap-4">
+                            <div class="py-3.5 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-iter-100 text-iter-800 flex items-center justify-center font-bold text-xs">
+                                    <div class="w-10 h-10 rounded-[6px] bg-slate-100 text-oxford-navy border border-scholar-border flex items-center justify-center font-bold text-xs font-mono">
                                         <?= strtoupper(substr($del['full_name'], 0, 2)) ?>
                                     </div>
                                     <div>
-                                        <h3 class="text-xs font-bold text-slate-900"><?= e($del['full_name']) ?></h3>
+                                        <h3 class="font-serif font-bold text-sm text-oxford-navy"><?= e($del['full_name']) ?></h3>
                                         <p class="text-[11px] text-slate-500 font-mono"><?= e($del['email']) ?></p>
-                                        <span class="inline-block mt-0.5 px-1.5 py-0.2 rounded bg-slate-100 text-[10px] text-slate-600 font-mono uppercase">
-                                            <?= e($del['role']) ?>
+                                        <span class="academic-tag font-mono text-[10px] mt-0.5">
+                                            <?= e(str_replace('_', ' ', $del['role'])) ?>
                                         </span>
                                     </div>
                                 </div>
@@ -139,11 +141,11 @@ require_once __DIR__ . '/../includes/header.php';
                                     <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">
                                         Granted: <?= date('M d, Y', strtotime($del['granted_date'])) ?>
                                     </span>
-                                    <form method="POST" action="<?= url('dashboard/delegates.php') ?>" onsubmit="return confirm('Revoke edit access for this assistant?');" class="inline">
+                                    <form method="POST" action="<?= url('dashboard/delegates.php') ?>" onsubmit="return confirm('Revoke edit access for this assistant?');" class="inline m-0">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="action" value="revoke_delegate">
-                                        <input type="hidden" name="delegate_id" value="<?= $del['delegate_rel_id'] ?>">
-                                        <button type="submit" class="px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition border border-rose-200">
+                                        <input type="hidden" name="delegate_id" value="<?= (int)$del['delegate_rel_id'] ?>">
+                                        <button type="submit" class="px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 rounded-[4px] transition border border-rose-200">
                                             Revoke
                                         </button>
                                     </form>
@@ -156,42 +158,45 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <!-- Right: Grant New Delegate Form -->
-        <div class="space-y-4">
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <h2 class="text-sm font-bold text-slate-900 uppercase font-mono tracking-wider mb-3">
-                    Grant New Access
+        <div>
+            <div class="academic-card p-6">
+                <h2 class="text-xs font-bold text-oxford-navy uppercase font-mono tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-academic-gold"></i>
+                    <span>Authorize Delegate</span>
                 </h2>
-                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-                    Enter the registered email of your research assistant, PhD scholar, or departmental coordinator.
+                <p class="text-xs text-scholar-muted mb-4 leading-relaxed font-sans">
+                    Authorize an assistant or coordinator to log in and manage your research publications.
                 </p>
 
                 <form action="<?= url('dashboard/delegates.php') ?>" method="POST" class="space-y-4">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="add_delegate">
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Select from Registered Assistants</label>
-                        <select onchange="if(this.value) document.getElementById('delegate_email').value = this.value;"
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs mb-2">
-                            <option value="">-- Quick Select --</option>
-                            <?php foreach ($availableAssistants as $asst): ?>
-                                <option value="<?= e($asst['email']) ?>">
-                                    <?= e($asst['full_name']) ?> (<?= e($asst['email']) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    <?php if (!empty($availableAssistants)): ?>
+                        <div>
+                            <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Quick Select</label>
+                            <select onchange="if(this.value) document.getElementById('delegate_email').value = this.value;"
+                                class="academic-input text-xs mb-2">
+                                <option value="">-- Select from Registered Admins --</option>
+                                <?php foreach ($availableAssistants as $asst): ?>
+                                    <option value="<?= e($asst['email']) ?>">
+                                        <?= e($asst['full_name']) ?> (<?= e($asst['email']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endif; ?>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Or Enter Email Address</label>
+                        <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Assistant Email</label>
                         <input type="email" id="delegate_email" name="delegate_email" required
                             placeholder="assistant@iter.ac.in"
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+                            class="academic-input text-xs">
                     </div>
 
-                    <button type="submit" class="w-full py-2.5 px-4 bg-iter-800 hover:bg-iter-900 text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+                    <button type="submit" class="btn-academic-primary w-full text-xs shadow-xs !py-2.5">
                         <i class="fa-solid fa-user-check text-xs"></i>
-                        <span>Authorize Delegate</span>
+                        <span>Authorize Access</span>
                     </button>
                 </form>
             </div>
