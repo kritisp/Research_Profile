@@ -149,10 +149,10 @@
                 </div>
             </div>
 
-            <!-- Crisp White Disc Housing Official SOA Logo -->
-            <div class="relative w-30 h-30 sm:w-34 sm:h-34 rounded-full p-2 bg-white shadow-2xl ring-2 ring-white/30 flex items-center justify-center overflow-hidden">
-                <img src="<?= url('assets/img/soa_logo.png') ?>" 
-                     alt="Siksha 'O' Anusandhan" 
+            <!-- Crisp White Disc Housing Scholar Hat Logo -->
+            <div class="relative w-30 h-30 sm:w-34 sm:h-34 rounded-full p-1 bg-white shadow-2xl ring-2 ring-white/30 flex items-center justify-center overflow-hidden">
+                <img src="<?= url('assets/img/scholar_logo.png') ?>" 
+                     alt="Departmental Research Profile" 
                      class="w-full h-full object-contain drop-shadow">
             </div>
         </div>
@@ -161,16 +161,16 @@
         <div class="space-y-1.5 mb-7">
             <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono tracking-widest text-amber-300 uppercase font-semibold shadow-sm">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                <span>NAAC A++ • NIRF Ranked Institution</span>
+                <span>Scholarly Research Network</span>
             </span>
             <h1 class="text-xl sm:text-2xl font-bold font-serif tracking-wider text-slate-100 uppercase drop-shadow-sm pt-1">
-                Siksha 'O' Anusandhan
+                Departmental Research Profile
             </h1>
             <p class="text-[11px] font-mono tracking-widest text-slate-400 uppercase">
-                (Deemed to be University) • Bhubaneswar
+                Faculty Scholarly Directory & Academic Repository
             </p>
             <p class="text-xs font-semibold text-rose-400/90 pt-0.5 tracking-wide">
-                Institute of Technical Education and Research (ITER)
+                Excellence in Research, Grants & Publications
             </p>
         </div>
 

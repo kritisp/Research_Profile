@@ -49,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $salutation     = trim($_POST['salutation'] ?? 'Dr.');
     $fullName       = trim($_POST['full_name'] ?? '');
     $designation    = trim($_POST['designation'] ?? '');
+    $institution    = trim($_POST['institution'] ?? 'ITER, SOA University');
     $departmentId   = !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null;
     $cabin          = trim($_POST['cabin'] ?? '');
     $phone          = trim($_POST['phone'] ?? '');
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pUpdate = $db->prepare("
                 UPDATE faculty_profiles SET
                     department_id = ?,
+                    institution = ?,
                     salutation = ?,
                     designation = ?,
                     cabin = ?,
@@ -92,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE id = ?
             ");
             $pUpdate->execute([
-                $departmentId, $salutation, $designation, $cabin, $phone,
+                $departmentId, $institution, $salutation, $designation, $cabin, $phone,
                 $photoUrl, $bio, $interests, $scholarUrl, $orcid, $scopus,
                 $citations, $hIndex, $i10Index, $profileId
             ]);
@@ -165,6 +167,13 @@ require_once __DIR__ . '/../includes/header.php';
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Academic Designation</label>
                     <input type="text" name="designation" required value="<?= e($profile['designation']) ?>"
                         placeholder="e.g. Professor & Head / Associate Professor"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+                </div>
+
+                <div class="sm:col-span-6">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">College / Institution</label>
+                    <input type="text" name="institution" required value="<?= e($profile['institution'] ?? 'ITER, SOA University') ?>"
+                        placeholder="e.g. ITER, SOA University / IIT Bhubaneswar"
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
                 </div>
 

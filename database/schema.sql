@@ -35,6 +35,7 @@ CREATE TABLE `faculty_profiles` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT NOT NULL UNIQUE,
     `department_id` INT NULL,
+    `institution` VARCHAR(191) DEFAULT 'ITER, SOA University',
     `salutation` VARCHAR(20) DEFAULT 'Dr.',
     `designation` VARCHAR(100) DEFAULT 'Assistant Professor',
     `cabin` VARCHAR(100) NULL,
@@ -55,6 +56,7 @@ CREATE TABLE `faculty_profiles` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX `idx_dept` (`department_id`),
+    INDEX `idx_institution` (`institution`),
     INDEX `idx_citations` (`total_citations`),
     CONSTRAINT `fk_profile_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_profile_dept` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL

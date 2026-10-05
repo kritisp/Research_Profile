@@ -11,10 +11,19 @@ $db = Database::getConnection();
 // Fetch filter parameters
 $q      = trim($_GET['q'] ?? '');
 $dept   = trim($_GET['dept'] ?? '');
+$inst   = trim($_GET['inst'] ?? '');
 $sort   = trim($_GET['sort'] ?? 'citations');
 
 // Fetch all departments for filter dropdown
 $deptList = $db->query("SELECT code, name FROM departments ORDER BY name ASC")->fetchAll();
+
+// Fetch distinct institutions for filter dropdown
+$institutionList = $db->query("
+    SELECT DISTINCT institution 
+    FROM faculty_profiles 
+    WHERE institution IS NOT NULL AND TRIM(institution) != '' 
+    ORDER BY institution ASC
+")->fetchAll(PDO::FETCH_COLUMN);
 
 // Build dynamic search query with PDO prepared parameters
 $sql = "
@@ -41,6 +50,11 @@ if (!empty($dept)) {
     $params[] = $dept;
 }
 
+if (!empty($inst)) {
+    $sql .= " AND fp.institution = ?";
+    $params[] = $inst;
+}
+
 $sql .= " GROUP BY fp.id, u.full_name, u.email, d.name, d.code";
 
 // Sort
@@ -64,10 +78,10 @@ require_once __DIR__ . '/includes/header.php';
 <div class="bg-slate-900 text-white py-10 sm:py-12 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl">
-            <span class="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">ITER Scholarly Directory</span>
+            <span class="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">Departmental Scholarly Directory</span>
             <h1 class="text-2xl sm:text-4xl font-bold font-serif-title mt-1.5 leading-tight">Faculty & Researchers</h1>
             <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-                Browse official academic profiles, publication records, and citation metrics across all engineering and technology departments of ITER Bhubaneswar.
+                Browse verified academic profiles, publication records, and citation metrics across collegiate departments and academic institutions.
             </p>
         </div>
     </div>
@@ -80,7 +94,7 @@ require_once __DIR__ . '/includes/header.php';
         <form action="<?= url('directory.php') ?>" method="GET" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
             
             <!-- Query Search -->
-            <div class="sm:col-span-6 relative">
+            <div class="sm:col-span-4 relative">
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
@@ -89,8 +103,21 @@ require_once __DIR__ . '/includes/header.php';
                     class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
             </div>
 
-            <!-- Department Filter -->
+            <!-- Institution Filter -->
             <div class="sm:col-span-3">
+                <select name="inst" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-700 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
+                    <option value="">All Institutions</option>
+                    <?php foreach ($institutionList as $instItem): ?>
+                        <option value="<?= e($instItem) ?>" <?= $inst === $instItem ? 'selected' : '' ?>>
+                            <?= e($instItem) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <!-- Department Filter -->
+            <div class="sm:col-span-2">
                 <select name="dept" 
                     class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-700 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
                     <option value="">All Departments</option>
@@ -121,9 +148,13 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </form>
 
-        <?php if (!empty($q) || !empty($dept)): ?>
+        <?php if (!empty($q) || !empty($dept) || !empty($inst)): ?>
             <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <span>Showing filtered results for: <strong><?= e($q ?: $dept) ?></strong></span>
+                <span>Showing filtered results: 
+                    <?= !empty($q) ? '<strong>"' . e($q) . '"</strong> ' : '' ?>
+                    <?= !empty($inst) ? 'at <strong>' . e($inst) . '</strong> ' : '' ?>
+                    <?= !empty($dept) ? 'in <strong>' . e($dept) . '</strong>' : '' ?>
+                </span>
                 <a href="<?= url('directory.php') ?>" class="text-rose-600 hover:underline flex items-center gap-1">
                     <i class="fa-solid fa-rotate-left text-[10px]"></i> Reset filters
                 </a>
@@ -167,7 +198,7 @@ require_once __DIR__ . '/includes/header.php';
 
                             <div class="flex-grow min-w-0">
                                 <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-iter-50 text-iter-800 mb-1">
-                                    <?= e($fac['department_code'] ?? 'ITER') ?>
+                                    <?= e($fac['department_code'] ?? 'SCHOLAR') ?>
                                 </span>
                                 <h3 class="font-bold text-slate-900 text-base leading-tight truncate">
                                     <a href="<?= url('profile.php?id=' . $fac['id']) ?>" class="hover:text-iter-700 transition">
@@ -176,6 +207,12 @@ require_once __DIR__ . '/includes/header.php';
                                 </h3>
                                 <p class="text-xs text-slate-600 mt-0.5 truncate"><?= e($fac['designation']) ?></p>
                                 <p class="text-xs text-slate-500 truncate"><?= e($fac['department_name']) ?></p>
+                                <?php if (!empty($fac['institution'])): ?>
+                                    <p class="text-[11px] text-slate-400 truncate mt-1 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-building-columns text-[10px] text-slate-400"></i>
+                                        <span><?= e($fac['institution']) ?></span>
+                                    </p>
+                                <?php endif; ?>
                             </div>
                         </div>
 

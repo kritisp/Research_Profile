@@ -1,9 +1,9 @@
 # Current Project State
 
 ## Active Context
-- **Current Phase**: Phase 4 — Institutional Preloader & Visual Experience
-- **Current Milestone**: Enhanced Luminous Progress Bar, Shimmer Beam & 2.4s Cinematic Pacing Completed
-- **Status**: Visual feedback addressed: bar glow unclipped, travelling laser shimmer added, orbiting comet added, pacing tuned to 2.4s.
+- **Current Phase**: Phase 4 — Visual Experience, Universal Branding & Multi-Institution Support
+- **Current Milestone**: Universal Scholar Branding & Multi-Institution Filter Completed
+- **Status**: Universal Scholar crest logo deployed, luminous glowing preloader with laser shimmer active, `institution` column and index added, multi-institution filter in directory tested and operational.
 
 ---
 
@@ -11,23 +11,18 @@
 - **2026-10-05**: Initialized workspace with GSD (Spec-Driven Development) framework.
 - **2026-10-05**: Configured Apache & MySQL on XAMPP; created database `research_profile_db`.
 - **2026-10-05**: Built complete application (11 DB tables, multi-role auth, assistant delegation, Google Scholar UI, directory, admin panel).
-- **2026-10-05**: Conducted comprehensive CodeRabbit Quality & Security Gate audit:
-  - Enforced strict HTTP POST method on all deletion and revocation mutations.
-  - Hardened session cookies with `HttpOnly`, `SameSite=Lax`, and `session.use_strict_mode=1`.
-  - Added URL protocol sanitization (`safe_url()` and `safe_orcid()`) to prevent XSS via `javascript:` links.
-  - Eliminated raw database exception disclosures in `config/database.php`.
-  - Added `.coderabbit.yaml` repository configuration with assertive review instructions.
-  - Added `.github/workflows/security-quality.yml` GitHub Actions CI workflow.
+- **2026-10-05**: Conducted comprehensive CodeRabbit Quality & Security Gate audit (CSRF, POST-only mutations, session hardening, link safety).
+- **2026-10-05**: Universalized branding to "Departmental Research Profile" with prestigious scholar hat emblem (`assets/img/scholar_logo.png`).
+- **2026-10-05**: Added `institution` column to `faculty_profiles`, registration form, profile editor, and public profile view.
+- **2026-10-05**: Added multi-institution filtering to `directory.php` with dynamic distinct institution query and active filter indicators.
+- **2026-10-05**: Updated demo seeder with diverse institutions (ITER/SOA, OUTR, NIT Rourkela) and verified HTTP 200 filtering.
 
 ---
 
 ## Blockers & Risks
-- *None identified.*
+- *None identified.* All endpoints verified and tested.
 
 ---
 
 ## Next Steps
-1. Create `database/schema.sql` and run `database/migrate.php` to establish all 11 tables and seed ITER departments.
-2. Build security utilities (`includes/helpers.php`, `includes/csrf.php`, `includes/auth.php`).
-3. Scaffold academic navigation shell (`includes/header.php`, `includes/footer.php`).
-4. Implement and verify authentication (`login.php`, `register.php`, `logout.php`).
+- Commit and push all updates to GitHub (`origin/main`).

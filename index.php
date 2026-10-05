@@ -52,14 +52,14 @@ require_once __DIR__ . '/includes/preloader.php';
         <!-- Badge -->
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-iter-800/80 border border-iter-700 text-amber-300 text-xs font-semibold tracking-wide uppercase mb-6">
             <i class="fa-solid fa-award"></i>
-            <span>Excellence in Research & Technical Innovation</span>
+            <span>Excellence in Research & Scholarly Innovation</span>
         </div>
 
         <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-serif-title max-w-4xl mx-auto leading-tight">
-            ITER Faculty Research & Scholarly Directory
+            Departmental Faculty Research & Scholarly Directory
         </h1>
         <p class="mt-4 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Discover cutting-edge publications, citation metrics, funded research grants, patents, and academic profiles of researchers at ITER, SOA University Bhubaneswar.
+            Discover cutting-edge publications, citation metrics, funded research grants, patents, and academic profiles of faculty researchers across collegiate departments and institutions.
         </p>
 
         <!-- Search Bar -->
@@ -186,7 +186,13 @@ require_once __DIR__ . '/includes/preloader.php';
                                     </a>
                                 </h3>
                                 <p class="text-xs text-slate-600 mt-0.5 truncate"><?= e($fac['designation']) ?></p>
-                                <p class="text-xs text-iter-700 font-medium truncate"><?= e($fac['department_name'] ?? 'ITER Faculty') ?></p>
+                                <p class="text-xs text-iter-700 font-medium truncate"><?= e($fac['department_name'] ?? 'Faculty Member') ?></p>
+                                <?php if (!empty($fac['institution'])): ?>
+                                    <p class="text-[11px] text-slate-400 truncate flex items-center gap-1 mt-0.5">
+                                        <i class="fa-solid fa-building-columns text-[10px] text-slate-400"></i>
+                                        <span><?= e($fac['institution']) ?></span>
+                                    </p>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -249,10 +255,10 @@ require_once __DIR__ . '/includes/preloader.php';
                 Faculty & Scholar Onboarding
             </span>
             <h2 class="text-2xl sm:text-3xl font-bold font-serif-title">
-                Are you an ITER Faculty Member or Research Scholar?
+                Are you a Faculty Member or Research Scholar?
             </h2>
             <p class="text-slate-300 text-sm leading-relaxed">
-                Maintain your official university research portfolio with automated citation tracking, Google Scholar and ORCID linking, sponsored grants logging, and NAAC/NIRF-ready reporting.
+                Maintain your official academic research portfolio with automated citation tracking, Google Scholar and ORCID linking, sponsored grants logging, and NAAC/NIRF-ready reporting.
             </p>
         </div>
         <div class="flex flex-col sm:flex-row gap-3 flex-shrink-0 w-full md:w-auto">

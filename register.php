@@ -22,11 +22,12 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf();
 
-    $fullName   = trim($_POST['full_name'] ?? '');
-    $email      = trim($_POST['email'] ?? '');
-    $role       = $_POST['role'] ?? 'faculty';
-    $departmentId = !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null;
-    $password   = $_POST['password'] ?? '';
+    $fullName       = trim($_POST['full_name'] ?? '');
+    $email          = trim($_POST['email'] ?? '');
+    $role           = $_POST['role'] ?? 'faculty';
+    $institution    = trim($_POST['institution'] ?? 'ITER, SOA University');
+    $departmentId   = !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null;
+    $password       = $_POST['password'] ?? '';
     $passwordConfirm = $_POST['password_confirm'] ?? '';
 
     // Validation
@@ -41,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($role === 'faculty' && empty($departmentId)) {
         $errors[] = 'Please select your academic department.';
+    }
+    if ($role === 'faculty' && empty($institution)) {
+        $errors[] = 'Please specify your college or institution.';
     }
     if (strlen($password) < 6) {
         $errors[] = 'Password must be at least 6 characters long.';
@@ -72,10 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $salutation = 'Dr.';
                 $designation = 'Assistant Professor';
                 $profileStmt = $db->prepare("
-                    INSERT INTO faculty_profiles (user_id, department_id, salutation, designation, is_verified) 
-                    VALUES (?, ?, ?, ?, 1)
+                    INSERT INTO faculty_profiles (user_id, department_id, institution, salutation, designation, is_verified) 
+                    VALUES (?, ?, ?, ?, ?, 1)
                 ");
-                $profileStmt->execute([$newUserId, $departmentId, $salutation, $designation]);
+                $profileStmt->execute([$newUserId, $departmentId, $institution, $salutation, $designation]);
             }
 
             $db->commit();
@@ -164,6 +168,17 @@ require_once __DIR__ . '/includes/header.php';
                     <input type="text" id="full_name" name="full_name" required
                         value="<?= e($_POST['full_name'] ?? '') ?>"
                         placeholder="e.g. Dr. Debabrata Singh"
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
+                </div>
+
+                <!-- College / Institution -->
+                <div>
+                    <label for="institution" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                        College / Institution
+                    </label>
+                    <input type="text" id="institution" name="institution" required
+                        value="<?= e($_POST['institution'] ?? 'ITER, SOA University') ?>"
+                        placeholder="e.g. ITER, SOA University / IIT Bhubaneswar / NIT Rourkela"
                         class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-iter-500 focus:bg-white focus:outline-none transition">
                 </div>
 

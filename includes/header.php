@@ -71,15 +71,12 @@ $flashes   = get_flashes();
     <div class="bg-iter-950 text-slate-300 text-xs py-1.5 px-4 border-b border-iter-900">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
             <div class="flex items-center gap-3">
-                <span class="font-medium tracking-wide text-amber-300">ITER, SOA UNIVERSITY</span>
+                <span class="font-medium tracking-wide text-amber-300">DEPARTMENTAL RESEARCH PROFILE</span>
                 <span class="text-slate-500">|</span>
-                <span>Institute of Technical Education and Research, Bhubaneswar</span>
-                <span class="hidden md:inline-block px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[10px] font-semibold tracking-wider">NAAC A++</span>
+                <span>Faculty Scholarly Directory & Academic Repository</span>
             </div>
             <div class="flex items-center gap-4">
-                <a href="https://www.soa.ac.in/iter" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">SOA Website <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-0.5"></i></a>
-                <span class="text-slate-600">•</span>
-                <span class="text-slate-400">NIRF Ranked Institution</span>
+                <span class="text-slate-400">Institutional Faculty Showcase</span>
             </div>
         </div>
     </div>
@@ -92,11 +89,11 @@ $flashes   = get_flashes();
                 <div class="flex items-center">
                     <a href="<?= url() ?>" class="flex items-center gap-3 group">
                         <div class="w-10 h-10 rounded-full bg-white p-0.5 shadow-sm ring-1 ring-slate-200 overflow-hidden flex items-center justify-center">
-                            <img src="<?= url('assets/img/soa_logo.png') ?>" alt="SOA Logo" class="w-full h-full object-contain">
+                            <img src="<?= url('assets/img/scholar_logo.png') ?>" alt="Scholar Logo" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-bold text-lg text-slate-900 tracking-tight leading-tight group-hover:text-iter-700 transition">ITER Research</span>
-                            <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">Faculty Scholarly Directory</span>
+                            <span class="font-bold text-lg text-slate-900 tracking-tight leading-tight group-hover:text-iter-700 transition">ResearchProfile</span>
+                            <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">Departmental Faculty Directory</span>
                         </div>
                     </a>
 

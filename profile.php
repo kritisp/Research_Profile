@@ -158,12 +158,12 @@ require_once __DIR__ . '/includes/header.php';
                         <p class="text-xs text-slate-600 mt-0.5">
                             <?= e($faculty['department_name']) ?>
                         </p>
-                        <p class="text-xs text-slate-500 font-medium">ITER, Siksha 'O' Anusandhan</p>
+                        <p class="text-xs text-slate-500 font-medium"><?= e($faculty['institution'] ?? 'Academic Faculty') ?></p>
 
                         <!-- Verified Badge -->
                         <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
                             <i class="fa-solid fa-circle-check text-emerald-600"></i>
-                            <span>Verified ITER Faculty</span>
+                            <span>Verified Faculty Scholar</span>
                         </div>
                     </div>
                 </div>

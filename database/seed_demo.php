@@ -29,6 +29,7 @@ try {
             'name' => 'Dr. Debabrata Singh',
             'email' => 'debabrata.singh@iter.ac.in',
             'dept_id' => $cseId,
+            'institution' => 'ITER, SOA Deemed to be University',
             'salutation' => 'Prof. Dr.',
             'designation' => 'Professor & Head',
             'cabin' => 'Block 1, Room 304, ITER',
@@ -115,6 +116,7 @@ try {
             'name' => 'Dr. Priyadarshi Kanungo',
             'email' => 'priyadarshi.kanungo@iter.ac.in',
             'dept_id' => $eceId,
+            'institution' => 'Institute of Technical Education and Research',
             'salutation' => 'Prof. Dr.',
             'designation' => 'Professor & Dean Research',
             'cabin' => 'Research Complex, Floor 2, ITER',
@@ -171,9 +173,10 @@ try {
             'name' => 'Dr. Rasmita Dash',
             'email' => 'rasmita.dash@iter.ac.in',
             'dept_id' => $cseId,
+            'institution' => 'Odisha University of Technology & Research (OUTR)',
             'salutation' => 'Dr.',
             'designation' => 'Associate Professor',
-            'cabin' => 'Block 2, Room 108, ITER',
+            'cabin' => 'Block 2, Room 108, OUTR',
             'phone' => '+91 674 2350183',
             'bio' => 'Dr. Rasmita Dash is an Associate Professor in Computer Science & Engineering. She received her Ph.D. in Computer Science with a focus on Computational Intelligence, Soft Computing, and Financial Stock Forecasting. She has published widely in Springer, Elsevier, and IEEE conferences.',
             'interests' => 'Computational Intelligence, Stock Market Forecasting, Evolutionary Algorithms, Neural Networks',
@@ -202,6 +205,54 @@ try {
             ],
             'projects' => [],
             'patents' => []
+        ],
+        [
+            'name' => 'Dr. Mihir Narayan Mohanty',
+            'email' => 'mihir.mohanty@nitrkl.ac.in',
+            'dept_id' => $eeId,
+            'institution' => 'National Institute of Technology (NIT) Rourkela',
+            'salutation' => 'Prof. Dr.',
+            'designation' => 'Professor & Senior Researcher',
+            'cabin' => 'Department of Electrical Engineering, NIT Rourkela',
+            'phone' => '+91 661 2462400',
+            'bio' => 'Prof. Dr. Mihir Narayan Mohanty has decades of distinguished research in Biomedical Signal Processing, Cognitive Systems, Soft Computing, and Intelligent Instrumentation. He has published over 100 research articles and guided numerous doctoral scholars.',
+            'interests' => 'Biomedical Signal Processing, Cognitive Computing, Pattern Recognition, Soft Computing, Smart Sensors',
+            'scholar_url' => 'https://scholar.google.com/citations?user=sample4',
+            'orcid' => '0000-0002-3914-7210',
+            'scopus' => '55194830112',
+            'citations' => 3140,
+            'h_index' => 29,
+            'i10_index' => 52,
+            'publications' => [
+                [
+                    'title' => 'Real-time Wavelet-based Cardiac Arrhythmia Classification using Deep Residual Networks',
+                    'authors' => 'M. N. Mohanty, S. Rout, K. Parida',
+                    'type' => 'journal',
+                    'venue' => 'Biomedical Signal Processing and Control (Elsevier)',
+                    'year' => 2024,
+                    'volume' => '88',
+                    'issue' => '',
+                    'pages' => '105432',
+                    'publisher' => 'Elsevier',
+                    'doi' => '10.1016/j.bspc.2023.105432',
+                    'indexing' => 'SCI Q1 / Scopus',
+                    'citations' => 48,
+                    'abstract' => 'An efficient 1D ResNet model coupled with discrete wavelet transform for multi-lead ECG rhythm classification.'
+                ]
+            ],
+            'projects' => [
+                [
+                    'title' => 'Non-Invasive Brain-Computer Interface for Assistive Robotic Control',
+                    'agency' => 'DRDO (Defence Research and Development Organisation)',
+                    'code' => 'DRDO/ERIP/2023/14',
+                    'role' => 'pi',
+                    'amount' => 74.00,
+                    'start_year' => 2023,
+                    'end_year' => 2026,
+                    'status' => 'ongoing'
+                ]
+            ],
+            'patents' => []
         ]
     ];
 
@@ -227,13 +278,14 @@ try {
         if (!$prof) {
             $insProf = $db->prepare("
                 INSERT INTO faculty_profiles (
-                    user_id, department_id, salutation, designation, cabin, phone, bio, 
+                    user_id, department_id, institution, salutation, designation, cabin, phone, bio, 
                     research_interests, google_scholar_url, orcid_id, scopus_id, 
                     total_citations, h_index, i10_index, is_verified
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
             ");
             $insProf->execute([
-                $userId, $fData['dept_id'], $fData['salutation'], $fData['designation'],
+                $userId, $fData['dept_id'], $fData['institution'] ?? 'ITER, SOA University',
+                $fData['salutation'], $fData['designation'],
                 $fData['cabin'], $fData['phone'], $fData['bio'], $fData['interests'],
                 $fData['scholar_url'], $fData['orcid'], $fData['scopus'],
                 $fData['citations'], $fData['h_index'], $fData['i10_index']
@@ -241,6 +293,10 @@ try {
             $profId = (int)$db->lastInsertId();
         } else {
             $profId = (int)$prof['id'];
+            if (!empty($fData['institution'])) {
+                $updProf = $db->prepare("UPDATE faculty_profiles SET institution = ? WHERE id = ?");
+                $updProf->execute([$fData['institution'], $profId]);
+            }
         }
 
         // Publications
