@@ -131,11 +131,15 @@ require_once __DIR__ . '/../includes/header.php';
                            class="text-xs text-slate-500 hover:text-slate-800 transition">
                             <i class="fa-solid fa-eye mr-1"></i> Public
                         </a>
-                        <a href="<?= url('assistant/switch.php?profile_id=' . $fac['profile_id'] . '&csrf_token=' . csrf_token()) ?>"
-                           class="px-3.5 py-1.5 rounded-lg bg-iter-800 hover:bg-iter-900 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-pen-to-square text-[10px]"></i>
-                            <span>Manage Profile</span>
-                        </a>
+                        <form action="<?= url('assistant/switch.php') ?>" method="POST" class="inline m-0">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="profile_id" value="<?= (int)$fac['profile_id'] ?>">
+                            <button type="submit"
+                               class="px-3.5 py-1.5 rounded-lg bg-iter-800 hover:bg-iter-900 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                <span>Manage Profile</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             <?php endforeach; ?>

@@ -66,7 +66,8 @@ function verify_active_session(): bool {
         $stmt->execute([user_id()]);
         $u = $stmt->fetch();
         if (!$u || $u['status'] !== 'active') {
-            logout_user();
+            unset($_SESSION['user'], $_SESSION['active_faculty_profile_id']);
+            session_regenerate_id(true);
             set_flash('danger', 'Your account has been deactivated or suspended. Please contact an administrator.');
             return false;
         }
@@ -77,8 +78,11 @@ function verify_active_session(): bool {
         $_SESSION['user']['email']     = $u['email'];
         return true;
     } catch (Exception $e) {
-        error_log("Session verification failed: " . $e->getMessage());
-        return true; // Don't log out user on transient DB error, but fail-safe
+        error_log("Session verification database error: " . $e->getMessage());
+        unset($_SESSION['user'], $_SESSION['active_faculty_profile_id']);
+        session_regenerate_id(true);
+        set_flash('danger', 'Authentication verification failed due to a system error. Please sign in again.');
+        return false;
     }
 }
 

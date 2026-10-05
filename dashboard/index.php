@@ -140,9 +140,12 @@ require_once __DIR__ . '/../includes/header.php';
                     <span>Add Publication</span>
                 </a>
                 <?php if (!empty($_SESSION['active_faculty_profile_id'])): ?>
-                    <a href="<?= url('assistant/switch_back.php') ?>" class="px-3 py-2 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">
-                        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Exit Delegate Mode
-                    </a>
+                    <form action="<?= url('assistant/switch_back.php') ?>" method="POST" class="inline m-0">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="px-3 py-2 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition inline-flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Exit Delegate Mode
+                        </button>
+                    </form>
                 <?php endif; ?>
             </div>
 

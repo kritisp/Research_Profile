@@ -1,18 +1,21 @@
 <?php
 /**
  * Switch into a Faculty Profile as a Delegate/Admin
+ * Strictly enforces HTTP POST with CSRF verification.
  */
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 require_role(['admin', 'super_admin']);
 
-$token = $_GET['csrf_token'] ?? $_POST['csrf_token'] ?? '';
-if (!verify_csrf_token($token)) {
-    abort(403, 'Invalid or expired CSRF security token.');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    abort(405, 'Method Not Allowed. Switching profiles requires HTTP POST.');
 }
 
-$profileId = isset($_GET['profile_id']) ? (int)$_GET['profile_id'] : 0;
+require_csrf();
+
+$profileId = isset($_POST['profile_id']) ? (int)$_POST['profile_id'] : 0;
 
 if ($profileId > 0 && can_manage_faculty_profile($profileId)) {
     $_SESSION['active_faculty_profile_id'] = $profileId;

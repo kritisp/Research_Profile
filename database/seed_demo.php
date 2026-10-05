@@ -30,7 +30,11 @@ try {
     $eceId  = $depts['ECE'] ?? 3;
     $eeId   = $depts['EE']  ?? 4;
 
-    $demoPasswordHash = password_hash('Faculty@123', PASSWORD_DEFAULT);
+    // Read development password from environment or generate a secure random 16-char password
+    $customDemoPass   = env('DEMO_USER_PASSWORD');
+    $demoPassword     = !empty($customDemoPass) ? $customDemoPass : bin2hex(random_bytes(8));
+    $demoPasswordHash = password_hash($demoPassword, PASSWORD_DEFAULT);
+    $newAccountsCount = 0;
 
     // 2. Demo Faculties
     $faculties = [
@@ -275,8 +279,12 @@ try {
             $insUser = $db->prepare("INSERT INTO users (email, password_hash, full_name, role, status) VALUES (?, ?, ?, 'faculty', 'active')");
             $insUser->execute([$fData['email'], $demoPasswordHash, $fData['name']]);
             $userId = (int)$db->lastInsertId();
+            $newAccountsCount++;
         } else {
             $userId = (int)$existing['id'];
+            if (!empty($customDemoPass)) {
+                $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?")->execute([$demoPasswordHash, $userId]);
+            }
         }
 
         // Insert or update faculty_profile
@@ -375,8 +383,12 @@ try {
         $insAsst = $db->prepare("INSERT INTO users (email, password_hash, full_name, role, status) VALUES (?, ?, ?, 'admin', 'active')");
         $insAsst->execute([$asstEmail, $demoPasswordHash, 'Pooja Mohapatra (CSE Research Assistant)']);
         $asstId = (int)$db->lastInsertId();
+        $newAccountsCount++;
     } else {
         $asstId = (int)$asstUser['id'];
+        if (!empty($customDemoPass)) {
+            $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?")->execute([$demoPasswordHash, $asstId]);
+        }
     }
 
     // Assign Dr. Debabrata Singh to this assistant
@@ -392,11 +404,18 @@ try {
 
     echo "Demo faculty data and Assistant delegation seeded successfully!\n";
     echo "========================================================\n";
-    echo "Development Demo Faculty Accounts Seeded (Local Dev Only):\n";
+    echo "Development Demo Faculty Accounts (Local Dev Only):\n";
     echo "1. Faculty:   debabrata.singh@iter.ac.in (Prof. & Head, CSE)\n";
     echo "2. Faculty:   priyadarshi.kanungo@iter.ac.in (Dean Research, ECE)\n";
     echo "3. Faculty:   rasmita.dash@iter.ac.in (Assoc. Prof., CSE)\n";
-    echo "4. Assistant: assistant.cse@iter.ac.in (Research Delegate for Dr. Debabrata Singh)\n";
+    echo "4. Assistant: assistant.cse@iter.ac.in (Research Delegate for Dr. Debabrata Singh)\n\n";
+    if ($newAccountsCount > 0 || !empty($customDemoPass)) {
+        echo "Development Account Password: {$demoPassword}\n";
+        echo "Note: This development credential is only printed to the CLI.\n";
+    } else {
+        echo "Note: Demo accounts already exist in the database (passwords unchanged).\n";
+        echo "Set DEMO_USER_PASSWORD in your environment to reset their development passwords.\n";
+    }
     echo "========================================================\n";
 
 } catch (Exception $e) {
