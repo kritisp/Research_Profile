@@ -169,29 +169,34 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
 
         <!-- ========================================================= -->
         <!-- LEFT COLUMN: Scholar Identity & Impact Ribbon             -->
         <!-- ========================================================= -->
-        <aside class="lg:col-span-4 space-y-6">
+        <aside class="md:col-span-5 lg:col-span-4 space-y-6">
 
             <!-- Scholar Hero Card -->
             <div class="academic-card p-6 text-center sm:text-left">
-                <div class="flex flex-col sm:flex-row lg:flex-col items-center sm:items-start lg:items-center gap-5">
+                <div class="flex flex-col sm:flex-row md:flex-col items-center sm:items-start md:items-center gap-5">
                     
-                    <!-- Framed Portrait -->
+                    <!-- Framed Portrait with Fail-Safe Fallback -->
                     <div class="relative w-36 h-36 rounded-[10px] bg-slate-100 border border-scholar-border shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        <?php if (!empty($faculty['photo_url'])): ?>
-                            <img src="<?= safe_url($faculty['photo_url']) ?>" alt="<?= e($faculty['full_name']) ?>" class="w-full h-full object-cover">
+                        <?php $resolvedPhoto = faculty_photo_url($faculty['photo_url'] ?? null); ?>
+                        <?php if ($resolvedPhoto): ?>
+                            <img src="<?= $resolvedPhoto ?>" alt="<?= e($faculty['full_name']) ?>" class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <div class="hidden text-slate-300 flex flex-col items-center justify-center w-full h-full">
+                                <i class="fa-solid fa-user-graduate text-5xl"></i>
+                            </div>
                         <?php else: ?>
-                            <div class="text-slate-300 flex flex-col items-center justify-center">
+                            <div class="text-slate-300 flex flex-col items-center justify-center w-full h-full">
                                 <i class="fa-solid fa-user-graduate text-5xl"></i>
                             </div>
                         <?php endif; ?>
                     </div>
 
-                    <div class="text-center sm:text-left lg:text-center w-full">
+                    <div class="text-center sm:text-left md:text-center w-full">
                         <h1 class="font-serif text-2xl sm:text-3xl font-bold text-oxford-navy leading-tight">
                             <?= e(($faculty['salutation'] ? $faculty['salutation'] . ' ' : '') . $faculty['full_name']) ?>
                         </h1>
@@ -207,6 +212,13 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
 
+                <?php
+                    $hasRegistries = !empty($faculty['google_scholar_url']) || !empty($faculty['orcid_id']) || !empty($faculty['scopus_id']) 
+                        || !empty($faculty['wos_id']) || !empty($faculty['researchgate_url']) || !empty($faculty['dblp_url']) 
+                        || !empty($faculty['semantic_scholar_url']) || !empty($faculty['website_url']) || !empty($faculty['cv_url']);
+                ?>
+
+                <?php if ($hasRegistries): ?>
                 <!-- Academic Identifier Ribbon (Restrained Institutional Style) -->
                 <div class="mt-6 pt-5 border-t border-scholar-border space-y-2 text-xs">
                     <div class="text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-2 font-semibold">Scholarly Registries</div>
@@ -309,6 +321,14 @@ require_once __DIR__ . '/includes/header.php';
                         </a>
                     <?php endif; ?>
                 </div>
+                <?php elseif ($canEdit): ?>
+                <div class="mt-6 pt-4 border-t border-scholar-border text-xs text-center p-3 rounded-[6px] bg-slate-50 border border-dashed border-slate-200">
+                    <span class="text-[11px] text-slate-500 block mb-1.5">No scholarly registries linked</span>
+                    <a href="<?= url('dashboard/edit_profile.php?id=' . $faculty['id']) ?>" class="btn-academic-secondary text-[11px] !py-1 !px-2.5 inline-flex items-center gap-1">
+                        <i class="fa-solid fa-plus text-[10px]"></i> Link ORCID / Scholar
+                    </a>
+                </div>
+                <?php endif; ?>
 
                 <!-- Contact Metadata -->
                 <div class="mt-5 pt-4 border-t border-scholar-border space-y-2 text-xs text-scholar-muted">
@@ -447,6 +467,17 @@ require_once __DIR__ . '/includes/header.php';
                         <?php endforeach; ?>
                     </div>
                 </div>
+            <?php elseif ($canEdit): ?>
+                <div class="academic-card p-5 border-dashed border-slate-300 bg-slate-50/50 text-center">
+                    <h3 class="font-serif font-bold text-sm text-oxford-navy mb-1 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-tags text-academic-gold"></i>
+                        <span>Research Areas</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-3">Add keywords representing your research topics and expertise.</p>
+                    <a href="<?= url('dashboard/edit_profile.php?id=' . $faculty['id']) ?>" class="btn-academic-secondary text-xs !py-1 !px-2.5 inline-flex">
+                        <i class="fa-solid fa-plus text-[10px]"></i> Add Research Areas
+                    </a>
+                </div>
             <?php endif; ?>
 
         </aside>
@@ -454,7 +485,7 @@ require_once __DIR__ . '/includes/header.php';
         <!-- ========================================================= -->
         <!-- RIGHT COLUMN: Scholarly Portfolio Tabs                    -->
         <!-- ========================================================= -->
-        <main class="lg:col-span-8 space-y-6">
+        <main class="md:col-span-7 lg:col-span-8 space-y-6">
 
             <!-- Biography / Research Statement -->
             <?php if (!empty($faculty['bio'])): ?>
@@ -466,6 +497,26 @@ require_once __DIR__ . '/includes/header.php';
                     <p class="text-sm text-slate-700 leading-relaxed font-sans">
                         <?= nl2br(e($faculty['bio'])) ?>
                     </p>
+                </div>
+            <?php else: ?>
+                <div class="academic-card p-6 sm:p-7 <?= $canEdit ? 'border-dashed border-slate-300 bg-slate-50/50' : '' ?>">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-2 font-mono flex items-center gap-2">
+                                <i class="fa-solid fa-book-open-reader text-academic-gold"></i>
+                                <span>Scholarly Biography & Research Overview</span>
+                            </h2>
+                            <p class="text-sm text-slate-700 leading-relaxed font-sans">
+                                <?= e(($faculty['salutation'] ? $faculty['salutation'] . ' ' : '') . $faculty['full_name']) ?> serves as <?= e($faculty['designation']) ?> in the Department of <?= e($faculty['department_name']) ?> at <?= e($faculty['institution'] ?? 'Collegiate Academic Division') ?>.
+                            </p>
+                        </div>
+                        <?php if ($canEdit): ?>
+                            <a href="<?= url('dashboard/edit_profile.php?id=' . $faculty['id']) ?>" class="btn-academic-secondary text-xs !py-1.5 !px-3 flex-shrink-0">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                <span>Edit Biography</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -495,7 +546,7 @@ require_once __DIR__ . '/includes/header.php';
                         <span class="px-2 py-0.5 rounded-[4px] bg-slate-100 text-slate-700 font-mono text-[11px]"><?= count($patents) ?></span>
                     </button>
 
-                    <?php if (!empty($awards)): ?>
+                    <?php if (!empty($awards) || $canEdit): ?>
                     <button type="button" onclick="switchTab('awards')" id="tab-btn-awards" role="tab" aria-selected="false" aria-controls="tab-content-awards"
                         class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-oxford-navy whitespace-nowrap flex items-center gap-2 transition focus:outline-none">
                         <i class="fa-solid fa-trophy text-xs"></i>
@@ -504,7 +555,7 @@ require_once __DIR__ . '/includes/header.php';
                     </button>
                     <?php endif; ?>
 
-                    <?php if (!empty($experience)): ?>
+                    <?php if (!empty($experience) || $canEdit): ?>
                     <button type="button" onclick="switchTab('experience')" id="tab-btn-experience" role="tab" aria-selected="false" aria-controls="tab-content-experience"
                         class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-oxford-navy whitespace-nowrap flex items-center gap-2 transition focus:outline-none">
                         <i class="fa-solid fa-briefcase text-xs"></i>
@@ -513,7 +564,7 @@ require_once __DIR__ . '/includes/header.php';
                     </button>
                     <?php endif; ?>
 
-                    <?php if (!empty($education)): ?>
+                    <?php if (!empty($education) || $canEdit): ?>
                     <button type="button" onclick="switchTab('education')" id="tab-btn-education" role="tab" aria-selected="false" aria-controls="tab-content-education"
                         class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-oxford-navy whitespace-nowrap flex items-center gap-2 transition focus:outline-none">
                         <i class="fa-solid fa-graduation-cap text-xs"></i>
@@ -522,7 +573,7 @@ require_once __DIR__ . '/includes/header.php';
                     </button>
                     <?php endif; ?>
 
-                    <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0)): ?>
+                    <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0) || $canEdit): ?>
                     <button type="button" onclick="switchTab('teaching')" id="tab-btn-teaching" role="tab" aria-selected="false" aria-controls="tab-content-teaching"
                         class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-oxford-navy whitespace-nowrap flex items-center gap-2 transition focus:outline-none">
                         <i class="fa-solid fa-chalkboard-user text-xs"></i>
@@ -531,7 +582,7 @@ require_once __DIR__ . '/includes/header.php';
                     </button>
                     <?php endif; ?>
 
-                    <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles'])): ?>
+                    <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles']) || $canEdit): ?>
                     <button type="button" onclick="switchTab('service')" id="tab-btn-service" role="tab" aria-selected="false" aria-controls="tab-content-service"
                         class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-oxford-navy whitespace-nowrap flex items-center gap-2 transition focus:outline-none">
                         <i class="fa-solid fa-award text-xs"></i>
@@ -809,99 +860,156 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- ========================================== -->
                 <!-- TAB: Academic Career & Appointments        -->
                 <!-- ========================================== -->
-                <?php if (!empty($experience)): ?>
+                <?php if (!empty($experience) || $canEdit): ?>
                 <div id="tab-content-experience" class="tab-pane hidden p-6" role="tabpanel" aria-labelledby="tab-btn-experience">
                     <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-5 font-mono flex items-center gap-2">
                         <i class="fa-solid fa-briefcase text-academic-gold"></i>
                         <span>Academic Appointments & Professional Career</span>
                     </h3>
-                    <div class="academic-timeline">
-                        <?php foreach ($experience as $exp): ?>
-                            <div class="timeline-item <?= !empty($exp['is_current']) ? 'is-current' : '' ?>">
-                                <div class="timeline-dot"></div>
-                                <div class="p-4 rounded-[8px] bg-slate-50 border border-scholar-border">
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                                        <h4 class="font-serif text-base font-bold text-oxford-navy"><?= e($exp['position_title']) ?></h4>
-                                        <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-[4px] self-start sm:self-auto <?= !empty($exp['is_current']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-white text-slate-600 border border-scholar-border' ?>">
-                                            <?= e($exp['start_year'] ?? '') ?> — <?= !empty($exp['is_current']) ? 'Present' : e($exp['end_year'] ?? 'Present') ?>
-                                        </span>
-                                    </div>
-                                    <p class="text-xs font-semibold text-oxford-blue"><?= e($exp['organization']) ?></p>
-                                    <?php if (!empty($exp['department'])): ?>
-                                        <p class="text-xs text-slate-500 mt-0.5 font-medium"><?= e($exp['department']) ?></p>
-                                    <?php endif; ?>
-                                    <?php if (!empty($exp['description'])): ?>
-                                        <p class="text-xs text-slate-600 mt-2 leading-relaxed font-sans"><?= nl2br(e($exp['description'])) ?></p>
-                                    <?php endif; ?>
-                                </div>
+                    <?php if (empty($experience)): ?>
+                        <div class="py-12 text-center text-slate-500 text-xs">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                                <i class="fa-solid fa-briefcase text-xl"></i>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
+                            <h3 class="font-serif text-sm font-bold text-oxford-navy">No academic appointments recorded</h3>
+                            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                Faculty positions, fellowships, and academic leadership history have not yet been listed.
+                            </p>
+                            <?php if ($canEdit): ?>
+                                <a href="<?= url('dashboard/add_appointment.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    <span>Add Academic Appointment</span>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="academic-timeline">
+                            <?php foreach ($experience as $exp): ?>
+                                <div class="timeline-item <?= !empty($exp['is_current']) ? 'is-current' : '' ?>">
+                                    <div class="timeline-dot"></div>
+                                    <div class="p-4 rounded-[8px] bg-slate-50 border border-scholar-border">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                                            <h4 class="font-serif text-base font-bold text-oxford-navy"><?= e($exp['position_title']) ?></h4>
+                                            <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-[4px] self-start sm:self-auto <?= !empty($exp['is_current']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-white text-slate-600 border border-scholar-border' ?>">
+                                                <?= e($exp['start_year'] ?? '') ?> — <?= !empty($exp['is_current']) ? 'Present' : e($exp['end_year'] ?? 'Present') ?>
+                                            </span>
+                                        </div>
+                                        <p class="text-xs font-semibold text-oxford-blue"><?= e($exp['organization']) ?></p>
+                                        <?php if (!empty($exp['department'])): ?>
+                                            <p class="text-xs text-slate-500 mt-0.5 font-medium"><?= e($exp['department']) ?></p>
+                                        <?php endif; ?>
+                                        <?php if (!empty($exp['description'])): ?>
+                                            <p class="text-xs text-slate-600 mt-2 leading-relaxed font-sans"><?= nl2br(e($exp['description'])) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
 
                 <!-- ========================================== -->
                 <!-- TAB 4: Honors & Awards                     -->
                 <!-- ========================================== -->
-                <?php if (!empty($awards)): ?>
+                <?php if (!empty($awards) || $canEdit): ?>
                 <div id="tab-content-awards" class="tab-pane hidden p-6" role="tabpanel" aria-labelledby="tab-btn-awards">
                     <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-4 font-mono flex items-center gap-2">
                         <i class="fa-solid fa-medal text-academic-gold"></i>
                         <span>Honors, Awards & Professional Recognitions</span>
                     </h3>
-                    <div class="space-y-3">
-                        <?php foreach ($awards as $awd): ?>
-                            <div class="p-3.5 rounded-[8px] bg-slate-50 border border-scholar-border flex items-start justify-between gap-4">
-                                <div>
-                                    <h4 class="font-serif text-sm font-bold text-oxford-navy"><?= e($awd['title']) ?></h4>
-                                    <p class="text-xs text-slate-600 mt-0.5"><?= e($awd['awarding_body']) ?></p>
-                                    <?php if (!empty($awd['description'])): ?>
-                                        <p class="text-xs text-slate-500 mt-1"><?= e($awd['description']) ?></p>
-                                    <?php endif; ?>
-                                </div>
-                                <span class="px-2 py-0.5 rounded-[4px] bg-white border border-scholar-border text-xs font-mono font-bold text-oxford-navy">
-                                    <?= e($awd['year']) ?>
-                                </span>
+                    <?php if (empty($awards)): ?>
+                        <div class="py-12 text-center text-slate-500 text-xs">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                                <i class="fa-solid fa-trophy text-xl"></i>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
+                            <h3 class="font-serif text-sm font-bold text-oxford-navy">No honors or awards recorded</h3>
+                            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                Academic honors, medals, and society recognitions have not yet been listed.
+                            </p>
+                            <?php if ($canEdit): ?>
+                                <a href="<?= url('dashboard/add_award.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    <span>Add Honor or Award</span>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="space-y-3">
+                            <?php foreach ($awards as $awd): ?>
+                                <div class="p-3.5 rounded-[8px] bg-slate-50 border border-scholar-border flex items-start justify-between gap-4">
+                                    <div>
+                                        <h4 class="font-serif text-sm font-bold text-oxford-navy"><?= e($awd['title']) ?></h4>
+                                        <p class="text-xs text-slate-600 mt-0.5"><?= e($awd['awarding_body']) ?></p>
+                                        <?php if (!empty($awd['description'])): ?>
+                                            <p class="text-xs text-slate-500 mt-1"><?= e($awd['description']) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-[4px] bg-white border border-scholar-border text-xs font-mono font-bold text-oxford-navy">
+                                        <?= e($awd['year']) ?>
+                                    </span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
 
                 <!-- ========================================== -->
                 <!-- TAB 5: Education & Qualifications          -->
                 <!-- ========================================== -->
-                <?php if (!empty($education)): ?>
+                <?php if (!empty($education) || $canEdit): ?>
                 <div id="tab-content-education" class="tab-pane hidden p-6" role="tabpanel" aria-labelledby="tab-btn-education">
                     <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-4 font-mono flex items-center gap-2">
                         <i class="fa-solid fa-graduation-cap text-academic-gold"></i>
                         <span>Educational Background & Academic Credentials</span>
                     </h3>
-                    <div class="space-y-3">
-                        <?php foreach ($education as $edu): ?>
-                            <div class="p-3.5 rounded-[8px] bg-slate-50 border border-scholar-border flex items-start justify-between gap-4">
-                                <div>
-                                    <h4 class="font-serif text-sm font-bold text-oxford-navy"><?= e($edu['degree']) ?></h4>
-                                    <p class="text-xs text-slate-700 mt-0.5"><?= e($edu['institution']) ?></p>
-                                    <?php if (!empty($edu['field_of_study'])): ?>
-                                        <p class="text-xs text-slate-500 mt-0.5">Specialization: <?= e($edu['field_of_study']) ?></p>
+                    <?php if (empty($education)): ?>
+                        <div class="py-12 text-center text-slate-500 text-xs">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                                <i class="fa-solid fa-graduation-cap text-xl"></i>
+                            </div>
+                            <h3 class="font-serif text-sm font-bold text-oxford-navy">No educational credentials recorded</h3>
+                            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                Doctoral, postgraduate, and collegiate degrees have not yet been listed.
+                            </p>
+                            <?php if ($canEdit): ?>
+                                <a href="<?= url('dashboard/add_education.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    <span>Add Qualification</span>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="space-y-3">
+                            <?php foreach ($education as $edu): ?>
+                                <div class="p-3.5 rounded-[8px] bg-slate-50 border border-scholar-border flex items-start justify-between gap-4">
+                                    <div>
+                                        <h4 class="font-serif text-sm font-bold text-oxford-navy"><?= e($edu['degree']) ?></h4>
+                                        <p class="text-xs text-slate-700 mt-0.5"><?= e($edu['institution']) ?></p>
+                                        <?php 
+                                            $spec = !empty($edu['specialization']) ? $edu['specialization'] : (!empty($edu['field_of_study']) ? $edu['field_of_study'] : '');
+                                            if (!empty($spec)): 
+                                        ?>
+                                            <p class="text-xs text-slate-500 mt-0.5">Specialization: <?= e($spec) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if (!empty($edu['year'])): ?>
+                                        <span class="px-2.5 py-0.5 rounded-[4px] bg-white border border-scholar-border text-xs font-mono font-bold text-oxford-navy">
+                                            <?= e($edu['year']) ?>
+                                        </span>
                                     <?php endif; ?>
                                 </div>
-                                <?php if (!empty($edu['year'])): ?>
-                                    <span class="px-2.5 py-0.5 rounded-[4px] bg-white border border-scholar-border text-xs font-mono font-bold text-oxford-navy">
-                                        <?= e($edu['year']) ?>
-                                    </span>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
 
                 <!-- ========================================== -->
                 <!-- TAB 6: Teaching & Mentorship               -->
                 <!-- ========================================== -->
-                <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0)): ?>
+                <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0) || $canEdit): ?>
                 <div id="tab-content-teaching" class="tab-pane hidden p-6 space-y-6" role="tabpanel" aria-labelledby="tab-btn-teaching">
                     <?php if ((int)($faculty['phd_supervised'] ?? 0) > 0): ?>
                         <div class="p-4 rounded-[8px] bg-slate-50 border border-scholar-border flex items-center justify-between">
@@ -920,7 +1028,23 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($teaching)): ?>
+                    <?php if (empty($teaching)): ?>
+                        <div class="py-10 text-center text-slate-500 text-xs">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                                <i class="fa-solid fa-chalkboard-user text-xl"></i>
+                            </div>
+                            <h3 class="font-serif text-sm font-bold text-oxford-navy">No course teaching assignments recorded</h3>
+                            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                Undergraduate, postgraduate, or doctoral courses have not yet been listed.
+                            </p>
+                            <?php if ($canEdit): ?>
+                                <a href="<?= url('dashboard/add_teaching.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    <span>Add Teaching Course</span>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
                         <div>
                             <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-3 font-mono flex items-center gap-2">
                                 <i class="fa-solid fa-chalkboard text-academic-gold"></i>
@@ -953,46 +1077,64 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- ========================================== -->
                 <!-- TAB 7: Service & Appointments              -->
                 <!-- ========================================== -->
-                <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles'])): ?>
+                <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles']) || $canEdit): ?>
                 <div id="tab-content-service" class="tab-pane hidden p-6 space-y-6" role="tabpanel" aria-labelledby="tab-btn-service">
-                    <?php if (!empty($faculty['memberships'])): ?>
-                        <div>
-                            <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-3 font-mono flex items-center gap-2">
-                                <i class="fa-solid fa-id-card-clip text-academic-gold"></i>
-                                <span>Professional Memberships</span>
-                            </h3>
-                            <div class="space-y-2">
-                                <?php 
-                                    $memberships = array_filter(array_map('trim', preg_split('/[\r\n,]+/', $faculty['memberships'])));
-                                    foreach ($memberships as $m): 
-                                ?>
-                                    <div class="p-3 rounded-[8px] bg-slate-50 border border-scholar-border text-xs font-medium text-oxford-navy flex items-center gap-2">
-                                        <i class="fa-solid fa-certificate text-academic-gold text-sm"></i>
-                                        <span><?= e($m) ?></span>
-                                    </div>
-                                <?php endforeach; ?>
+                    <?php if (empty($faculty['memberships']) && empty($faculty['editorial_roles'])): ?>
+                        <div class="py-12 text-center text-slate-500 text-xs">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                                <i class="fa-solid fa-award text-xl"></i>
                             </div>
+                            <h3 class="font-serif text-sm font-bold text-oxford-navy">No professional service recorded</h3>
+                            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                Professional memberships and editorial appointments have not yet been listed.
+                            </p>
+                            <?php if ($canEdit): ?>
+                                <a href="<?= url('dashboard/edit_profile.php?id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                                    <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                    <span>Edit Service & Roles</span>
+                                </a>
+                            <?php endif; ?>
                         </div>
-                    <?php endif; ?>
+                    <?php else: ?>
+                        <?php if (!empty($faculty['memberships'])): ?>
+                            <div>
+                                <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-3 font-mono flex items-center gap-2">
+                                    <i class="fa-solid fa-id-card-clip text-academic-gold"></i>
+                                    <span>Professional Memberships</span>
+                                </h3>
+                                <div class="space-y-2">
+                                    <?php 
+                                        $memberships = array_filter(array_map('trim', preg_split('/[\r\n,]+/', $faculty['memberships'])));
+                                        foreach ($memberships as $m): 
+                                    ?>
+                                        <div class="p-3 rounded-[8px] bg-slate-50 border border-scholar-border text-xs font-medium text-oxford-navy flex items-center gap-2">
+                                            <i class="fa-solid fa-certificate text-academic-gold text-sm"></i>
+                                            <span><?= e($m) ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
-                    <?php if (!empty($faculty['editorial_roles'])): ?>
-                        <div>
-                            <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-3 font-mono flex items-center gap-2">
-                                <i class="fa-solid fa-pen-nib text-academic-gold"></i>
-                                <span>Editorial & Reviewer Appointments</span>
-                            </h3>
-                            <div class="space-y-2">
-                                <?php 
-                                    $roles = array_filter(array_map('trim', preg_split('/[\r\n,]+/', $faculty['editorial_roles'])));
-                                    foreach ($roles as $r): 
-                                ?>
-                                    <div class="p-3 rounded-[8px] bg-slate-50 border border-scholar-border text-xs font-medium text-oxford-navy flex items-center gap-2">
-                                        <i class="fa-solid fa-book-journal-whills text-oxford-blue text-sm"></i>
-                                        <span><?= e($r) ?></span>
-                                    </div>
-                                <?php endforeach; ?>
+                        <?php if (!empty($faculty['editorial_roles'])): ?>
+                            <div>
+                                <h3 class="text-xs font-bold text-oxford-navy uppercase tracking-wider mb-3 font-mono flex items-center gap-2">
+                                    <i class="fa-solid fa-pen-nib text-academic-gold"></i>
+                                    <span>Editorial & Reviewer Appointments</span>
+                                </h3>
+                                <div class="space-y-2">
+                                    <?php 
+                                        $roles = array_filter(array_map('trim', preg_split('/[\r\n,]+/', $faculty['editorial_roles'])));
+                                        foreach ($roles as $r): 
+                                    ?>
+                                        <div class="p-3 rounded-[8px] bg-slate-50 border border-scholar-border text-xs font-medium text-oxford-navy flex items-center gap-2">
+                                            <i class="fa-solid fa-book-journal-whills text-oxford-blue text-sm"></i>
+                                            <span><?= e($r) ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
                 <?php endif; ?>

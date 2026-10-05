@@ -286,3 +286,24 @@ function format_currency_lakhs(float $amountLakhs): string {
     return '₹' . number_format($amountLakhs, 2) . ' Lakhs';
 }
 
+/**
+ * Safely resolve faculty photo URL, verifying local existence on disk
+ * Returns null if empty or if local upload file does not exist.
+ */
+function faculty_photo_url(?string $photoPath): ?string {
+    if (empty($photoPath)) {
+        return null;
+    }
+    $trimmed = trim($photoPath);
+    if (preg_match('~^https?://~i', $trimmed)) {
+        return safe_url($trimmed);
+    }
+    $cleanPath = ltrim($trimmed, '/');
+    $localFile = dirname(__DIR__) . '/' . $cleanPath;
+    if (file_exists($localFile) && !is_dir($localFile)) {
+        return url($cleanPath);
+    }
+    return null;
+}
+
+

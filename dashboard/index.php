@@ -211,6 +211,15 @@ require_once __DIR__ . '/../includes/header.php';
         <a href="#section-experience" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
             Appointments (<?= count($experience) ?>)
         </a>
+        <a href="#section-education" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+            Education (<?= count($education) ?>)
+        </a>
+        <a href="#section-teaching" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+            Teaching (<?= count($teaching) ?>)
+        </a>
+        <a href="#section-awards" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+            Awards (<?= count($awards) ?>)
+        </a>
         <a href="<?= url('dashboard/delegates.php?profile_id=' . $faculty['id']) ?>" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
             <i class="fa-solid fa-users-gear mr-1 text-slate-400"></i> Delegates (<?= count($delegates) ?>)
         </a>
@@ -487,6 +496,177 @@ require_once __DIR__ . '/../includes/header.php';
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="type" value="experience">
                                 <input type="hidden" name="id" value="<?= (int)$exp['id'] ?>">
+                                <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- SECTION 5: Education & Academic Credentials -->
+    <div id="section-education" class="academic-card overflow-hidden">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <h2 class="font-serif font-bold text-oxford-navy text-lg">Education & Qualifications</h2>
+                <p class="text-xs text-scholar-muted mt-0.5">Doctoral, postgraduate, and collegiate degrees</p>
+            </div>
+            <a href="<?= url('dashboard/add_education.php?profile_id=' . $faculty['id']) ?>" 
+               class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Add Qualification</span>
+            </a>
+        </div>
+
+        <?php if (empty($education)): ?>
+            <div class="p-10 text-center text-slate-500 text-xs">
+                <i class="fa-solid fa-graduation-cap text-2xl text-slate-300 mb-2"></i>
+                <p class="font-serif text-sm font-bold text-oxford-navy">No qualifications recorded</p>
+                <a href="<?= url('dashboard/add_education.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                    Add Qualification
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="divide-y divide-slate-100 p-5 space-y-4">
+                <?php foreach ($education as $edu): ?>
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pt-3 first:pt-0">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="academic-tag font-mono text-[10px] font-bold">
+                                    <?= e($edu['year']) ?>
+                                </span>
+                                <h3 class="font-serif font-bold text-base text-oxford-navy"><?= e($edu['degree']) ?></h3>
+                            </div>
+                            <p class="text-xs text-slate-700 mt-1 font-medium">
+                                <?= e($edu['institution']) ?>
+                                <?php 
+                                    $spec = !empty($edu['specialization']) ? $edu['specialization'] : (!empty($edu['field_of_study']) ? $edu['field_of_study'] : '');
+                                    if (!empty($spec)): 
+                                ?>
+                                    <span class="text-slate-400 font-normal">•</span> <?= e($spec) ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <div class="flex items-center sm:flex-col sm:items-end justify-between sm:justify-start gap-2 flex-shrink-0">
+                            <form action="<?= url('dashboard/delete_item.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove this qualification?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="education">
+                                <input type="hidden" name="id" value="<?= (int)$edu['id'] ?>">
+                                <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- SECTION 6: Teaching & Course Assignments -->
+    <div id="section-teaching" class="academic-card overflow-hidden">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <h2 class="font-serif font-bold text-oxford-navy text-lg">Teaching & Instruction</h2>
+                <p class="text-xs text-scholar-muted mt-0.5">Undergraduate, postgraduate, and doctoral course assignments</p>
+            </div>
+            <a href="<?= url('dashboard/add_teaching.php?profile_id=' . $faculty['id']) ?>" 
+               class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Add Teaching</span>
+            </a>
+        </div>
+
+        <?php if (empty($teaching)): ?>
+            <div class="p-10 text-center text-slate-500 text-xs">
+                <i class="fa-solid fa-chalkboard-user text-2xl text-slate-300 mb-2"></i>
+                <p class="font-serif text-sm font-bold text-oxford-navy">No teaching courses recorded</p>
+                <a href="<?= url('dashboard/add_teaching.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                    Add Teaching Assignment
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="divide-y divide-slate-100 p-5 space-y-4">
+                <?php foreach ($teaching as $teach): ?>
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pt-3 first:pt-0">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="academic-tag academic-tag-gold font-mono text-[10px] font-bold">
+                                    <?= e($teach['level']) ?>
+                                </span>
+                                <h3 class="font-serif font-bold text-base text-oxford-navy"><?= e($teach['course_title']) ?></h3>
+                            </div>
+                            <p class="text-xs text-slate-600 mt-1">
+                                <?php if (!empty($teach['course_code'])): ?>
+                                    <strong>Code:</strong> <span class="font-mono"><?= e($teach['course_code']) ?></span> |
+                                <?php endif; ?>
+                                <strong>Academic Year:</strong> <?= e($teach['academic_year'] ?? 'Current') ?>
+                            </p>
+                        </div>
+                        <div class="flex items-center sm:flex-col sm:items-end justify-between sm:justify-start gap-2 flex-shrink-0">
+                            <form action="<?= url('dashboard/delete_item.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove this course?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="teaching">
+                                <input type="hidden" name="id" value="<?= (int)$teach['id'] ?>">
+                                <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- SECTION 7: Honors & Awards -->
+    <div id="section-awards" class="academic-card overflow-hidden">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <h2 class="font-serif font-bold text-oxford-navy text-lg">Honors, Awards & Distinctions</h2>
+                <p class="text-xs text-scholar-muted mt-0.5">Professional awards, best paper recognitions, and society elevations</p>
+            </div>
+            <a href="<?= url('dashboard/add_award.php?profile_id=' . $faculty['id']) ?>" 
+               class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Add Award</span>
+            </a>
+        </div>
+
+        <?php if (empty($awards)): ?>
+            <div class="p-10 text-center text-slate-500 text-xs">
+                <i class="fa-solid fa-trophy text-2xl text-slate-300 mb-2"></i>
+                <p class="font-serif text-sm font-bold text-oxford-navy">No awards recorded</p>
+                <a href="<?= url('dashboard/add_award.php?profile_id=' . $faculty['id']) ?>" class="btn-academic-primary text-xs mt-3 inline-flex">
+                    Add Honor or Award
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="divide-y divide-slate-100 p-5 space-y-4">
+                <?php foreach ($awards as $awd): ?>
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pt-3 first:pt-0">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="academic-tag font-mono text-[10px] font-bold">
+                                    <?= e($awd['year']) ?>
+                                </span>
+                                <h3 class="font-serif font-bold text-base text-oxford-navy"><?= e($awd['title']) ?></h3>
+                            </div>
+                            <p class="text-xs text-slate-700 mt-1 font-medium">
+                                <?= e($awd['awarding_body']) ?>
+                            </p>
+                            <?php if (!empty($awd['description'])): ?>
+                                <p class="text-xs text-slate-500 mt-1"><?= nl2br(e($awd['description'])) ?></p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="flex items-center sm:flex-col sm:items-end justify-between sm:justify-start gap-2 flex-shrink-0">
+                            <form action="<?= url('dashboard/delete_item.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove this award?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="award">
+                                <input type="hidden" name="id" value="<?= (int)$awd['id'] ?>">
                                 <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
                                     Delete
                                 </button>
