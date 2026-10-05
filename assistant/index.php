@@ -84,7 +84,7 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <?php if (empty($assignedFaculties)): ?>
-        <div class="academic-card p-12 text-center text-slate-500">
+        <div class="academic-card p-12 text-center text-slate-500 shadow-xs">
             <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                 <i class="fa-solid fa-user-clock text-xl"></i>
             </div>
@@ -96,12 +96,13 @@ require_once __DIR__ . '/../includes/header.php';
     <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($assignedFaculties as $fac): ?>
-                <div class="academic-card p-6 flex flex-col justify-between group">
+                <?php $photo = faculty_photo_url($fac['photo_url'] ?? null); ?>
+                <div class="academic-card p-6 flex flex-col justify-between group shadow-xs hover:border-oxford-navy/40 transition">
                     <div>
                         <div class="flex items-start gap-4">
-                            <div class="w-14 h-14 rounded-[8px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center shadow-xs">
-                                <?php if (!empty($fac['photo_url'])): ?>
-                                    <img src="<?= safe_url($fac['photo_url']) ?>" alt="Avatar" class="w-full h-full object-cover">
+                            <div class="w-14 h-14 rounded-[6px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center shadow-xs">
+                                <?php if ($photo): ?>
+                                    <img src="<?= e($photo) ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover">
                                 <?php else: ?>
                                     <i class="fa-solid fa-user-tie text-2xl text-slate-300"></i>
                                 <?php endif; ?>
@@ -126,7 +127,7 @@ require_once __DIR__ . '/../includes/header.php';
                             </div>
                             <div>
                                 <span class="text-[10px] text-slate-400 font-mono block uppercase">Citations</span>
-                                <span class="font-bold font-mono text-oxford-blue"><?= number_format($fac['total_citations']) ?></span>
+                                <span class="font-bold font-mono text-oxford-navy"><?= number_format($fac['total_citations']) ?></span>
                             </div>
                         </div>
                     </div>
@@ -134,8 +135,8 @@ require_once __DIR__ . '/../includes/header.php';
                     <div class="mt-5 pt-4 border-t border-scholar-border flex items-center justify-between gap-2">
                         <a href="<?= researcher_url($fac) ?>" target="_blank"
                            class="btn-academic-secondary text-xs !py-1.5 !px-3">
-                            <i class="fa-solid fa-eye text-[10px]"></i>
-                            <span>Public</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            <span>Public View</span>
                         </a>
                         <form action="<?= url('assistant/switch.php') ?>" method="POST" class="inline m-0">
                             <?= csrf_field() ?>

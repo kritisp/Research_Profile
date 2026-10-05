@@ -62,7 +62,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8 pb-4 border-b border-scholar-border">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-slate hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Educational Qualification</h1>
@@ -76,23 +76,19 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_education.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
+    <form action="<?= url('dashboard/add_education.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5 shadow-xs">
         <?= csrf_field() ?>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Degree / Credential <span class="text-rose-600">*</span>
-                </label>
+                <label class="academic-label">Degree / Credential <span class="text-rose-600">*</span></label>
                 <input type="text" name="degree" required value="<?= e($_POST['degree'] ?? '') ?>"
                     placeholder="e.g. Ph.D., M.Tech, M.S., B.Tech"
                     class="academic-input text-xs sm:text-sm font-semibold">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Field of Study / Discipline
-                </label>
+                <label class="academic-label">Field of Study / Discipline</label>
                 <input type="text" name="field_of_study" value="<?= e($_POST['field_of_study'] ?? '') ?>"
                     placeholder="e.g. Computer Science & Engineering"
                     class="academic-input text-xs sm:text-sm">
@@ -100,18 +96,14 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Awarding Institution / University <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Awarding Institution / University <span class="text-rose-600">*</span></label>
             <input type="text" name="institution" required value="<?= e($_POST['institution'] ?? '') ?>"
                 placeholder="e.g. Indian Institute of Technology (IIT) Kharagpur"
                 class="academic-input text-xs sm:text-sm">
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Year of Completion / Award <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Year of Completion / Award <span class="text-rose-600">*</span></label>
             <input type="number" name="year" required min="1950" max="2035"
                 value="<?= e($_POST['year'] ?? date('Y')) ?>"
                 class="academic-input text-xs font-mono max-w-xs">

@@ -1,8 +1,8 @@
 <?php
 /**
- * Departmental Scholar - Homepage
+ * Departmental Scholar - Academic Research Portal Homepage
  * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/csrf.php';
@@ -62,40 +62,39 @@ if (!empty($featuredFaculty)) {
 $pageTitle = 'Home — Faculty Research Directory & Repository';
 $activeNav = 'home';
 require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/includes/preloader.php';
 ?>
 
-<!-- Editorial Academic Hero -->
-<section class="relative bg-oxford-navy text-white py-16 sm:py-24 overflow-hidden border-b border-oxford-blue">
-    <!-- Subtle institutional image overlay -->
-    <div class="absolute inset-0 bg-cover bg-center opacity-10 mix-blend-luminosity pointer-events-none" style="background-image: url('<?= url('assets/img/iter_gate.jpg') ?>');"></div>
+<!-- Academic Hero Section -->
+<section class="relative bg-oxford-navy text-white py-16 sm:py-20 border-b border-oxford-blue/60 overflow-hidden">
+    <!-- Subtle institutional watermarking -->
+    <div class="absolute inset-0 opacity-[0.07] bg-center bg-cover pointer-events-none mix-blend-luminosity" style="background-image: url('<?= url('assets/img/iter_campus.jpg') ?>');"></div>
     <div class="absolute inset-0 bg-gradient-to-b from-oxford-dark/80 via-transparent to-oxford-navy pointer-events-none"></div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <!-- Academic Pill -->
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-[4px] bg-white/10 border border-white/15 text-amber-300 text-xs font-mono tracking-wider uppercase mb-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-[4px] bg-white/10 border border-white/15 text-amber-300 text-xs font-mono tracking-wider uppercase mb-5">
             <i class="fa-solid fa-graduation-cap text-xs"></i>
-            <span>Institutional Research Index & Scholarly Archive</span>
+            <span>Institutional Research Information System</span>
         </div>
 
         <!-- Headline in EB Garamond Serif -->
         <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            Departmental Faculty Research & Academic Directory
+            Faculty Research & Scholarly Directory
         </h1>
-        <p class="mt-4 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed font-sans font-normal">
-            Discover peer-reviewed publications, verified citation metrics, sponsored research grants, and intellectual property across academic departments.
+        <p class="mt-3.5 text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-sans font-normal">
+            Explore peer-reviewed publications, citation metrics, extramural grants, and intellectual property across collegiate academic departments.
         </p>
 
-        <!-- Integrated Scholar Search Form -->
-        <div class="mt-10 max-w-2xl mx-auto">
+        <!-- Focused Search Form -->
+        <div class="mt-9 max-w-2xl mx-auto">
             <form action="<?= url('directory.php') ?>" method="GET" class="relative flex items-center shadow-lg">
                 <div class="relative w-full">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                         <i class="fa-solid fa-magnifying-glass text-sm"></i>
                     </div>
                     <input type="text" name="q" 
-                        placeholder="Search scholars by name, topic (e.g. Machine Learning, Edge AI, VLSI)..." 
-                        class="w-full pl-11 pr-28 py-3.5 bg-white text-scholar-text rounded-[6px] border border-slate-200 focus:outline-none focus:ring-2 focus:ring-oxford-blue text-sm placeholder-slate-400"
+                        placeholder="Search scholars by name, research area, or topic (e.g. Machine Learning, VLSI)..." 
+                        class="w-full pl-11 pr-28 py-3.5 bg-white text-scholar-text rounded-[6px] border border-slate-200 focus:outline-none focus:ring-2 focus:ring-oxford-slate text-sm placeholder-slate-400 shadow-xs"
                         aria-label="Search scholars by name or research topic">
                     <button type="submit" 
                         class="absolute right-1.5 top-1.5 bottom-1.5 px-4 btn-academic-gold text-xs shadow-xs">
@@ -113,27 +112,27 @@ require_once __DIR__ . '/includes/preloader.php';
             </div>
         </div>
 
-        <!-- Institutional Impact Metrics Ribbon (Real Database Data) -->
-        <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-white/10 text-left">
-            <div class="p-4 rounded-[10px] bg-white/5 border border-white/10">
+        <!-- Institutional Impact Metrics Ribbon -->
+        <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-7 border-t border-white/10 text-left">
+            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
                 <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Departments</div>
                 <div class="text-2xl sm:text-3xl font-bold font-mono text-white mt-1"><?= number_format(count($departments)) ?></div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Collegiate Divisions</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Academic Divisions</div>
             </div>
-            <div class="p-4 rounded-[10px] bg-white/5 border border-white/10">
+            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
                 <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Active Faculty</div>
                 <div class="text-2xl sm:text-3xl font-bold font-mono text-white mt-1"><?= number_format($totalFaculties) ?></div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Verified Researchers</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Verified Scholars</div>
             </div>
-            <div class="p-4 rounded-[10px] bg-white/5 border border-white/10">
+            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
                 <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Indexed Works</div>
                 <div class="text-2xl sm:text-3xl font-bold font-mono text-amber-300 mt-1"><?= number_format($totalPubs) ?></div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Journals & Conferences</div>
             </div>
-            <div class="p-4 rounded-[10px] bg-white/5 border border-white/10">
-                <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Recorded Citations</div>
+            <div class="p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-xs">
+                <div class="text-xs uppercase font-mono tracking-wider text-slate-400">Citations Recorded</div>
                 <div class="text-2xl sm:text-3xl font-bold font-mono text-emerald-300 mt-1"><?= number_format($totalCitations) ?></div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Self-Reported & Verified</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Peer Citations</div>
             </div>
         </div>
     </div>
@@ -141,30 +140,35 @@ require_once __DIR__ . '/includes/preloader.php';
 
 <!-- Featured Researchers Showcase -->
 <?php if (!empty($featuredFaculty)): ?>
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-scholar-border">
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-3.5 border-b border-scholar-border">
         <div>
-            <span class="text-xs font-semibold text-academic-gold uppercase tracking-wider font-mono">Scholarly Faculty</span>
+            <span class="text-xs font-semibold text-academic-gold uppercase tracking-wider font-mono">Scholarly Directory</span>
             <h2 class="font-serif text-2xl sm:text-3xl font-bold text-oxford-navy mt-1">Distinguished Researchers</h2>
         </div>
-        <a href="<?= url('directory.php') ?>" class="text-sm font-semibold text-oxford-blue hover:text-oxford-navy flex items-center gap-1.5 mt-2 sm:mt-0 transition group">
+        <a href="<?= url('directory.php') ?>" class="text-xs font-semibold text-oxford-slate hover:text-oxford-navy flex items-center gap-1.5 mt-2 sm:mt-0 transition group">
             <span>Browse Full Directory</span>
-            <i class="fa-solid fa-arrow-right text-xs transform group-hover:translate-x-1 transition"></i>
+            <i class="fa-solid fa-arrow-right text-[10px] transform group-hover:translate-x-1 transition"></i>
         </a>
     </div>
 
     <!-- 3-Column Prestigious Desktop Layout -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($featuredFaculty as $fac): ?>
-            <div class="academic-card p-6 flex flex-col justify-between group">
+            <div class="academic-card p-6 flex flex-col justify-between group hover:border-oxford-slate transition">
                 <div>
                     <!-- Portrait & Title Header -->
                     <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 rounded-[8px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400 shadow-xs">
-                            <?php if (!empty($fac['photo_url'])): ?>
-                                <img src="<?= safe_url($fac['photo_url']) ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover">
+                        <div class="w-16 h-16 rounded-[6px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400 shadow-xs">
+                            <?php $photo = faculty_photo_url($fac['photo_url'] ?? null); ?>
+                            <?php if ($photo): ?>
+                                <img src="<?= $photo ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover"
+                                     onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                <div class="hidden text-slate-300 flex items-center justify-center w-full h-full">
+                                    <i class="fa-solid fa-user-graduate text-2xl"></i>
+                                </div>
                             <?php else: ?>
-                                <i class="fa-solid fa-user-tie text-2xl text-slate-300"></i>
+                                <i class="fa-solid fa-user-graduate text-2xl text-slate-300"></i>
                             <?php endif; ?>
                         </div>
 
@@ -180,7 +184,7 @@ require_once __DIR__ . '/includes/preloader.php';
                                 </span>
                             </div>
                             <p class="text-xs text-scholar-muted mt-1 truncate font-medium"><?= e($fac['designation']) ?></p>
-                            <p class="text-xs text-oxford-blue font-medium truncate"><?= e($fac['department_name'] ?? 'Faculty Researcher') ?></p>
+                            <p class="text-xs text-oxford-slate font-medium truncate"><?= e($fac['department_name'] ?? 'Faculty Researcher') ?></p>
                             <?php if (!empty($fac['institution'])): ?>
                                 <p class="text-[11px] text-slate-400 truncate flex items-center gap-1 mt-0.5">
                                     <i class="fa-solid fa-building-columns text-[10px]"></i>
@@ -243,8 +247,8 @@ require_once __DIR__ . '/includes/preloader.php';
                 </div>
 
                 <!-- Footer Card Action -->
-                <div class="mt-5 pt-4 border-t border-scholar-border flex items-center justify-between text-xs">
-                    <a href="<?= researcher_url($fac) ?>" class="btn-academic-secondary text-xs !py-1.5 !px-3 group-hover:border-oxford-blue">
+                <div class="mt-5 pt-3.5 border-t border-scholar-border flex items-center justify-between text-xs">
+                    <a href="<?= researcher_url($fac) ?>" class="btn-academic-secondary text-xs !py-1 !px-2.5 group-hover:border-oxford-slate">
                         <span>View Scholarly Profile</span>
                         <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </a>
@@ -261,26 +265,26 @@ require_once __DIR__ . '/includes/preloader.php';
 <?php endif; ?>
 
 <!-- Academic Departments Grid -->
-<section class="bg-slate-100/60 py-16 border-t border-scholar-border">
+<section class="bg-slate-100/60 py-14 border-t border-scholar-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-scholar-border">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-3.5 border-b border-scholar-border">
             <div>
                 <span class="text-xs font-semibold text-academic-gold uppercase tracking-wider font-mono">Academic Divisions</span>
                 <h2 class="font-serif text-2xl sm:text-3xl font-bold text-oxford-navy mt-1">Collegiate Departments</h2>
             </div>
-            <a href="<?= url('departments.php') ?>" class="text-sm font-semibold text-oxford-blue hover:text-oxford-navy flex items-center gap-1.5 mt-2 sm:mt-0 transition group">
+            <a href="<?= url('departments.php') ?>" class="text-xs font-semibold text-oxford-slate hover:text-oxford-navy flex items-center gap-1.5 mt-2 sm:mt-0 transition group">
                 <span>View All Departments</span>
-                <i class="fa-solid fa-arrow-right text-xs transform group-hover:translate-x-1 transition"></i>
+                <i class="fa-solid fa-arrow-right text-[10px] transform group-hover:translate-x-1 transition"></i>
             </a>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <?php foreach ($departments as $dept): ?>
                 <a href="<?= url('directory.php?dept=' . urlencode($dept['code'])) ?>" 
-                   class="academic-card p-5 hover:border-oxford-blue transition flex flex-col justify-between group">
+                   class="academic-card p-5 hover:border-oxford-slate transition flex flex-col justify-between group">
                     <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="px-2.5 py-0.5 rounded-[4px] bg-slate-100 text-oxford-navy text-xs font-mono font-bold group-hover:bg-oxford-navy group-hover:text-white transition">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <span class="px-2 py-0.5 rounded-[4px] bg-slate-100 text-oxford-navy text-xs font-mono font-bold group-hover:bg-oxford-navy group-hover:text-white transition">
                                 <?= e($dept['code']) ?>
                             </span>
                             <span class="text-xs text-slate-400 font-mono">
@@ -302,25 +306,25 @@ require_once __DIR__ . '/includes/preloader.php';
 </section>
 
 <!-- Call to Action for Faculty Onboarding -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <div class="rounded-[10px] bg-oxford-navy text-white p-8 sm:p-12 shadow-md border border-oxford-blue flex flex-col md:flex-row items-center justify-between gap-8">
-        <div class="space-y-3 max-w-2xl">
-            <span class="inline-block px-2.5 py-0.5 rounded-[4px] bg-white/10 text-amber-300 text-xs font-mono tracking-wider uppercase">
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <div class="rounded-[8px] bg-oxford-navy text-white p-8 sm:p-10 shadow-sm border border-oxford-blue flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2.5 max-w-2xl">
+            <span class="inline-block px-2 py-0.5 rounded-[4px] bg-white/10 text-amber-300 text-xs font-mono tracking-wider uppercase">
                 Faculty Portal
             </span>
             <h2 class="font-serif text-2xl sm:text-3xl font-bold">
-                Are you a Faculty Member or Research Scholar?
+                Are you an Institutional Researcher or Faculty Scholar?
             </h2>
-            <p class="text-slate-300 text-sm leading-relaxed font-sans">
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed font-sans">
                 Maintain your official academic research portfolio with Google Scholar and ORCID linking, sponsored grants tracking, and NAAC/NIRF-ready reporting.
             </p>
         </div>
         <div class="flex flex-col sm:flex-row gap-3 flex-shrink-0 w-full md:w-auto">
-            <a href="<?= url('register.php') ?>" class="btn-academic-gold text-xs !py-3 !px-5 text-center">
+            <a href="<?= url('register.php') ?>" class="btn-academic-gold text-xs !py-2.5 !px-4 text-center">
                 <i class="fa-solid fa-user-plus text-xs"></i>
                 <span>Register Faculty Profile</span>
             </a>
-            <a href="<?= url('login.php') ?>" class="btn-academic-secondary !bg-white/10 !text-white !border-white/20 hover:!bg-white/20 text-xs !py-3 !px-5 text-center">
+            <a href="<?= url('login.php') ?>" class="btn-academic-secondary !bg-white/10 !text-white !border-white/20 hover:!bg-white/20 text-xs !py-2.5 !px-4 text-center">
                 <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
                 <span>Sign In to Portal</span>
             </a>

@@ -67,15 +67,16 @@ require_once __DIR__ . '/includes/header.php';
         
         <!-- Header Masthead -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-[8px] bg-oxford-navy text-white shadow-sm ring-4 ring-slate-100 mb-3">
-                <i class="fa-solid fa-lock text-lg"></i>
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-[6px] bg-oxford-navy text-academic-gold shadow-xs border border-oxford-slate/30 mb-3">
+                <i class="fa-solid fa-graduation-cap text-lg"></i>
             </div>
+            <div class="inline-block text-[10px] font-mono uppercase tracking-widest text-oxford-slate font-semibold mb-1">Institutional Access</div>
             <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-oxford-navy">Portal Sign In</h1>
             <p class="text-xs text-scholar-muted mt-1 font-sans">Faculty Researchers, Academic Delegates & Administrators</p>
         </div>
 
         <!-- Form Card -->
-        <div class="academic-card p-6 sm:p-8">
+        <div class="academic-card p-6 sm:p-8 shadow-xs">
             <?php if ($error): ?>
                 <div class="mb-5 p-3.5 rounded-[6px] bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
                     <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm flex-shrink-0"></i>
@@ -87,9 +88,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?= csrf_field() ?>
 
                 <div>
-                    <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                        Institutional Email
-                    </label>
+                    <label for="email" class="academic-label">Institutional Email</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                             <i class="fa-solid fa-envelope text-xs"></i>
@@ -102,9 +101,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
 
                 <div>
-                    <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                        Password
-                    </label>
+                    <label for="password" class="academic-label">Password</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                             <i class="fa-solid fa-key text-xs"></i>
@@ -126,7 +123,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="mt-6 pt-6 border-t border-scholar-border text-center">
                 <p class="text-xs text-scholar-muted">
                     New faculty member or researcher?
-                    <a href="<?= url('register.php') ?>" class="font-semibold text-oxford-blue hover:text-oxford-navy transition">
+                    <a href="<?= url('register.php') ?>" class="font-semibold text-oxford-navy hover:underline transition">
                         Register profile here
                     </a>
                 </p>

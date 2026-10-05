@@ -2,7 +2,7 @@
 /**
  * Departmental Scholar — Faculty Dashboard
  * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -98,34 +98,58 @@ $delStmt = $db->prepare("
 $delStmt->execute([$faculty['user_id']]);
 $delegates = $delStmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Calculate profile completeness score
+$completenessFields = [
+    'photo_url' => !empty($faculty['photo_url']),
+    'bio' => !empty($faculty['bio']),
+    'department_id' => !empty($faculty['department_id']),
+    'research_interests' => !empty($faculty['research_interests']),
+    'orcid_id' => !empty($faculty['orcid_id']),
+    'google_scholar_url' => !empty($faculty['google_scholar_url']),
+    'publications' => count($publications) > 0,
+    'education' => count($education) > 0,
+];
+$completedCount = count(array_filter($completenessFields));
+$completenessPercent = round(($completedCount / count($completenessFields)) * 100);
+
 $pageTitle = 'Faculty Dashboard — ' . $faculty['full_name'];
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <!-- Dashboard Masthead -->
-<div class="bg-white border-b border-scholar-border">
+<div class="bg-white border-b border-scholar-border shadow-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             
             <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-[8px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center">
-                    <?php if (!empty($faculty['photo_url'])): ?>
-                        <img src="<?= safe_url($faculty['photo_url']) ?>" alt="Avatar" class="w-full h-full object-cover">
+                <div class="w-14 h-14 rounded-[8px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center shadow-xs">
+                    <?php $photo = faculty_photo_url($faculty['photo_url'] ?? null); ?>
+                    <?php if ($photo): ?>
+                        <img src="<?= $photo ?>" alt="Avatar" class="w-full h-full object-cover"
+                             onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                        <div class="hidden text-slate-300 flex items-center justify-center w-full h-full">
+                            <i class="fa-solid fa-user-graduate text-2xl"></i>
+                        </div>
                     <?php else: ?>
-                        <i class="fa-solid fa-user-tie text-2xl text-slate-400"></i>
+                        <i class="fa-solid fa-user-graduate text-2xl text-slate-300"></i>
                     <?php endif; ?>
                 </div>
                 <div>
-                    <?php if (!empty($_SESSION['active_faculty_profile_id'])): ?>
-                        <span class="academic-tag academic-tag-gold font-mono text-[10px] font-bold uppercase mb-1">
-                            <i class="fa-solid fa-user-gear mr-1"></i> Active Delegate Mode
+                    <div class="flex items-center gap-2">
+                        <?php if (!empty($_SESSION['active_faculty_profile_id'])): ?>
+                            <span class="academic-tag academic-tag-gold font-mono text-[10px] font-bold uppercase mb-1">
+                                <i class="fa-solid fa-user-gear mr-1"></i> Active Delegate Mode
+                            </span>
+                        <?php endif; ?>
+                        <span class="academic-tag academic-tag-green text-[10px] !py-0.5">
+                            <i class="fa-solid fa-circle-check text-[10px]"></i> Verified
                         </span>
-                    <?php endif; ?>
-                    <h1 class="font-serif text-xl sm:text-2xl font-bold text-oxford-navy leading-tight">
+                    </div>
+                    <h1 class="font-serif text-xl sm:text-2xl font-bold text-oxford-navy leading-tight mt-0.5">
                         <?= e(($faculty['salutation'] ? $faculty['salutation'] . ' ' : '') . $faculty['full_name']) ?>
                     </h1>
-                    <p class="text-xs text-scholar-muted mt-0.5">
-                        <?= e($faculty['designation']) ?> • <?= e($faculty['department_name'] ?? 'Faculty') ?> • <?= e($faculty['institution'] ?? 'Collegiate Division') ?>
+                    <p class="text-xs text-scholar-muted mt-0.5 font-sans">
+                        <?= e($faculty['designation']) ?> • <?= e($faculty['department_name'] ?? 'Faculty Division') ?> • <?= e($faculty['institution'] ?? 'ITER, SOA University') ?>
                     </p>
                 </div>
             </div>
@@ -159,6 +183,28 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
         </div>
+
+        <!-- Profile Completeness Meter -->
+        <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-3">
+                <span class="text-slate-500 font-medium">Profile Completeness:</span>
+                <div class="w-36 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                    <div class="h-full bg-oxford-slate transition-all duration-300" style="width: <?= $completenessPercent ?>%;"></div>
+                </div>
+                <span class="font-mono font-bold text-oxford-navy"><?= $completenessPercent ?>%</span>
+            </div>
+            <?php if ($completenessPercent < 100): ?>
+                <a href="<?= url('dashboard/edit_profile.php?id=' . $faculty['id']) ?>" class="text-oxford-slate hover:underline font-semibold flex items-center gap-1">
+                    <span>Complete your academic identifiers and bio</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            <?php else: ?>
+                <span class="text-emerald-700 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-circle-check text-xs"></i>
+                    <span>All essential portfolio items completed</span>
+                </span>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
@@ -166,31 +212,31 @@ require_once __DIR__ . '/../includes/header.php';
 
     <!-- KPI Metric Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <div class="academic-card p-4">
+        <div class="academic-card p-4 shadow-xs">
             <span class="text-[10px] font-mono font-bold uppercase text-slate-400 block">Publications</span>
             <div class="text-2xl font-bold font-mono text-oxford-navy mt-1"><?= count($publications) ?></div>
             <span class="text-[11px] text-slate-500 mt-1 block">Articles & Chapters</span>
         </div>
 
-        <div class="academic-card p-4">
+        <div class="academic-card p-4 shadow-xs">
             <span class="text-[10px] font-mono font-bold uppercase text-slate-400 block">Citations</span>
-            <div class="text-2xl font-bold font-mono text-oxford-blue mt-1"><?= number_format($faculty['total_citations']) ?></div>
+            <div class="text-2xl font-bold font-mono text-oxford-slate mt-1"><?= number_format($faculty['total_citations']) ?></div>
             <span class="text-[11px] text-slate-500 mt-1 block">Self-Reported Metric</span>
         </div>
 
-        <div class="academic-card p-4">
+        <div class="academic-card p-4 shadow-xs">
             <span class="text-[10px] font-mono font-bold uppercase text-slate-400 block">h-Index</span>
             <div class="text-2xl font-bold font-mono text-oxford-navy mt-1"><?= (int)$faculty['h_index'] ?></div>
             <span class="text-[11px] text-slate-500 mt-1 block">Scholarly Impact</span>
         </div>
 
-        <div class="academic-card p-4">
+        <div class="academic-card p-4 shadow-xs">
             <span class="text-[10px] font-mono font-bold uppercase text-slate-400 block">Grants</span>
             <div class="text-2xl font-bold font-mono text-emerald-700 mt-1"><?= count($projects) ?></div>
             <span class="text-[11px] text-slate-500 mt-1 block">Sponsored Projects</span>
         </div>
 
-        <div class="academic-card p-4 col-span-2 sm:col-span-1">
+        <div class="academic-card p-4 shadow-xs col-span-2 sm:col-span-1">
             <span class="text-[10px] font-mono font-bold uppercase text-slate-400 block">Patents / IP</span>
             <div class="text-2xl font-bold font-mono text-amber-700 mt-1"><?= count($patents) ?></div>
             <span class="text-[11px] text-slate-500 mt-1 block">Filed & Granted</span>
@@ -199,35 +245,35 @@ require_once __DIR__ . '/../includes/header.php';
 
     <!-- Quick Navigation Sub-Bar -->
     <div class="flex flex-wrap items-center gap-2 border-b border-scholar-border pb-3 text-xs font-semibold">
-        <a href="#section-publications" class="academic-tag !bg-oxford-navy !text-white !border-oxford-navy px-3 py-1.5">
+        <a href="#section-publications" class="academic-tag !bg-oxford-navy !text-white !border-oxford-navy px-3 py-1.5 shadow-xs">
             Publications (<?= count($publications) ?>)
         </a>
-        <a href="#section-projects" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+        <a href="#section-projects" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
             Projects (<?= count($projects) ?>)
         </a>
-        <a href="#section-patents" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+        <a href="#section-patents" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
             Patents (<?= count($patents) ?>)
         </a>
-        <a href="#section-experience" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+        <a href="#section-experience" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
             Appointments (<?= count($experience) ?>)
         </a>
-        <a href="#section-education" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+        <a href="#section-education" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
             Education (<?= count($education) ?>)
         </a>
-        <a href="#section-teaching" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+        <a href="#section-teaching" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
             Teaching (<?= count($teaching) ?>)
         </a>
-        <a href="#section-awards" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+        <a href="#section-awards" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
             Awards (<?= count($awards) ?>)
         </a>
-        <a href="<?= url('dashboard/delegates.php?profile_id=' . $faculty['id']) ?>" class="academic-tag hover:border-oxford-blue px-3 py-1.5 transition">
+        <a href="<?= url('dashboard/delegates.php?profile_id=' . $faculty['id']) ?>" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
             <i class="fa-solid fa-users-gear mr-1 text-slate-400"></i> Delegates (<?= count($delegates) ?>)
         </a>
     </div>
 
     <!-- SECTION 1: Publications Management -->
-    <div id="section-publications" class="academic-card overflow-hidden">
-        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="section-publications" class="academic-card overflow-hidden shadow-xs">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Publications & Research Papers</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">Peer-reviewed journal articles, conference papers, and book chapters</p>
@@ -288,7 +334,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 </td>
                                 <td class="py-3 px-4 text-right space-x-2 whitespace-nowrap">
                                     <a href="<?= url('dashboard/edit_publication.php?id=' . $pub['id']) ?>" 
-                                       class="text-oxford-blue hover:text-oxford-navy font-semibold text-xs">
+                                       class="text-oxford-slate hover:text-oxford-navy font-semibold text-xs">
                                         Edit
                                     </a>
                                     <form action="<?= url('dashboard/delete_item.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Are you sure you want to delete this publication?');">
@@ -312,11 +358,11 @@ require_once __DIR__ . '/../includes/header.php';
                     <div class="pt-3 first:pt-0 space-y-2">
                         <div class="font-serif font-bold text-sm text-oxford-navy leading-snug"><?= e($pub['title']) ?></div>
                         <div class="text-xs text-slate-600"><?= e($pub['authors']) ?></div>
-                        <div class="text-xs text-oxford-blue italic font-serif"><?= e($pub['journal_conference_name']) ?> (<?= e($pub['publication_year']) ?>)</div>
+                        <div class="text-xs text-oxford-slate italic font-serif"><?= e($pub['journal_conference_name']) ?> (<?= e($pub['publication_year']) ?>)</div>
                         <div class="flex items-center justify-between text-xs pt-1">
                             <span class="font-mono text-slate-500">Citations: <strong><?= (int)$pub['citation_count'] ?></strong></span>
                             <div class="flex items-center gap-3">
-                                <a href="<?= url('dashboard/edit_publication.php?id=' . $pub['id']) ?>" class="font-semibold text-oxford-blue">Edit</a>
+                                <a href="<?= url('dashboard/edit_publication.php?id=' . $pub['id']) ?>" class="font-semibold text-oxford-slate">Edit</a>
                                 <form action="<?= url('dashboard/delete_item.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Delete this publication?');">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="type" value="publication">
@@ -332,8 +378,8 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- SECTION 2: Sponsored Research Projects -->
-    <div id="section-projects" class="academic-card overflow-hidden">
-        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="section-projects" class="academic-card overflow-hidden shadow-xs">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Sponsored Research Projects & Grants</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">Extramural funding from government agencies, industry, and foundations</p>
@@ -387,8 +433,8 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- SECTION 3: Patents & IP -->
-    <div id="section-patents" class="academic-card overflow-hidden">
-        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="section-patents" class="academic-card overflow-hidden shadow-xs">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Patents & Intellectual Property</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">National and international filed or granted patents</p>
@@ -444,8 +490,8 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- SECTION 4: Academic Appointments & Career History -->
-    <div id="section-experience" class="academic-card overflow-hidden">
-        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="section-experience" class="academic-card overflow-hidden shadow-xs">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Academic Appointments & Career History</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">Faculty positions, postdoctoral fellowships, and academic leadership roles</p>
@@ -508,8 +554,8 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- SECTION 5: Education & Academic Credentials -->
-    <div id="section-education" class="academic-card overflow-hidden">
-        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="section-education" class="academic-card overflow-hidden shadow-xs">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Education & Qualifications</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">Doctoral, postgraduate, and collegiate degrees</p>
@@ -567,8 +613,8 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- SECTION 6: Teaching & Course Assignments -->
-    <div id="section-teaching" class="academic-card overflow-hidden">
-        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="section-teaching" class="academic-card overflow-hidden shadow-xs">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Teaching & Instruction</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">Undergraduate, postgraduate, and doctoral course assignments</p>
@@ -623,8 +669,8 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- SECTION 7: Honors & Awards -->
-    <div id="section-awards" class="academic-card overflow-hidden">
-        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="section-awards" class="academic-card overflow-hidden shadow-xs">
+        <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Honors, Awards & Distinctions</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">Professional awards, best paper recognitions, and society elevations</p>

@@ -66,7 +66,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8 pb-4 border-b border-scholar-border">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-slate hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Patent / Invention</h1>
@@ -80,13 +80,11 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_patent.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
+    <form action="<?= url('dashboard/add_patent.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5 shadow-xs">
         <?= csrf_field() ?>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Patent Title / Invention Name <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Patent Title / Invention Name <span class="text-rose-600">*</span></label>
             <input type="text" name="title" required value="<?= e($_POST['title'] ?? '') ?>"
                 placeholder="e.g. Automated Early Screening System for Retinal Disorders"
                 class="academic-input text-xs sm:text-sm">
@@ -94,18 +92,14 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Patent / Application Number
-                </label>
+                <label class="academic-label">Patent / Application Number</label>
                 <input type="text" name="patent_number" value="<?= e($_POST['patent_number'] ?? '') ?>"
                     placeholder="e.g. 202431005892 A"
                     class="academic-input text-xs font-mono">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Country / Jurisdiction
-                </label>
+                <label class="academic-label">Country / Jurisdiction</label>
                 <input type="text" name="country" value="<?= e($_POST['country'] ?? 'India') ?>"
                     placeholder="e.g. India / United States"
                     class="academic-input text-xs">
@@ -113,9 +107,7 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Patent Status
-            </label>
+            <label class="academic-label">Patent Status</label>
             <select name="status" class="academic-input text-xs font-medium">
                 <option value="granted">Granted</option>
                 <option value="published">Published</option>
@@ -125,13 +117,13 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Filing Date</label>
+                <label class="academic-label">Filing Date</label>
                 <input type="date" name="filing_date" value="<?= e($_POST['filing_date'] ?? '') ?>"
                     class="academic-input text-xs font-mono">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Grant Date (if granted)</label>
+                <label class="academic-label">Grant Date (if granted)</label>
                 <input type="date" name="grant_date" value="<?= e($_POST['grant_date'] ?? '') ?>"
                     class="academic-input text-xs font-mono">
             </div>

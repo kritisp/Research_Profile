@@ -2,7 +2,7 @@
 /**
  * Global Academic Header Component
  * Design System: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/csrf.php';
@@ -22,9 +22,9 @@ $flashes   = get_flashes();
     <!-- Google Fonts: EB Garamond (Scholar Serif), Plus Jakarta Sans (UI Body), JetBrains Mono (Identifiers) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN with Custom Extended Theme -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -37,20 +37,27 @@ $flashes   = get_flashes();
                     },
                     colors: {
                         oxford: {
-                            navy: '#0E1F38',
-                            dark: '#081324',
-                            blue: '#1E3A5F',
-                            light: '#2A4D7A',
-                            gold: '#9A6B1F',
-                            goldLight: '#FDF8ED',
+                            navy: '#0A192F',
+                            dark: '#060F1E',
+                            blue: '#162C4E',
+                            slate: '#1E3A5F',
+                            gold: '#926315',
+                            goldLight: '#FDF9F0',
+                        },
+                        academic: {
+                            gold: '#926315',
+                            goldLight: '#FDF9F0',
+                            goldBorder: '#E8D5B0',
+                            amber: '#B45309',
                         },
                         scholar: {
                             bg: '#F8FAFC',
                             surface: '#FFFFFF',
                             text: '#0F172A',
-                            muted: '#475569',
-                            subtle: '#64748B',
+                            muted: '#64748B',
+                            subtle: '#94A3B8',
                             border: '#E2E8F0',
+                            borderLight: '#F1F5F9',
                             green: '#0D7A53',
                             danger: '#BE123C',
                             link: '#1D4ED8',
@@ -59,12 +66,13 @@ $flashes   = get_flashes();
                     borderRadius: {
                         tag: '4px',
                         control: '6px',
-                        card: '10px',
+                        card: '8px',
                     },
                     boxShadow: {
-                        academic: '0 1px 3px rgba(14, 31, 56, 0.05), 0 1px 2px rgba(14, 31, 56, 0.03)',
-                        academicHover: '0 6px 12px -2px rgba(14, 31, 56, 0.08), 0 3px 6px -2px rgba(14, 31, 56, 0.04)',
-                        modal: '0 20px 25px -5px rgba(14, 31, 56, 0.15), 0 8px 10px -6px rgba(14, 31, 56, 0.05)',
+                        xs: '0 1px 2px 0 rgba(10, 25, 47, 0.04)',
+                        academic: '0 1px 3px 0 rgba(10, 25, 47, 0.06), 0 1px 2px -1px rgba(10, 25, 47, 0.04)',
+                        academicHover: '0 4px 6px -1px rgba(10, 25, 47, 0.07), 0 2px 4px -2px rgba(10, 25, 47, 0.04)',
+                        modal: '0 20px 25px -5px rgba(10, 25, 47, 0.12), 0 8px 10px -6px rgba(10, 25, 47, 0.04)',
                     }
                 }
             }
@@ -82,23 +90,24 @@ $flashes   = get_flashes();
     <!-- Accessibility Skip Link -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <!-- Institutional Top Masthead -->
-    <div class="bg-oxford-dark text-slate-300 text-xs py-2 px-4 border-b border-oxford-navy">
+    <!-- Institutional Masthead Strip -->
+    <div class="bg-oxford-navy text-slate-300 text-xs py-2 px-4 border-b border-oxford-blue/50">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
             <div class="flex items-center gap-3">
-                <span class="font-bold tracking-wider text-amber-400 font-mono text-[11px] uppercase">Departmental Scholar</span>
+                <span class="font-bold tracking-wider text-amber-300 font-mono text-[11px] uppercase">Departmental Scholar</span>
                 <span class="text-slate-600">|</span>
-                <span class="text-slate-300 font-medium">Faculty Scholarly Directory & Academic Repository</span>
+                <span class="text-slate-300 font-medium text-[11px] hidden sm:inline">Faculty Scholarly Directory & Research Repository</span>
+                <span class="text-slate-400 font-mono text-[11px]">ITER • SOA University</span>
             </div>
             <div class="flex items-center gap-4 text-slate-400 text-[11px]">
                 <span class="hidden sm:inline-flex items-center gap-1.5">
-                    <i class="fa-solid fa-graduation-cap text-amber-400/90 text-xs"></i>
-                    <span>Peer-Reviewed Scholarly Index</span>
+                    <i class="fa-solid fa-graduation-cap text-amber-400 text-xs"></i>
+                    <span>Peer-Reviewed Index</span>
                 </span>
                 <span class="hidden md:inline text-slate-600">|</span>
-                <span class="inline-flex items-center gap-1.5 text-emerald-400">
+                <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
                     <i class="fa-solid fa-shield-check text-xs"></i>
-                    <span>Institutional Repository</span>
+                    <span>Institutional Registry</span>
                 </span>
             </div>
         </div>
@@ -112,7 +121,7 @@ $flashes   = get_flashes();
                 <!-- Brand / Seal -->
                 <div class="flex items-center gap-6">
                     <a href="<?= url() ?>" class="flex items-center gap-3 group focus:outline-none" aria-label="Departmental Scholar Home">
-                        <div class="w-10 h-10 rounded-[6px] bg-slate-50 border border-scholar-border flex items-center justify-center p-1.5 shadow-xs transition group-hover:border-oxford-blue group-hover:bg-slate-100">
+                        <div class="w-10 h-10 rounded-[6px] bg-slate-50 border border-scholar-border flex items-center justify-center p-1.5 shadow-xs transition group-hover:border-oxford-slate group-hover:bg-slate-100">
                             <img src="<?= url('assets/img/scholar_hat.svg') ?>" alt="Departmental Scholar Logo" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
@@ -148,7 +157,7 @@ $flashes   = get_flashes();
                             }
                         ?>
                         <div class="flex items-center gap-3">
-                            <a href="<?= url($dashboardUrl) ?>" class="btn-academic-primary text-xs !py-2 !px-3.5 shadow-sm">
+                            <a href="<?= url($dashboardUrl) ?>" class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
                                 <i class="fa-solid fa-gauge text-xs"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -166,11 +175,11 @@ $flashes   = get_flashes();
                         </div>
                     <?php else: ?>
                         <div class="hidden sm:flex items-center gap-2">
-                            <a href="<?= url('login.php') ?>" class="btn-academic-secondary text-xs !py-2 !px-3.5">
+                            <a href="<?= url('login.php') ?>" class="btn-academic-secondary text-xs !py-1.5 !px-3 shadow-xs">
                                 <i class="fa-solid fa-arrow-right-to-bracket text-xs opacity-70"></i>
                                 <span>Sign In</span>
                             </a>
-                            <a href="<?= url('register.php') ?>" class="btn-academic-primary text-xs !py-2 !px-3.5 shadow-sm">
+                            <a href="<?= url('register.php') ?>" class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
                                 <i class="fa-solid fa-user-plus text-xs"></i>
                                 <span>Register</span>
                             </a>
@@ -178,7 +187,7 @@ $flashes   = get_flashes();
                     <?php endif; ?>
 
                     <!-- Mobile Menu Hamburger Button -->
-                    <button type="button" id="mobileNavToggle" aria-expanded="false" aria-controls="mobileNavMenu" class="md:hidden p-2 rounded-[6px] text-slate-600 hover:text-oxford-navy hover:bg-slate-100 border border-slate-200 transition focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Toggle navigation menu">
+                    <button type="button" id="mobileNavToggle" aria-expanded="false" aria-controls="mobileNavMenu" class="md:hidden p-2 rounded-[6px] text-slate-600 hover:text-oxford-navy hover:bg-slate-100 border border-slate-200 transition focus:outline-none min-h-[40px] min-w-[40px] flex items-center justify-center" aria-label="Toggle navigation menu">
                         <i class="fa-solid fa-bars text-base"></i>
                     </button>
                 </div>
@@ -226,7 +235,7 @@ $flashes   = get_flashes();
                         'success' => 'fa-circle-check text-emerald-600',
                         'danger'  => 'fa-circle-xmark text-rose-600',
                         'warning' => 'fa-triangle-exclamation text-amber-600',
-                        default   => 'fa-circle-info text-oxford-blue',
+                        default   => 'fa-circle-info text-oxford-slate',
                     };
                 ?>
                 <div class="scholar-toast flex items-center justify-between p-3.5 rounded-[6px] border text-sm <?= $colors ?> shadow-xs">

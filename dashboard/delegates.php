@@ -2,7 +2,7 @@
 /**
  * Departmental Scholar — Faculty Delegates & Assistant Management
  * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -90,7 +90,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8 pb-4 border-b border-scholar-border">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-slate hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Assistant & Delegate Access</h1>
@@ -108,7 +108,7 @@ require_once __DIR__ . '/../includes/header.php';
         
         <!-- Left: Authorized Delegates List -->
         <div class="lg:col-span-2 space-y-4">
-            <div class="academic-card p-6">
+            <div class="academic-card p-6 shadow-xs">
                 <h2 class="text-xs font-bold text-oxford-navy uppercase font-mono tracking-wider mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-user-shield text-academic-gold"></i>
                     <span>Authorized Delegates (<?= count($delegates) ?>)</span>
@@ -139,13 +139,13 @@ require_once __DIR__ . '/../includes/header.php';
 
                                 <div class="flex items-center gap-3">
                                     <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">
-                                        Granted: <?= date('M d, Y', strtotime($del['granted_date'])) ?>
+                                        Granted: <?= date('M Y', strtotime($del['granted_date'])) ?>
                                     </span>
-                                    <form method="POST" action="<?= url('dashboard/delegates.php') ?>" onsubmit="return confirm('Revoke edit access for this assistant?');" class="inline m-0">
+                                    <form action="<?= url('dashboard/delegates.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Revoke delegate edit access for this user?');">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="action" value="revoke_delegate">
                                         <input type="hidden" name="delegate_id" value="<?= (int)$del['delegate_rel_id'] ?>">
-                                        <button type="submit" class="px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 rounded-[4px] transition border border-rose-200">
+                                        <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-2 py-1 rounded-[4px] hover:bg-rose-50 border border-transparent hover:border-rose-200 transition">
                                             Revoke
                                         </button>
                                     </form>
@@ -157,48 +157,49 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <!-- Right: Grant New Delegate Form -->
-        <div>
-            <div class="academic-card p-6">
-                <h2 class="text-xs font-bold text-oxford-navy uppercase font-mono tracking-wider mb-2 flex items-center gap-2">
+        <!-- Right: Assign New Delegate Form -->
+        <div class="space-y-4">
+            <div class="academic-card p-6 shadow-xs">
+                <h2 class="text-xs font-bold text-oxford-navy uppercase font-mono tracking-wider mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-user-plus text-academic-gold"></i>
-                    <span>Authorize Delegate</span>
+                    <span>Grant Delegate Access</span>
                 </h2>
                 <p class="text-xs text-scholar-muted mb-4 leading-relaxed font-sans">
-                    Authorize an assistant or coordinator to log in and manage your research publications.
+                    Enter the institutional email of a registered research assistant or coordinator.
                 </p>
 
-                <form action="<?= url('dashboard/delegates.php') ?>" method="POST" class="space-y-4">
+                <form action="<?= url('dashboard/delegates.php') ?>" method="POST" class="space-y-3">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="add_delegate">
 
-                    <?php if (!empty($availableAssistants)): ?>
-                        <div>
-                            <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Quick Select</label>
-                            <select onchange="if(this.value) document.getElementById('delegate_email').value = this.value;"
-                                class="academic-input text-xs mb-2">
-                                <option value="">-- Select from Registered Admins --</option>
-                                <?php foreach ($availableAssistants as $asst): ?>
-                                    <option value="<?= e($asst['email']) ?>">
-                                        <?= e($asst['full_name']) ?> (<?= e($asst['email']) ?>)
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    <?php endif; ?>
-
                     <div>
-                        <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Assistant Email</label>
-                        <input type="email" id="delegate_email" name="delegate_email" required
-                            placeholder="assistant@iter.ac.in"
+                        <label class="academic-label">Assistant Email <span class="text-rose-600">*</span></label>
+                        <input type="email" name="delegate_email" required
+                            placeholder="assistant.cse@iter.ac.in"
                             class="academic-input text-xs">
                     </div>
 
                     <button type="submit" class="btn-academic-primary w-full text-xs shadow-xs !py-2.5">
-                        <i class="fa-solid fa-user-check text-xs"></i>
-                        <span>Authorize Access</span>
+                        <i class="fa-solid fa-shield-halved text-xs"></i>
+                        <span>Authorize Delegate</span>
                     </button>
                 </form>
+
+                <?php if (!empty($availableAssistants)): ?>
+                    <div class="mt-5 pt-4 border-t border-scholar-border">
+                        <span class="text-[10px] font-mono text-slate-400 uppercase font-semibold block mb-2">Registered Coordinators</span>
+                        <div class="space-y-1.5 max-h-40 overflow-y-auto">
+                            <?php foreach ($availableAssistants as $ast): ?>
+                                <button type="button" 
+                                    onclick="document.querySelector('input[name=delegate_email]').value = '<?= e($ast['email']) ?>'"
+                                    class="w-full text-left p-1.5 rounded-[4px] hover:bg-slate-50 text-xs flex items-center justify-between group transition">
+                                    <span class="font-medium text-oxford-navy group-hover:text-oxford-slate truncate"><?= e($ast['full_name']) ?></span>
+                                    <span class="font-mono text-[10px] text-slate-400 truncate ml-1"><?= e($ast['email']) ?></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 

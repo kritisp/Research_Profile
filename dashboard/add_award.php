@@ -62,7 +62,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8 pb-4 border-b border-scholar-border">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-slate hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Honor or Award</h1>
@@ -76,13 +76,11 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_award.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
+    <form action="<?= url('dashboard/add_award.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5 shadow-xs">
         <?= csrf_field() ?>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Award / Distinction Title <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Award / Distinction Title <span class="text-rose-600">*</span></label>
             <input type="text" name="title" required value="<?= e($_POST['title'] ?? '') ?>"
                 placeholder="e.g. Best Research Paper Award, IEEE Senior Member Elevation"
                 class="academic-input text-xs sm:text-sm font-semibold">
@@ -90,18 +88,14 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="sm:col-span-2">
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Awarding Body / Organization <span class="text-rose-600">*</span>
-                </label>
+                <label class="academic-label">Awarding Body / Organization <span class="text-rose-600">*</span></label>
                 <input type="text" name="awarding_body" required value="<?= e($_POST['awarding_body'] ?? '') ?>"
                     placeholder="e.g. IEEE Computer Society / Govt. of Odisha"
                     class="academic-input text-xs sm:text-sm">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Year <span class="text-rose-600">*</span>
-                </label>
+                <label class="academic-label">Year <span class="text-rose-600">*</span></label>
                 <input type="number" name="year" required min="1960" max="2035"
                     value="<?= e($_POST['year'] ?? date('Y')) ?>"
                     class="academic-input text-xs font-mono">
@@ -109,9 +103,7 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Description / Citation (Optional)
-            </label>
+            <label class="academic-label">Description / Citation (Optional)</label>
             <textarea name="description" rows="3"
                 placeholder="Brief citation or rationale for the recognition..."
                 class="academic-input text-xs leading-relaxed"><?= e($_POST['description'] ?? '') ?></textarea>

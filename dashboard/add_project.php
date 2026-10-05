@@ -2,7 +2,7 @@
 /**
  * Departmental Scholar — Add Funded Research Project Form
  * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -68,7 +68,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8 pb-4 border-b border-scholar-border">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-slate hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Sponsored Research Grant</h1>
@@ -82,13 +82,11 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_project.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
+    <form action="<?= url('dashboard/add_project.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5 shadow-xs">
         <?= csrf_field() ?>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Project Title <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Project Title <span class="text-rose-600">*</span></label>
             <input type="text" name="title" required value="<?= e($_POST['title'] ?? '') ?>"
                 placeholder="e.g. Edge-AI Framework for Autonomous Agricultural Monitoring"
                 class="academic-input text-xs sm:text-sm">
@@ -96,18 +94,14 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Funding Agency <span class="text-rose-600">*</span>
-                </label>
+                <label class="academic-label">Funding Agency <span class="text-rose-600">*</span></label>
                 <input type="text" name="funding_agency" required value="<?= e($_POST['funding_agency'] ?? '') ?>"
                     placeholder="e.g. SERB / DST / AICTE / DRDO"
                     class="academic-input text-xs">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Project Sanction Code
-                </label>
+                <label class="academic-label">Project Sanction Code</label>
                 <input type="text" name="project_code" value="<?= e($_POST['project_code'] ?? '') ?>"
                     placeholder="e.g. CRG/2023/004521"
                     class="academic-input text-xs font-mono">
@@ -116,9 +110,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Role in Project
-                </label>
+                <label class="academic-label">Role in Project</label>
                 <select name="role" class="academic-input text-xs font-medium">
                     <option value="pi">Principal Investigator (PI)</option>
                     <option value="co_pi">Co-Principal Investigator (Co-PI)</option>
@@ -128,17 +120,13 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Grant Amount (in Lakhs INR)
-                </label>
+                <label class="academic-label">Grant Amount (in Lakhs INR)</label>
                 <input type="number" step="0.01" min="0" name="amount_lakhs" value="<?= e($_POST['amount_lakhs'] ?? '0.00') ?>"
                     class="academic-input text-xs font-mono">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Project Status
-                </label>
+                <label class="academic-label">Project Status</label>
                 <select name="status" class="academic-input text-xs font-medium">
                     <option value="ongoing">Ongoing</option>
                     <option value="completed">Completed</option>
@@ -148,12 +136,12 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">Start Year</label>
+                <label class="academic-label">Start Year</label>
                 <input type="number" name="start_year" min="1990" max="2035" value="<?= e($_POST['start_year'] ?? date('Y')) ?>"
                     class="academic-input text-xs font-mono">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-oxford-navy mb-1 font-mono">End Year (or Expected)</label>
+                <label class="academic-label">End Year (or Expected)</label>
                 <input type="number" name="end_year" min="1990" max="2035" value="<?= e($_POST['end_year'] ?? (date('Y') + 3)) ?>"
                     class="academic-input text-xs font-mono">
             </div>

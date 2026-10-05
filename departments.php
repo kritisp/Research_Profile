@@ -2,7 +2,7 @@
 /**
  * Departmental Scholar - Academic Departments Overview
  * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/csrf.php';
@@ -29,10 +29,10 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Header Banner -->
-<section class="bg-oxford-navy text-white py-12 border-b border-oxford-blue">
+<section class="bg-oxford-navy text-white py-10 sm:py-12 border-b border-oxford-blue/60">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">Academic Architecture</span>
-        <h1 class="font-serif text-3xl sm:text-4xl font-normal text-white mt-2 leading-tight">Academic Departments</h1>
+        <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">Collegiate Academic Structure</span>
+        <h1 class="font-serif text-2xl sm:text-4xl font-normal text-white mt-1.5 leading-tight">Academic Departments</h1>
         <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl leading-relaxed font-sans">
             Explore departmental research output, publication volumes, and faculty directories across collegiate divisions.
         </p>
@@ -40,10 +40,10 @@ require_once __DIR__ . '/includes/header.php';
 </section>
 
 <!-- Departments Grid -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <?php foreach ($departments as $dept): ?>
-            <div class="academic-card p-6 flex flex-col justify-between group">
+            <div class="academic-card p-6 flex flex-col justify-between group hover:border-oxford-slate transition shadow-xs">
                 <div>
                     <!-- Header with code & metrics -->
                     <div class="flex items-center justify-between mb-3">
@@ -51,9 +51,9 @@ require_once __DIR__ . '/includes/header.php';
                             <?= e($dept['code']) ?>
                         </span>
                         <div class="flex items-center gap-3 text-xs text-slate-500 font-mono">
-                            <span><i class="fa-solid fa-users text-oxford-blue mr-1"></i><?= (int)$dept['faculty_count'] ?> Faculty</span>
+                            <span><i class="fa-solid fa-users text-oxford-slate mr-1"></i><?= (int)$dept['faculty_count'] ?> Faculty</span>
                             <span>•</span>
-                            <span><i class="fa-solid fa-file-lines text-oxford-blue mr-1"></i><?= (int)$dept['publication_count'] ?> Works</span>
+                            <span><i class="fa-solid fa-file-lines text-oxford-slate mr-1"></i><?= (int)$dept['publication_count'] ?> Works</span>
                         </div>
                     </div>
 
@@ -64,7 +64,7 @@ require_once __DIR__ . '/includes/header.php';
                     </h2>
 
                     <p class="text-xs text-scholar-muted mt-2.5 leading-relaxed font-sans">
-                        <?= e($dept['description'] ?? 'Academic department of ' . $dept['name'] . ', conducting peer-reviewed research and scholarly mentoring.') ?>
+                        <?= e($dept['description'] ?? 'Academic division of ' . $dept['name'] . ', fostering peer-reviewed research, doctoral mentoring, and scientific advancement.') ?>
                     </p>
                 </div>
 
@@ -73,7 +73,7 @@ require_once __DIR__ . '/includes/header.php';
                         Citations: <strong class="text-oxford-navy font-mono font-bold"><?= number_format($dept['dept_citations']) ?></strong>
                     </span>
                     <a href="<?= url('directory.php?dept=' . urlencode($dept['code'])) ?>" 
-                       class="btn-academic-secondary text-xs !py-1.5 !px-3 group-hover:border-oxford-blue">
+                       class="btn-academic-secondary text-xs !py-1.5 !px-3 group-hover:border-oxford-slate">
                         <span>Browse Faculty</span>
                         <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </a>

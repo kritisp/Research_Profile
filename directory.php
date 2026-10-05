@@ -2,7 +2,7 @@
 /**
  * Departmental Scholar - Faculty Directory & Search Portal
  * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
- * Authority: design-system/departmental-scholar/MASTER.md
+ * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/csrf.php';
@@ -87,7 +87,7 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Directory Header Banner -->
-<section class="bg-oxford-navy text-white py-10 sm:py-12 border-b border-oxford-blue">
+<section class="bg-oxford-navy text-white py-10 sm:py-12 border-b border-oxford-blue/60">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl">
             <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">Collegiate Scholarly Directory</span>
@@ -102,7 +102,7 @@ require_once __DIR__ . '/includes/header.php';
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Unified Filter Panel -->
-    <div class="academic-card p-4 sm:p-5 mb-8">
+    <div class="academic-card p-4 sm:p-5 mb-8 shadow-xs">
         <form action="<?= url('directory.php') ?>" method="GET" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
             
             <!-- Keyword Search -->
@@ -151,7 +151,7 @@ require_once __DIR__ . '/includes/header.php';
 
             <!-- Filter Action -->
             <div class="sm:col-span-1">
-                <button type="submit" class="btn-academic-primary w-full text-xs !py-2.5 !px-3 shadow-xs">
+                <button type="submit" class="btn-academic-primary w-full text-xs !py-2 !px-3 shadow-xs">
                     <span>Apply</span>
                 </button>
             </div>
@@ -204,7 +204,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Faculty Cards Grid -->
     <?php if (empty($faculties)): ?>
-        <div class="academic-card p-12 text-center text-slate-500">
+        <div class="academic-card p-12 text-center text-slate-500 shadow-xs">
             <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                 <i class="fa-solid fa-user-slash text-xl"></i>
             </div>
@@ -212,22 +212,27 @@ require_once __DIR__ . '/includes/header.php';
             <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                 No verified profiles match the specified filters. Try broadening your keywords or resetting department criteria.
             </p>
-            <a href="<?= url('directory.php') ?>" class="mt-4 btn-academic-secondary text-xs">
+            <a href="<?= url('directory.php') ?>" class="mt-4 btn-academic-secondary text-xs inline-flex">
                 <span>View All Researchers</span>
             </a>
         </div>
     <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($faculties as $fac): ?>
-                <div class="academic-card p-6 flex flex-col justify-between group">
+                <div class="academic-card p-6 flex flex-col justify-between group hover:border-oxford-slate transition shadow-xs">
                     <div>
                         <!-- Header with portrait -->
                         <div class="flex items-start gap-4">
-                            <div class="w-16 h-16 rounded-[8px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400 shadow-xs">
-                                <?php if (!empty($fac['photo_url'])): ?>
-                                    <img src="<?= safe_url($fac['photo_url']) ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover">
+                            <div class="w-16 h-16 rounded-[6px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400 shadow-xs">
+                                <?php $photo = faculty_photo_url($fac['photo_url'] ?? null); ?>
+                                <?php if ($photo): ?>
+                                    <img src="<?= $photo ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover"
+                                         onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                    <div class="hidden text-slate-300 flex items-center justify-center w-full h-full">
+                                        <i class="fa-solid fa-user-graduate text-2xl"></i>
+                                    </div>
                                 <?php else: ?>
-                                    <i class="fa-solid fa-user-tie text-2xl text-slate-300"></i>
+                                    <i class="fa-solid fa-user-graduate text-2xl text-slate-300"></i>
                                 <?php endif; ?>
                             </div>
 
@@ -288,8 +293,8 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
 
                     <!-- Footer Action -->
-                    <div class="mt-5 pt-4 border-t border-scholar-border flex items-center justify-between text-xs">
-                        <a href="<?= researcher_url($fac) ?>" class="btn-academic-secondary text-xs !py-1.5 !px-3 group-hover:border-oxford-blue">
+                    <div class="mt-5 pt-3.5 border-t border-scholar-border flex items-center justify-between text-xs">
+                        <a href="<?= researcher_url($fac) ?>" class="btn-academic-secondary text-xs !py-1 !px-2.5 group-hover:border-oxford-slate">
                             <span>View Profile</span>
                             <i class="fa-solid fa-arrow-right text-[10px]"></i>
                         </a>

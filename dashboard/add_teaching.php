@@ -63,7 +63,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8 pb-4 border-b border-scholar-border">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-slate hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Teaching Assignment</h1>
@@ -77,13 +77,11 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_teaching.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
+    <form action="<?= url('dashboard/add_teaching.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5 shadow-xs">
         <?= csrf_field() ?>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Course Title <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Course Title <span class="text-rose-600">*</span></label>
             <input type="text" name="course_title" required value="<?= e($_POST['course_title'] ?? '') ?>"
                 placeholder="e.g. Design & Analysis of Algorithms"
                 class="academic-input text-xs sm:text-sm font-semibold">
@@ -91,18 +89,14 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Course Code
-                </label>
+                <label class="academic-label">Course Code</label>
                 <input type="text" name="course_code" value="<?= e($_POST['course_code'] ?? '') ?>"
                     placeholder="e.g. CSE-3001"
                     class="academic-input text-xs font-mono">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Academic Level
-                </label>
+                <label class="academic-label">Academic Level</label>
                 <select name="level" class="academic-input text-xs font-medium">
                     <option value="ug">Undergraduate (B.Tech)</option>
                     <option value="pg">Postgraduate (M.Tech/M.S.)</option>
@@ -111,9 +105,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Academic Year / Term
-                </label>
+                <label class="academic-label">Academic Year / Term</label>
                 <input type="text" name="academic_year" value="<?= e($_POST['academic_year'] ?? '2025–2026') ?>"
                     placeholder="e.g. 2025–2026"
                     class="academic-input text-xs font-mono">

@@ -122,14 +122,15 @@ require_once __DIR__ . '/includes/header.php';
         
         <!-- Header Banner -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-[8px] bg-oxford-navy text-white shadow-sm ring-4 ring-slate-100 mb-3">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-[6px] bg-oxford-navy text-academic-gold shadow-xs border border-oxford-slate/30 mb-3">
                 <i class="fa-solid fa-id-badge text-lg"></i>
             </div>
+            <div class="inline-block text-[10px] font-mono uppercase tracking-widest text-oxford-slate font-semibold mb-1">Academic Roster</div>
             <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-oxford-navy">Create Faculty Profile</h1>
             <p class="text-xs text-scholar-muted mt-1 font-sans">Register as a faculty researcher or scholar in the academic repository</p>
         </div>
 
-        <div class="academic-card p-6 sm:p-8">
+        <div class="academic-card p-6 sm:p-8 shadow-xs">
             <?php if (!empty($errors)): ?>
                 <div class="mb-5 p-4 rounded-[6px] bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
                     <div class="font-semibold flex items-center gap-1.5 mb-1">
@@ -156,9 +157,7 @@ require_once __DIR__ . '/includes/header.php';
 
                 <!-- Full Name -->
                 <div>
-                    <label for="full_name" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                        Full Name (with title)
-                    </label>
+                    <label for="full_name" class="academic-label">Full Name (with title)</label>
                     <input type="text" id="full_name" name="full_name" required
                         value="<?= e($_POST['full_name'] ?? '') ?>"
                         placeholder="e.g. Dr. Debabrata Singh"
@@ -167,9 +166,7 @@ require_once __DIR__ . '/includes/header.php';
 
                 <!-- College / Institution -->
                 <div>
-                    <label for="institution" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                        College / Institution
-                    </label>
+                    <label for="institution" class="academic-label">College / Institution</label>
                     <input type="text" id="institution" name="institution" required
                         value="<?= e($_POST['institution'] ?? 'ITER, SOA University') ?>"
                         placeholder="e.g. ITER, SOA University / IIT Bhubaneswar"
@@ -178,9 +175,7 @@ require_once __DIR__ . '/includes/header.php';
 
                 <!-- Department Selector -->
                 <div>
-                    <label for="department_id" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                        Academic Department
-                    </label>
+                    <label for="department_id" class="academic-label">Academic Department</label>
                     <select id="department_id" name="department_id" class="academic-input text-xs sm:text-sm" required>
                         <option value="">-- Select Department --</option>
                         <?php foreach ($departments as $dept): ?>
@@ -193,9 +188,7 @@ require_once __DIR__ . '/includes/header.php';
 
                 <!-- Institutional Email -->
                 <div>
-                    <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                        Institutional Email Address
-                    </label>
+                    <label for="email" class="academic-label">Institutional Email Address</label>
                     <input type="email" id="email" name="email" required
                         value="<?= e($_POST['email'] ?? '') ?>"
                         placeholder="e.g. yourname@iter.ac.in or university.edu"
@@ -205,17 +198,13 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- Password and Confirm Password Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                            Password
-                        </label>
+                        <label for="password" class="academic-label">Password</label>
                         <input type="password" id="password" name="password" required minlength="6"
                             placeholder="At least 6 characters"
                             class="academic-input text-xs sm:text-sm">
                     </div>
                     <div>
-                        <label for="password_confirm" class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                            Confirm Password
-                        </label>
+                        <label for="password_confirm" class="academic-label">Confirm Password</label>
                         <input type="password" id="password_confirm" name="password_confirm" required minlength="6"
                             placeholder="Re-type password"
                             class="academic-input text-xs sm:text-sm">
@@ -233,7 +222,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="mt-6 pt-6 border-t border-scholar-border text-center">
                 <p class="text-xs text-scholar-muted">
                     Already registered as a faculty researcher?
-                    <a href="<?= url('login.php') ?>" class="font-semibold text-oxford-blue hover:text-oxford-navy transition">
+                    <a href="<?= url('login.php') ?>" class="font-semibold text-oxford-navy hover:underline transition">
                         Sign In here
                     </a>
                 </p>

@@ -69,7 +69,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8 pb-4 border-b border-scholar-border">
-        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-blue hover:underline flex items-center gap-1 mb-1 font-semibold">
+        <a href="<?= url('dashboard/index.php') ?>" class="text-xs text-oxford-slate hover:underline flex items-center gap-1 mb-1 font-semibold">
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Academic Appointment</h1>
@@ -83,31 +83,25 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="<?= url('dashboard/add_appointment.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5">
+    <form action="<?= url('dashboard/add_appointment.php?profile_id=' . $profileId) ?>" method="POST" class="academic-card p-6 sm:p-8 space-y-5 shadow-xs">
         <?= csrf_field() ?>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Position / Role Title <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Position / Role Title <span class="text-rose-600">*</span></label>
             <input type="text" name="position_title" required value="<?= e($_POST['position_title'] ?? '') ?>"
                 placeholder="e.g. Associate Professor, Postdoctoral Research Fellow, Department Head"
                 class="academic-input text-xs sm:text-sm">
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Institution / University / Organization <span class="text-rose-600">*</span>
-            </label>
+            <label class="academic-label">Institution / University / Organization <span class="text-rose-600">*</span></label>
             <input type="text" name="organization" required value="<?= e($_POST['organization'] ?? '') ?>"
                 placeholder="e.g. Institute of Technical Education & Research (ITER), SOA University"
                 class="academic-input text-xs sm:text-sm">
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Department / Division / School
-            </label>
+            <label class="academic-label">Department / Division / School</label>
             <input type="text" name="department" value="<?= e($_POST['department'] ?? '') ?>"
                 placeholder="e.g. Department of Computer Science & Engineering"
                 class="academic-input text-xs sm:text-sm">
@@ -115,18 +109,14 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    Start Year <span class="text-rose-600">*</span>
-                </label>
+                <label class="academic-label">Start Year <span class="text-rose-600">*</span></label>
                 <input type="number" name="start_year" required min="1960" max="2035"
                     value="<?= e($_POST['start_year'] ?? date('Y')) ?>"
                     class="academic-input text-xs font-mono">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                    End Year
-                </label>
+                <label class="academic-label">End Year</label>
                 <input type="number" name="end_year" min="1960" max="2035"
                     value="<?= e($_POST['end_year'] ?? '') ?>"
                     placeholder="Leave empty if present"
@@ -143,9 +133,7 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-oxford-navy mb-1.5 font-mono">
-                Key Responsibilities & Scope (Optional)
-            </label>
+            <label class="academic-label">Key Responsibilities & Scope (Optional)</label>
             <textarea name="description" rows="3"
                 placeholder="Overview of research labs led, administrative duties, or specialized academic programs handled..."
                 class="academic-input text-xs leading-relaxed"><?= e($_POST['description'] ?? '') ?></textarea>
