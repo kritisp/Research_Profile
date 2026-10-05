@@ -277,120 +277,90 @@ if (!empty($faculty['research_interests'])) {
 
 
 
-        <!-- ── Body: Research Areas + Contact + Registries ── -->
+        <!-- ── Body: Highlights & Quick Links ── -->
         <div class="sidebar-body">
 
-            <!-- Research Areas Tags -->
+            <!-- Research Areas Tags (compact top 3) -->
             <?php if (!empty($sbResearchTags)): ?>
-            <div class="sidebar-section-label">Research Areas</div>
+            <div class="sidebar-section-label">Research Focus</div>
             <div class="sidebar-tags">
-                <?php foreach ($sbResearchTags as $tag): ?>
+                <?php foreach (array_slice($sbResearchTags, 0, 4) as $tag): ?>
                 <span class="sidebar-tag"><?= e($tag) ?></span>
                 <?php endforeach; ?>
             </div>
             <hr class="sidebar-divider">
             <?php endif; ?>
 
-            <?php if (!empty($faculty['email']) || !empty($faculty['phone']) || !empty($faculty['cabin'])): ?>
+            <!-- Contact Information -->
+            <?php if (!empty($faculty['email']) || !empty($faculty['cabin'])): ?>
             <div class="sidebar-section-label">Contact</div>
+            <div class="space-y-1">
+                <?php if (!empty($faculty['email'])): ?>
+                <a href="mailto:<?= e($faculty['email']) ?>" class="sidebar-contact-row" title="<?= e($faculty['email']) ?>">
+                    <div class="sidebar-contact-icon"><i class="fa-solid fa-envelope"></i></div>
+                    <span class="sidebar-contact-text truncate"><?= e($faculty['email']) ?></span>
+                </a>
+                <?php endif; ?>
 
-            <?php if (!empty($faculty['email'])): ?>
-            <a href="mailto:<?= e($faculty['email']) ?>" class="sidebar-contact-row">
-                <div class="sidebar-contact-icon"><i class="fa-solid fa-envelope"></i></div>
-                <span class="sidebar-contact-text"><?= e($faculty['email']) ?></span>
-            </a>
-            <?php endif; ?>
-
-            <?php if (!empty($faculty['phone'])): ?>
-            <div class="sidebar-contact-row">
-                <div class="sidebar-contact-icon"><i class="fa-solid fa-phone"></i></div>
-                <span class="sidebar-contact-text font-mono"><?= e($faculty['phone']) ?></span>
+                <?php if (!empty($faculty['cabin'])): ?>
+                <div class="sidebar-contact-row">
+                    <div class="sidebar-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <span class="sidebar-contact-text truncate"><?= e($faculty['cabin']) ?></span>
+                </div>
+                <?php endif; ?>
             </div>
             <?php endif; ?>
 
-            <?php if (!empty($faculty['cabin'])): ?>
-            <div class="sidebar-contact-row">
-                <div class="sidebar-contact-icon"><i class="fa-solid fa-door-open"></i></div>
-                <span class="sidebar-contact-text"><?= e($faculty['cabin']) ?></span>
-            </div>
-            <?php endif; ?>
-            <?php endif; ?>
-
-            <?php
-            $hasRegistries = !empty($faculty['orcid_id']) || !empty($faculty['google_scholar_url'])
-                || !empty($faculty['scopus_id']) || !empty($faculty['researchgate_url'])
-                || !empty($faculty['dblp_url']) || !empty($faculty['semantic_scholar_url'])
-                || !empty($faculty['website_url']) || !empty($faculty['wos_id']);
-            ?>
+            <!-- External Scholarly IDs (grid of badge pills) -->
             <?php if ($hasRegistries): ?>
             <hr class="sidebar-divider">
-            <div class="sidebar-section-label">External Registries</div>
+            <div class="sidebar-section-label">Scholarly Profiles</div>
+            <div class="sidebar-registries-grid">
+                <?php if (!empty($faculty['orcid_id'])): $cleanOrcid = safe_orcid($faculty['orcid_id']); if ($cleanOrcid): ?>
+                <a href="https://orcid.org/<?= $cleanOrcid ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-badge" title="ORCID: <?= e($cleanOrcid) ?>">
+                    <i class="fa-brands fa-orcid text-emerald-600"></i>
+                    <span>ORCID</span>
+                </a>
+                <?php endif; endif; ?>
 
-            <?php if (!empty($faculty['orcid_id'])): $cleanOrcid = safe_orcid($faculty['orcid_id']); if ($cleanOrcid): ?>
-            <a href="https://orcid.org/<?= $cleanOrcid ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-pill">
-                <i class="fa-brands fa-orcid text-emerald-600 text-[12px]"></i>
-                <span class="font-mono text-[11px]"><?= e($cleanOrcid) ?></span>
-            </a>
-            <?php endif; endif; ?>
+                <?php if (!empty($faculty['google_scholar_url'])): ?>
+                <a href="<?= safe_url($faculty['google_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-badge" title="Google Scholar">
+                    <i class="fa-brands fa-google text-blue-600"></i>
+                    <span>Scholar</span>
+                </a>
+                <?php endif; ?>
 
-            <?php if (!empty($faculty['google_scholar_url'])): ?>
-            <a href="<?= safe_url($faculty['google_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-pill">
-                <i class="fa-brands fa-google text-blue-600 text-[12px]"></i>
-                <span>Google Scholar</span>
-            </a>
-            <?php endif; ?>
+                <?php if (!empty($faculty['scopus_id'])): ?>
+                <span class="sidebar-registry-badge" title="Scopus Author ID: <?= e($faculty['scopus_id']) ?>">
+                    <i class="fa-solid fa-database text-amber-600"></i>
+                    <span>Scopus</span>
+                </span>
+                <?php endif; ?>
 
-            <?php if (!empty($faculty['scopus_id'])): ?>
-            <div class="sidebar-registry-pill">
-                <i class="fa-solid fa-database text-amber-600 text-[12px]"></i>
-                <span class="font-mono text-[11px]">Scopus: <?= e($faculty['scopus_id']) ?></span>
+                <?php if (!empty($faculty['researchgate_url'])): ?>
+                <a href="<?= safe_url($faculty['researchgate_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-badge" title="ResearchGate">
+                    <i class="fa-brands fa-researchgate text-teal-600"></i>
+                    <span>RG</span>
+                </a>
+                <?php endif; ?>
+
+                <?php if (!empty($faculty['website_url'])): ?>
+                <a href="<?= safe_url($faculty['website_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-badge" title="Personal Website">
+                    <i class="fa-solid fa-globe text-indigo-600"></i>
+                    <span>Web</span>
+                </a>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
-
-            <?php if (!empty($faculty['wos_id'])): ?>
-            <div class="sidebar-registry-pill">
-                <i class="fa-solid fa-book-bookmark text-slate-600 text-[12px]"></i>
-                <span class="font-mono text-[11px]">WoS: <?= e($faculty['wos_id']) ?></span>
-            </div>
-            <?php endif; ?>
-
-            <?php if (!empty($faculty['researchgate_url'])): ?>
-            <a href="<?= safe_url($faculty['researchgate_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-pill">
-                <i class="fa-brands fa-researchgate text-teal-700 text-[12px]"></i>
-                <span>ResearchGate</span>
-            </a>
-            <?php endif; ?>
-
-            <?php if (!empty($faculty['dblp_url'])): ?>
-            <a href="<?= safe_url($faculty['dblp_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-pill">
-                <i class="fa-solid fa-code text-indigo-600 text-[12px]"></i>
-                <span>DBLP</span>
-            </a>
-            <?php endif; ?>
-
-            <?php if (!empty($faculty['semantic_scholar_url'])): ?>
-            <a href="<?= safe_url($faculty['semantic_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-pill">
-                <i class="fa-solid fa-brain text-sky-600 text-[12px]"></i>
-                <span>Semantic Scholar</span>
-            </a>
-            <?php endif; ?>
-
-            <?php if (!empty($faculty['website_url'])): ?>
-            <a href="<?= safe_url($faculty['website_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-pill">
-                <i class="fa-solid fa-globe text-slate-500 text-[12px]"></i>
-                <span>Personal Website</span>
-            </a>
-            <?php endif; ?>
             <?php endif; ?>
 
         </div><!-- /.sidebar-body -->
 
     </div><!-- /.sidebar-inner -->
 
-    <!-- ── Edit Profile CTA (outside scrollable, always visible) ── -->
+    <!-- ── Edit Profile CTA ── -->
     <?php if ($canEdit): ?>
     <a href="<?= url('dashboard/edit_profile.php?id=' . $faculty['id']) ?>" class="sidebar-edit-btn no-print">
-        <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+        <i class="fa-solid fa-pen-to-square"></i>
         <span>Edit Profile</span>
     </a>
     <?php endif; ?>
@@ -597,20 +567,20 @@ if (!empty($faculty['research_interests'])) {
 
 <!-- Sticky In-Page Tab Navigation Bar -->
 <nav class="academic-jump-nav no-print" aria-label="Profile Sections">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center flex-wrap gap-0">
+    <div class="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-start lg:justify-center overflow-x-auto scrollbar-none gap-0">
         <a href="#overview" class="academic-jump-link">Overview</a>
         <a href="#impact" class="academic-jump-link">Academic Impact</a>
         <a href="#publications" class="academic-jump-link">
-            Publications <span class="ml-1 text-xs text-slate-400 font-normal">(<?= count($publications) ?>)</span>
+            Publications <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($publications) ?>)</span>
         </a>
         <?php if (!empty($projects)): ?>
-            <a href="#projects" class="academic-jump-link">Research Grants (<?= count($projects) ?>)</a>
+            <a href="#projects" class="academic-jump-link">Grants <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($projects) ?>)</span></a>
         <?php endif; ?>
         <?php if (!empty($patents)): ?>
-            <a href="#patents" class="academic-jump-link">Patents (<?= count($patents) ?>)</a>
+            <a href="#patents" class="academic-jump-link">Patents <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($patents) ?>)</span></a>
         <?php endif; ?>
         <?php if (!empty($experience)): ?>
-            <a href="#experience" class="academic-jump-link">Career Experience</a>
+            <a href="#experience" class="academic-jump-link">Experience</a>
         <?php endif; ?>
         <?php if (!empty($education)): ?>
             <a href="#education" class="academic-jump-link">Education</a>
