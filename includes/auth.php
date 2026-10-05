@@ -53,23 +53,52 @@ function has_role($roles): bool {
 }
 
 /**
- * Ensure user is logged in, otherwise redirect to login page
+ * Verify that the currently authenticated user's account is still active in the database.
+ * Blocks deactivated/suspended users immediately and synchronizes current role.
+ */
+function verify_active_session(): bool {
+    if (!is_logged_in()) {
+        return false;
+    }
+    try {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT id, role, status, full_name, email FROM users WHERE id = ? LIMIT 1");
+        $stmt->execute([user_id()]);
+        $u = $stmt->fetch();
+        if (!$u || $u['status'] !== 'active') {
+            logout_user();
+            set_flash('danger', 'Your account has been deactivated or suspended. Please contact an administrator.');
+            return false;
+        }
+        // Synchronize latest role & details from DB into session to prevent stale privileges
+        $_SESSION['user']['role']      = $u['role'];
+        $_SESSION['user']['status']    = $u['status'];
+        $_SESSION['user']['full_name'] = $u['full_name'];
+        $_SESSION['user']['email']     = $u['email'];
+        return true;
+    } catch (Exception $e) {
+        error_log("Session verification failed: " . $e->getMessage());
+        return true; // Don't log out user on transient DB error, but fail-safe
+    }
+}
+
+/**
+ * Ensure user is logged in and active, otherwise redirect to login page
  */
 function require_login(): void {
-    if (!is_logged_in()) {
-        set_flash('warning', 'Please sign in to access this page.');
+    if (!is_logged_in() || !verify_active_session()) {
+        set_flash('warning', 'Please sign in with an active account to access this page.');
         redirect('login.php');
     }
 }
 
 /**
- * Ensure user has required role, otherwise deny access
+ * Ensure user has required role, otherwise deny access cleanly
  */
 function require_role($roles): void {
     require_login();
     if (!has_role($roles)) {
-        http_response_code(403);
-        die('Error 403: You do not have permission to access this area.');
+        abort(403, 'You do not have the required permissions to access this administrative section.');
     }
 }
 

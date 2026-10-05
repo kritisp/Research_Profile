@@ -18,8 +18,7 @@ if ($profileId <= 0) {
 }
 
 if (!can_manage_faculty_profile($profileId)) {
-    http_response_code(403);
-    die('Unauthorized to add publications to this profile.');
+    abort(403, 'Unauthorized to add publications to this profile.');
 }
 
 $error = null;
@@ -41,6 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $indexing    = trim($_POST['indexing'] ?? '');
     $citations   = (int)($_POST['citation_count'] ?? 0);
     $abstract    = trim($_POST['abstract'] ?? '');
+
+    // Sanitize URL scheme
+    if (!empty($url) && !preg_match('~^https?://~i', $url)) {
+        $url = 'https://' . ltrim($url, '/');
+    }
 
     if (empty($title) || empty($authors) || empty($venue) || empty($year)) {
         $error = 'Please fill out all mandatory fields: Title, Authors, Venue, and Publication Year.';
@@ -64,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             set_flash('success', 'Research publication added successfully.');
             redirect('dashboard/index.php');
         } catch (Exception $e) {
-            $error = 'Failed to add publication: ' . $e->getMessage();
+            error_log("Failed to add publication: " . $e->getMessage());
+            $error = 'Failed to add publication due to a system error. Please verify your inputs and try again.';
         }
     }
 }

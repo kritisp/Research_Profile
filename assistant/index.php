@@ -96,7 +96,7 @@ require_once __DIR__ . '/../includes/header.php';
                         <div class="flex items-start gap-4">
                             <div class="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
                                 <?php if (!empty($fac['photo_url'])): ?>
-                                    <img src="<?= e($fac['photo_url']) ?>" alt="Avatar" class="w-full h-full object-cover">
+                                    <img src="<?= safe_url($fac['photo_url']) ?>" alt="Avatar" class="w-full h-full object-cover">
                                 <?php else: ?>
                                     <i class="fa-solid fa-user-tie text-2xl text-slate-300"></i>
                                 <?php endif; ?>
@@ -127,11 +127,11 @@ require_once __DIR__ . '/../includes/header.php';
                     </div>
 
                     <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                        <a href="<?= url('profile.php?id=' . $fac['profile_id']) ?>" target="_blank"
+                        <a href="<?= researcher_url(['slug' => $fac['slug'] ?? '', 'id' => $fac['profile_id']]) ?>" target="_blank"
                            class="text-xs text-slate-500 hover:text-slate-800 transition">
                             <i class="fa-solid fa-eye mr-1"></i> Public
                         </a>
-                        <a href="<?= url('assistant/switch.php?profile_id=' . $fac['profile_id']) ?>"
+                        <a href="<?= url('assistant/switch.php?profile_id=' . $fac['profile_id'] . '&csrf_token=' . csrf_token()) ?>"
                            class="px-3.5 py-1.5 rounded-lg bg-iter-800 hover:bg-iter-900 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
                             <i class="fa-solid fa-pen-to-square text-[10px]"></i>
                             <span>Manage Profile</span>

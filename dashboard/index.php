@@ -37,8 +37,7 @@ if (!empty($_SESSION['active_faculty_profile_id'])) {
 
 // Security verify
 if (!can_manage_faculty_profile($profileId)) {
-    http_response_code(403);
-    die('You do not have authorization to manage this faculty profile.');
+    abort(403, 'You do not have authorization to manage this faculty profile.');
 }
 
 // Fetch Profile Data
@@ -67,6 +66,21 @@ $patStmt = $db->prepare("SELECT * FROM patents WHERE faculty_profile_id = ? ORDE
 $patStmt->execute([$profileId]);
 $patents = $patStmt->fetchAll();
 
+// Fetch Awards
+$awdStmt = $db->prepare("SELECT * FROM awards WHERE faculty_profile_id = ? ORDER BY year DESC");
+$awdStmt->execute([$profileId]);
+$awards = $awdStmt->fetchAll();
+
+// Fetch Education
+$eduStmt = $db->prepare("SELECT * FROM education WHERE faculty_profile_id = ? ORDER BY year DESC");
+$eduStmt->execute([$profileId]);
+$education = $eduStmt->fetchAll();
+
+// Fetch Teaching
+$teachStmt = $db->prepare("SELECT * FROM teaching WHERE faculty_profile_id = ? ORDER BY academic_year DESC");
+$teachStmt->execute([$profileId]);
+$teaching = $teachStmt->fetchAll();
+
 // Fetch Active Delegates
 $delStmt = $db->prepare("
     SELECT fd.*, u.full_name, u.email 
@@ -88,7 +102,7 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="flex items-center gap-4">
                 <div class="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
                     <?php if (!empty($faculty['photo_url'])): ?>
-                        <img src="<?= e($faculty['photo_url']) ?>" alt="Avatar" class="w-full h-full object-cover">
+                        <img src="<?= safe_url($faculty['photo_url']) ?>" alt="Avatar" class="w-full h-full object-cover">
                     <?php else: ?>
                         <i class="fa-solid fa-user-tie text-2xl text-slate-400"></i>
                     <?php endif; ?>
@@ -103,14 +117,14 @@ require_once __DIR__ . '/../includes/header.php';
                         <?= e($faculty['salutation'] . ' ' . $faculty['full_name']) ?>
                     </h1>
                     <p class="text-xs text-slate-500">
-                        <?= e($faculty['designation']) ?> • <?= e($faculty['department_name'] ?? 'ITER Faculty') ?>
+                        <?= e($faculty['designation']) ?> • <?= e($faculty['department_name'] ?? 'Academic Faculty') ?> • <?= e($faculty['institution'] ?? 'ITER, SOA University') ?>
                     </p>
                 </div>
             </div>
 
             <!-- Profile Action Buttons -->
             <div class="flex flex-wrap items-center gap-2.5">
-                <a href="<?= url('profile.php?id=' . $faculty['id']) ?>" target="_blank"
+                <a href="<?= researcher_url($faculty) ?>" target="_blank"
                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
                     <i class="fa-solid fa-eye text-[11px]"></i>
                     <span>View Public Profile</span>
@@ -370,6 +384,105 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         <?php endif; ?>
     </div>
+
+    <!-- SECTION 4: Honors & Awards -->
+    <?php if (!empty($awards)): ?>
+    <div id="section-awards" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-200">
+            <h2 class="font-bold text-slate-900 text-base font-serif-title">Honors, Awards & Recognitions</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Academic honors and prestigious recognitions</p>
+        </div>
+        <div class="divide-y divide-slate-100 p-5 space-y-3">
+            <?php foreach ($awards as $awd): ?>
+                <div class="flex items-start justify-between gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-900"><?= e($awd['title']) ?></h3>
+                        <p class="text-[11px] text-slate-600 mt-0.5"><?= e($awd['awarding_body']) ?></p>
+                        <?php if (!empty($awd['description'])): ?>
+                            <p class="text-[11px] text-slate-500 mt-0.5"><?= e($awd['description']) ?></p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="text-right flex items-center gap-3">
+                        <span class="text-xs font-mono font-bold text-slate-700"><?= e($awd['year']) ?></span>
+                        <form method="POST" action="<?= url('dashboard/delete_item.php') ?>" class="inline" onsubmit="return confirm('Remove this award?');">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="type" value="award">
+                            <input type="hidden" name="id" value="<?= $awd['id'] ?>">
+                            <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition" title="Delete">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- SECTION 5: Education & Teaching Overview -->
+    <?php if (!empty($education) || !empty($teaching)): ?>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <?php if (!empty($education)): ?>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+            <h3 class="font-bold text-slate-900 text-sm font-serif-title flex items-center gap-2">
+                <i class="fa-solid fa-graduation-cap text-iter-700"></i>
+                <span>Educational Qualifications</span>
+            </h3>
+            <div class="space-y-2">
+                <?php foreach ($education as $edu): ?>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                        <div>
+                            <span class="font-bold text-slate-900 block"><?= e($edu['degree']) ?></span>
+                            <span class="text-slate-500 text-[11px]"><?= e($edu['institution']) ?></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-slate-600 text-[11px]"><?= e($edu['year']) ?></span>
+                            <form method="POST" action="<?= url('dashboard/delete_item.php') ?>" class="inline" onsubmit="return confirm('Delete this qualification?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="education">
+                                <input type="hidden" name="id" value="<?= $edu['id'] ?>">
+                                <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition" title="Delete">
+                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($teaching)): ?>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+            <h3 class="font-bold text-slate-900 text-sm font-serif-title flex items-center gap-2">
+                <i class="fa-solid fa-chalkboard-user text-iter-700"></i>
+                <span>Courses & Teaching</span>
+            </h3>
+            <div class="space-y-2">
+                <?php foreach ($teaching as $t): ?>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                        <div>
+                            <span class="font-bold text-slate-900 block"><?= e($t['course_name']) ?></span>
+                            <span class="text-slate-500 text-[11px] font-mono"><?= e($t['course_code'] ?? '') ?></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-slate-600 text-[11px]"><?= e($t['academic_year'] ?? '') ?></span>
+                            <form method="POST" action="<?= url('dashboard/delete_item.php') ?>" class="inline" onsubmit="return confirm('Remove this course?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="type" value="teaching">
+                                <input type="hidden" name="id" value="<?= $t['id'] ?>">
+                                <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition" title="Delete">
+                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
 
 </div>
 

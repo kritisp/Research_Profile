@@ -21,8 +21,7 @@ if (!$pub) {
 }
 
 if (!can_manage_faculty_profile($pub['faculty_profile_id'])) {
-    http_response_code(403);
-    die('Unauthorized to edit this publication.');
+    abort(403, 'Unauthorized to edit this publication.');
 }
 
 $error = null;
@@ -44,6 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $indexing    = trim($_POST['indexing'] ?? '');
     $citations   = (int)($_POST['citation_count'] ?? 0);
     $abstract    = trim($_POST['abstract'] ?? '');
+
+    // Sanitize URL scheme
+    if (!empty($url) && !preg_match('~^https?://~i', $url)) {
+        $url = 'https://' . ltrim($url, '/');
+    }
 
     if (empty($title) || empty($authors) || empty($venue) || empty($year)) {
         $error = 'Please fill out all mandatory fields: Title, Authors, Venue, and Publication Year.';
@@ -67,7 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             set_flash('success', 'Publication updated successfully.');
             redirect('dashboard/index.php');
         } catch (Exception $e) {
-            $error = 'Update failed: ' . $e->getMessage();
+            error_log("Failed to update publication: " . $e->getMessage());
+            $error = 'Failed to update publication due to a system error. Please try again.';
         }
     }
 }

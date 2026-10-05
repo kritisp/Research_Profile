@@ -24,7 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $fullName       = trim($_POST['full_name'] ?? '');
     $email          = trim($_POST['email'] ?? '');
-    $role           = $_POST['role'] ?? 'faculty';
+    // CRITICAL: Public registration strictly creates normal Faculty accounts only.
+    // Privileged accounts (Admin / Super Admin) must be created/assigned by authorized administrators.
+    $role           = 'faculty';
     $institution    = trim($_POST['institution'] ?? 'ITER, SOA University');
     $departmentId   = !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null;
     $password       = $_POST['password'] ?? '';
@@ -37,13 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'A valid institutional email is required.';
     }
-    if (!in_array($role, ['faculty', 'admin'], true)) {
-        $errors[] = 'Invalid account role selected.';
-    }
-    if ($role === 'faculty' && empty($departmentId)) {
+    if (empty($departmentId)) {
         $errors[] = 'Please select your academic department.';
     }
-    if ($role === 'faculty' && empty($institution)) {
+    if (empty($institution)) {
         $errors[] = 'Please specify your college or institution.';
     }
     if (strlen($password) < 6) {
@@ -68,19 +67,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->beginTransaction();
 
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-            $userStmt = $db->prepare("INSERT INTO users (email, password_hash, full_name, role, status) VALUES (?, ?, ?, ?, 'active')");
-            $userStmt->execute([$email, $passwordHash, $fullName, $role]);
+            $userStmt = $db->prepare("INSERT INTO users (email, password_hash, full_name, role, status) VALUES (?, ?, ?, 'faculty', 'active')");
+            $userStmt->execute([$email, $passwordHash, $fullName]);
             $newUserId = (int)$db->lastInsertId();
 
-            if ($role === 'faculty') {
-                $salutation = 'Dr.';
-                $designation = 'Assistant Professor';
-                $profileStmt = $db->prepare("
-                    INSERT INTO faculty_profiles (user_id, department_id, institution, salutation, designation, is_verified) 
-                    VALUES (?, ?, ?, ?, ?, 1)
-                ");
-                $profileStmt->execute([$newUserId, $departmentId, $institution, $salutation, $designation]);
+            // Generate unique slug for faculty member
+            $baseSlug = slugify($fullName);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (true) {
+                $chk = $db->prepare("SELECT id FROM faculty_profiles WHERE slug = ?");
+                $chk->execute([$slug]);
+                if (!$chk->fetch()) {
+                    break;
+                }
+                $slug = $baseSlug . '-' . (++$counter);
             }
+
+            $salutation = 'Dr.';
+            $designation = 'Assistant Professor';
+            $profileStmt = $db->prepare("
+                INSERT INTO faculty_profiles (user_id, slug, department_id, institution, salutation, designation, is_verified) 
+                VALUES (?, ?, ?, ?, ?, ?, 1)
+            ");
+            $profileStmt->execute([$newUserId, $slug, $departmentId, $institution, $salutation, $designation]);
 
             $db->commit();
 
@@ -90,16 +100,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newUser = $fetchStmt->fetch();
 
             login_user($newUser);
-            set_flash('success', 'Account registered successfully! Welcome to ITER Research Portal.');
-
-            if ($role === 'admin') {
-                redirect('assistant/index.php');
-            } else {
-                redirect('dashboard/index.php');
-            }
+            set_flash('success', 'Account registered successfully! Welcome to the Academic Research Portal.');
+            redirect('dashboard/index.php');
         } catch (Exception $e) {
             $db->rollBack();
-            $errors[] = 'Registration failed: ' . $e->getMessage();
+            error_log("Faculty registration error: " . $e->getMessage());
+            $errors[] = 'Registration failed due to a system error. Please try again.';
         }
     }
 }
@@ -136,27 +142,11 @@ require_once __DIR__ . '/includes/header.php';
             <form action="<?= url('register.php') ?>" method="POST" class="space-y-4">
                 <?= csrf_field() ?>
 
-                <!-- Role Selector -->
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
-                        I am registering as:
-                    </label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <label class="relative flex items-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-iter-700 has-[:checked]:bg-iter-50/50 has-[:checked]:ring-1 has-[:checked]:ring-iter-700">
-                            <input type="radio" name="role" value="faculty" <?= (($_POST['role'] ?? 'faculty') === 'faculty') ? 'checked' : '' ?> class="text-iter-800 focus:ring-iter-600">
-                            <div class="ml-3">
-                                <span class="block text-xs font-bold text-slate-900">Faculty Member</span>
-                                <span class="block text-[11px] text-slate-500">Create & manage my research profile</span>
-                            </div>
-                        </label>
-
-                        <label class="relative flex items-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-iter-700 has-[:checked]:bg-iter-50/50 has-[:checked]:ring-1 has-[:checked]:ring-iter-700">
-                            <input type="radio" name="role" value="admin" <?= (($_POST['role'] ?? '') === 'admin') ? 'checked' : '' ?> class="text-iter-800 focus:ring-iter-600">
-                            <div class="ml-3">
-                                <span class="block text-xs font-bold text-slate-900">Assistant / Coordinator</span>
-                                <span class="block text-[11px] text-slate-500">Update profiles for assigned faculties</span>
-                            </div>
-                        </label>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 text-xs flex items-center gap-2.5">
+                    <i class="fa-solid fa-graduation-cap text-iter-700 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-900 block">Faculty Scholar Registration</span>
+                        <span class="text-[11px] text-slate-500">Public registration is for individual faculty members. Assistant and administrative accounts are assigned by department heads.</span>
                     </div>
                 </div>
 

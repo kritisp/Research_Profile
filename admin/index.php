@@ -25,7 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             set_flash('success', "Department {$name} ({$code}) created successfully.");
             redirect('admin/index.php');
         } catch (Exception $e) {
-            set_flash('danger', 'Error adding department: ' . $e->getMessage());
+            error_log("Error adding department: " . $e->getMessage());
+            set_flash('danger', 'Failed to add department. The department code may already exist.');
         }
     }
 }
@@ -36,6 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $targetUserId = (int)($_POST['target_user_id'] ?? 0);
     $newRole      = $_POST['new_role'] ?? '';
     $newStatus    = $_POST['new_status'] ?? '';
+
+    if ($targetUserId === user_id() && ($newRole !== 'super_admin' || $newStatus !== 'active')) {
+        set_flash('warning', 'Security Safeguard: You cannot demote or deactivate your own active Super Administrator account.');
+        redirect('admin/index.php');
+    }
 
     if ($targetUserId > 0 && in_array($newRole, ['super_admin', 'admin', 'faculty'], true) && in_array($newStatus, ['active', 'inactive'], true)) {
         $uStmt = $db->prepare("UPDATE users SET role = ?, status = ? WHERE id = ?");

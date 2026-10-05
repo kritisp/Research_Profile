@@ -18,8 +18,7 @@ if ($profileId <= 0) {
 }
 
 if (!can_manage_faculty_profile($profileId)) {
-    http_response_code(403);
-    die('Unauthorized to add patents to this profile.');
+    abort(403, 'Unauthorized to add patents to this profile.');
 }
 
 $error = null;
@@ -53,7 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             set_flash('success', 'Patent record added successfully.');
             redirect('dashboard/index.php');
         } catch (Exception $e) {
-            $error = 'Failed to add patent: ' . $e->getMessage();
+            error_log("Failed to add patent: " . $e->getMessage());
+            $error = 'Failed to add patent due to a system error. Please try again.';
         }
     }
 }

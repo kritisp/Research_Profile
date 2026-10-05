@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /research_profile/
+
+    # Clean researcher profile URL: /researchers/{slug} -> profile.php?slug={slug}
+    RewriteRule ^researchers/([a-zA-Z0-9_\-]+)/?$ profile.php?slug=$1 [L,QSA]
+
+    # Block access to environment, git, and configuration files
+    <FilesMatch "(^\.env|\.git|composer\.|schema\.sql)">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>

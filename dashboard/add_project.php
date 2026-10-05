@@ -18,8 +18,7 @@ if ($profileId <= 0) {
 }
 
 if (!can_manage_faculty_profile($profileId)) {
-    http_response_code(403);
-    die('Unauthorized to add projects to this profile.');
+    abort(403, 'Unauthorized to add projects to this profile.');
 }
 
 $error = null;
@@ -55,7 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             set_flash('success', 'Funded research grant/project added successfully.');
             redirect('dashboard/index.php');
         } catch (Exception $e) {
-            $error = 'Failed to add project: ' . $e->getMessage();
+            error_log("Failed to add project: " . $e->getMessage());
+            $error = 'Failed to add project due to a system error. Please try again.';
         }
     }
 }

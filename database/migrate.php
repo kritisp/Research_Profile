@@ -4,6 +4,11 @@
  * Run via CLI: php database/migrate.php
  */
 
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    die('Forbidden: Migration script can only be run from the command line interface.');
+}
+
 require_once __DIR__ . '/../config/database.php';
 
 echo "========================================================\n";
@@ -47,27 +52,33 @@ try {
     }
     echo "DONE (" . count($departments) . " departments seeded).\n";
 
-    // 3. Seed Default Super Admin Account
-    echo "[4/4] Seeding initial Super Admin account... ";
-    $adminEmail = 'superadmin@iter.ac.in';
-    $adminPass  = 'AdminPassword@123';
+    // 3. Seed Default Super Admin Account (Environment-driven or secure random)
+    echo "[4/4] Checking initial Super Admin account... ";
+    $adminEmail = env('INITIAL_ADMIN_EMAIL', 'superadmin@iter.ac.in');
+    $customPass = env('INITIAL_ADMIN_PASSWORD');
+    $adminPass  = !empty($customPass) ? $customPass : bin2hex(random_bytes(8));
     $adminHash  = password_hash($adminPass, PASSWORD_DEFAULT);
     $adminName  = 'Dr. ITER Super Administrator';
 
     $checkStmt = $db->prepare("SELECT id FROM users WHERE email = ?");
     $checkStmt->execute([$adminEmail]);
+    $created = false;
     if (!$checkStmt->fetch()) {
         $userStmt = $db->prepare("INSERT INTO users (email, password_hash, full_name, role, status) VALUES (?, ?, ?, 'super_admin', 'active')");
         $userStmt->execute([$adminEmail, $adminHash, $adminName]);
         echo "CREATED.\n";
+        $created = true;
     } else {
-        echo "EXISTS.\n";
+        echo "EXISTS (Password unchanged).\n";
     }
 
     echo "\n========================================================\n";
     echo "  Migration Completed Successfully!                      \n";
-    echo "  Super Admin Email:    {$adminEmail}                    \n";
-    echo "  Super Admin Password: {$adminPass}                     \n";
+    echo "  Super Admin Email: {$adminEmail}                       \n";
+    if ($created) {
+        echo "  Initial Generated Password: {$adminPass}               \n";
+        echo "  (Please store securely and change upon first login)    \n";
+    }
     echo "========================================================\n";
 
 } catch (Exception $e) {

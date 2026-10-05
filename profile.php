@@ -9,28 +9,45 @@ require_once __DIR__ . '/includes/auth.php';
 $db = Database::getConnection();
 
 $profileId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-if ($profileId <= 0) {
+$slug      = isset($_GET['slug']) ? trim($_GET['slug']) : '';
+
+if ($profileId <= 0 && empty($slug)) {
     set_flash('warning', 'Profile not found.');
     redirect('directory.php');
 }
 
-// 1. Fetch Faculty Profile with User & Department Details
-$stmt = $db->prepare("
-    SELECT fp.*, u.full_name, u.email, u.status as user_status, 
-           d.name as department_name, d.code as department_code
-    FROM faculty_profiles fp
-    JOIN users u ON fp.user_id = u.id
-    LEFT JOIN departments d ON fp.department_id = d.id
-    WHERE fp.id = ? AND fp.is_verified = 1
-    LIMIT 1
-");
-$stmt->execute([$profileId]);
-$faculty = $stmt->fetch();
+// 1. Fetch Faculty Profile with User & Department Details (via slug or ID)
+if (!empty($slug)) {
+    $stmt = $db->prepare("
+        SELECT fp.*, u.full_name, u.email, u.status as user_status, 
+               d.name as department_name, d.code as department_code
+        FROM faculty_profiles fp
+        JOIN users u ON fp.user_id = u.id
+        LEFT JOIN departments d ON fp.department_id = d.id
+        WHERE fp.slug = ? AND fp.is_verified = 1
+        LIMIT 1
+    ");
+    $stmt->execute([$slug]);
+    $faculty = $stmt->fetch();
+} else {
+    $stmt = $db->prepare("
+        SELECT fp.*, u.full_name, u.email, u.status as user_status, 
+               d.name as department_name, d.code as department_code
+        FROM faculty_profiles fp
+        JOIN users u ON fp.user_id = u.id
+        LEFT JOIN departments d ON fp.department_id = d.id
+        WHERE fp.id = ? AND fp.is_verified = 1
+        LIMIT 1
+    ");
+    $stmt->execute([$profileId]);
+    $faculty = $stmt->fetch();
+}
 
 if (!$faculty) {
-    set_flash('danger', 'The requested faculty profile could not be found or is not yet active.');
-    redirect('directory.php');
+    abort(404, 'The requested faculty research profile could not be found or is not yet verified.');
 }
+
+$profileId = (int)$faculty['id'];
 
 // Check if current user can edit this profile
 $canEdit = can_manage_faculty_profile($faculty['id']);
@@ -181,6 +198,17 @@ require_once __DIR__ . '/includes/header.php';
                         </a>
                     <?php endif; ?>
 
+                    <?php if (!empty($faculty['researchgate_url'])): ?>
+                        <a href="<?= safe_url($faculty['researchgate_url']) ?>" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center justify-between p-2 rounded-lg bg-teal-50/60 hover:bg-teal-100/60 text-teal-900 font-medium transition">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-brands fa-researchgate text-teal-600"></i>
+                                <span>ResearchGate Profile</span>
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-teal-500"></i>
+                        </a>
+                    <?php endif; ?>
+
                     <?php if (!empty($faculty['orcid_id'])): ?>
                         <?php $cleanOrcid = safe_orcid($faculty['orcid_id']); ?>
                         <?php if ($cleanOrcid): ?>
@@ -201,6 +229,36 @@ require_once __DIR__ . '/includes/header.php';
                                 <i class="fa-solid fa-database text-amber-600"></i>
                                 <span>Scopus ID: <?= e($faculty['scopus_id']) ?></span>
                             </span>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($faculty['wos_id'])): ?>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-purple-50/60 text-purple-900 font-medium">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-book-bookmark text-purple-600"></i>
+                                <span>Web of Science: <?= e($faculty['wos_id']) ?></span>
+                            </span>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($faculty['cv_url'])): ?>
+                        <a href="<?= safe_url($faculty['cv_url']) ?>" target="_blank" rel="noopener noreferrer" download
+                           class="flex items-center justify-between p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold transition">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-file-pdf text-rose-600 text-sm"></i>
+                                <span>Download Full CV (PDF)</span>
+                            </span>
+                            <i class="fa-solid fa-download text-[10px] text-slate-500"></i>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if (!empty($faculty['phd_supervised']) && (int)$faculty['phd_supervised'] > 0): ?>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 font-medium">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-user-graduate text-iter-700"></i>
+                                <span>Doctoral Guidance:</span>
+                            </span>
+                            <span class="font-mono font-bold text-iter-900"><?= (int)$faculty['phd_supervised'] ?> PhD Guided</span>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -226,14 +284,21 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- Google Scholar Style Metrics Box -->
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
+            <!-- Citation Indices Box (Honest & Transparent Academic Metrics) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
                     <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-chart-line text-iter-700"></i>
                         <span>Citation Indices</span>
                     </h2>
-                    <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-semibold">Scholar Parity</span>
+                    <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-semibold" title="Self-reported metrics tracked by faculty">
+                        Manually Maintained
+                    </span>
+                </div>
+
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
+                    <i class="fa-solid fa-circle-info text-iter-600 mr-1"></i>
+                    Manually reported by faculty member as of <strong><?= date('M Y', strtotime($faculty['updated_at'] ?? 'now')) ?></strong>.
                 </div>
 
                 <!-- Metrics Table -->
@@ -241,26 +306,26 @@ require_once __DIR__ . '/includes/header.php';
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-mono text-[10px]">
                             <tr>
-                                <th class="py-2.5 px-3 font-semibold">Index</th>
-                                <th class="py-2.5 px-3 text-right font-semibold">All Time</th>
-                                <th class="py-2.5 px-3 text-right font-semibold">Since 2019</th>
+                                <th class="py-2.5 px-3 font-semibold">Metric</th>
+                                <th class="py-2.5 px-3 text-right font-semibold">Value</th>
+                                <th class="py-2.5 px-3 text-right font-semibold">Reporting Source</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 font-mono text-slate-800">
                             <tr>
                                 <td class="py-2.5 px-3 font-sans font-medium text-slate-700">Citations</td>
                                 <td class="py-2.5 px-3 text-right font-bold text-slate-900"><?= number_format($faculty['total_citations']) ?></td>
-                                <td class="py-2.5 px-3 text-right text-slate-600"><?= number_format(round($faculty['total_citations'] * 0.72)) ?></td>
+                                <td class="py-2.5 px-3 text-right text-[11px] text-slate-500 font-sans">Self-reported</td>
                             </tr>
                             <tr>
                                 <td class="py-2.5 px-3 font-sans font-medium text-slate-700">h-index</td>
                                 <td class="py-2.5 px-3 text-right font-bold text-slate-900"><?= (int)$faculty['h_index'] ?></td>
-                                <td class="py-2.5 px-3 text-right text-slate-600"><?= max(1, (int)$faculty['h_index'] - 2) ?></td>
+                                <td class="py-2.5 px-3 text-right text-[11px] text-slate-500 font-sans">Self-reported</td>
                             </tr>
                             <tr>
                                 <td class="py-2.5 px-3 font-sans font-medium text-slate-700">i10-index</td>
                                 <td class="py-2.5 px-3 text-right font-bold text-slate-900"><?= (int)$faculty['i10_index'] ?></td>
-                                <td class="py-2.5 px-3 text-right text-slate-600"><?= max(1, (int)$faculty['i10_index'] - 4) ?></td>
+                                <td class="py-2.5 px-3 text-right text-[11px] text-slate-500 font-sans">Self-reported</td>
                             </tr>
                         </tbody>
                     </table>
@@ -366,6 +431,32 @@ require_once __DIR__ . '/includes/header.php';
                         <i class="fa-solid fa-trophy text-xs"></i>
                         <span>Awards</span>
                         <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px]"><?= count($awards) ?></span>
+                    </button>
+                    <?php endif; ?>
+
+                    <?php if (!empty($education)): ?>
+                    <button type="button" onclick="switchTab('education')" id="tab-btn-education"
+                        class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap flex items-center gap-2 transition">
+                        <i class="fa-solid fa-graduation-cap text-xs"></i>
+                        <span>Education</span>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px]"><?= count($education) ?></span>
+                    </button>
+                    <?php endif; ?>
+
+                    <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0)): ?>
+                    <button type="button" onclick="switchTab('teaching')" id="tab-btn-teaching"
+                        class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap flex items-center gap-2 transition">
+                        <i class="fa-solid fa-chalkboard-user text-xs"></i>
+                        <span>Teaching & Mentorship</span>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px]"><?= count($teaching) ?></span>
+                    </button>
+                    <?php endif; ?>
+
+                    <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles'])): ?>
+                    <button type="button" onclick="switchTab('service')" id="tab-btn-service"
+                        class="tab-btn px-5 py-3.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap flex items-center gap-2 transition">
+                        <i class="fa-solid fa-award text-xs"></i>
+                        <span>Roles & Service</span>
                     </button>
                     <?php endif; ?>
                 </div>
@@ -586,6 +677,134 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         <?php endforeach; ?>
                     </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- ========================================== -->
+                <!-- TAB 5: Education & Qualifications          -->
+                <!-- ========================================== -->
+                <?php if (!empty($education)): ?>
+                <div id="tab-content-education" class="tab-pane hidden p-6">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-iter-700"></i>
+                        <span>Educational Background & Qualifications</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <?php foreach ($education as $edu): ?>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start justify-between gap-4">
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900"><?= e($edu['degree']) ?></h4>
+                                    <p class="text-xs text-slate-700 mt-0.5"><?= e($edu['institution']) ?></p>
+                                    <?php if (!empty($edu['field_of_study'])): ?>
+                                        <p class="text-xs text-slate-500 mt-0.5">Specialization: <?= e($edu['field_of_study']) ?></p>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if (!empty($edu['year'])): ?>
+                                    <span class="px-2.5 py-1 rounded bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700">
+                                        <?= e($edu['year']) ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- ========================================== -->
+                <!-- TAB 6: Teaching & Mentorship               -->
+                <!-- ========================================== -->
+                <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0)): ?>
+                <div id="tab-content-teaching" class="tab-pane hidden p-6 space-y-6">
+                    <?php if ((int)($faculty['phd_supervised'] ?? 0) > 0): ?>
+                        <div class="p-4 rounded-xl bg-iter-50 border border-iter-200 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-iter-800 text-white flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-user-graduate"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900">Doctoral Research Supervision</h4>
+                                    <p class="text-xs text-slate-600">Ph.D. Scholars Successfully Guided / Under Guidance</p>
+                                </div>
+                            </div>
+                            <span class="text-xl font-bold font-mono text-iter-900 px-3 py-1 bg-white rounded-lg border border-iter-200">
+                                <?= (int)$faculty['phd_supervised'] ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($teaching)): ?>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-chalkboard text-iter-700"></i>
+                                <span>Courses Taught</span>
+                            </h3>
+                            <div class="space-y-2.5">
+                                <?php foreach ($teaching as $t): ?>
+                                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-4">
+                                        <div>
+                                            <h4 class="text-xs font-bold text-slate-900"><?= e($t['course_name']) ?></h4>
+                                            <p class="text-[11px] text-slate-500 font-mono">
+                                                <?= e($t['course_code'] ?? '') ?> 
+                                                <?= !empty($t['level']) ? '• ' . strtoupper(e($t['level'])) : '' ?>
+                                            </p>
+                                        </div>
+                                        <?php if (!empty($t['academic_year'])): ?>
+                                            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600">
+                                                <?= e($t['academic_year']) ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+
+                <!-- ========================================== -->
+                <!-- TAB 7: Professional Service & Memberships  -->
+                <!-- ========================================== -->
+                <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles'])): ?>
+                <div id="tab-content-service" class="tab-pane hidden p-6 space-y-6">
+                    <?php if (!empty($faculty['memberships'])): ?>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-id-card-clip text-iter-700"></i>
+                                <span>Professional Memberships</span>
+                            </h3>
+                            <div class="space-y-2">
+                                <?php 
+                                    $memberships = array_filter(array_map('trim', preg_split('/[\r\n,]+/', $faculty['memberships'])));
+                                    foreach ($memberships as $m): 
+                                ?>
+                                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 flex items-center gap-2">
+                                        <i class="fa-solid fa-certificate text-iter-600 text-sm"></i>
+                                        <span><?= e($m) ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($faculty['editorial_roles'])): ?>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-pen-nib text-iter-700"></i>
+                                <span>Editorial & Reviewer Appointments</span>
+                            </h3>
+                            <div class="space-y-2">
+                                <?php 
+                                    $roles = array_filter(array_map('trim', preg_split('/[\r\n,]+/', $faculty['editorial_roles'])));
+                                    foreach ($roles as $r): 
+                                ?>
+                                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 flex items-center gap-2">
+                                        <i class="fa-solid fa-book-journal-whills text-emerald-600 text-sm"></i>
+                                        <span><?= e($r) ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
 

@@ -31,14 +31,13 @@
                     </ul>
                 </div>
 
-                <!-- Col 3: Portal Admin -->
+                <!-- Col 3: Portal Access -->
                 <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-200 mb-3">Portal Access</h4>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-200 mb-3">Faculty Portal</h4>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="<?= url('login.php') ?>" class="hover:text-white transition">Faculty & Staff Login</a></li>
-                        <li><a href="<?= url('register.php') ?>" class="hover:text-white transition">Create Faculty Profile</a></li>
-                        <li><a href="<?= url('login.php?role=admin') ?>" class="hover:text-white transition">Assistant / Delegate Portal</a></li>
-                        <li><a href="mailto:research@iter.ac.in" class="hover:text-white transition">Contact Research Cell</a></li>
+                        <li><a href="<?= url('login.php') ?>" class="hover:text-white transition">Faculty Sign In</a></li>
+                        <li><a href="<?= url('register.php') ?>" class="hover:text-white transition">Register Faculty Profile</a></li>
+                        <li><a href="mailto:research@iter.ac.in" class="hover:text-white transition">Research Cell Support</a></li>
                     </ul>
                 </div>
             </div>
@@ -46,9 +45,9 @@
             <div class="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
                 <p>&copy; <?= date('Y') ?> Departmental Scholar. All academic rights reserved.</p>
                 <p class="flex items-center gap-3">
-                    <span>Designed for Scholarly Excellence</span>
+                    <span>Designed for Academic & Research Excellence</span>
                     <span>•</span>
-                    <a href="<?= url('admin/index.php') ?>" class="hover:text-slate-400">Administration</a>
+                    <span>Institutional Repository</span>
                 </p>
             </div>
         </div>

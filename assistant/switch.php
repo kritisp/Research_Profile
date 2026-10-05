@@ -7,6 +7,11 @@ require_once __DIR__ . '/../includes/auth.php';
 
 require_role(['admin', 'super_admin']);
 
+$token = $_GET['csrf_token'] ?? $_POST['csrf_token'] ?? '';
+if (!verify_csrf_token($token)) {
+    abort(403, 'Invalid or expired CSRF security token.');
+}
+
 $profileId = isset($_GET['profile_id']) ? (int)$_GET['profile_id'] : 0;
 
 if ($profileId > 0 && can_manage_faculty_profile($profileId)) {

@@ -34,6 +34,8 @@ function verify_csrf_token(?string $token): bool {
     return hash_equals($_SESSION['csrf_token'], $token);
 }
 
+require_once __DIR__ . '/helpers.php';
+
 /**
  * Enforce CSRF protection on POST requests
  */
@@ -41,8 +43,7 @@ function require_csrf(): void {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $token = $_POST['csrf_token'] ?? '';
         if (!verify_csrf_token($token)) {
-            http_response_code(403);
-            die('Error 403: Invalid or missing CSRF token. Please refresh the page and try again.');
+            abort(403, 'Invalid or expired CSRF security token. Please refresh the page and try again.');
         }
     }
 }

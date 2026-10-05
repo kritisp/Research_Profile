@@ -4,10 +4,19 @@
  * Run via CLI: php database/seed_demo.php
  */
 
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    die('Forbidden: Seeder script can only be run from the command line interface.');
+}
+
 require_once __DIR__ . '/../config/database.php';
 
+if (defined('APP_ENV') && APP_ENV === 'production') {
+    die("Security Abort: Demo seed data cannot be executed in a production environment.\n");
+}
+
 echo "========================================================\n";
-echo "  ITER Research Profile - Demo Faculty Seeder           \n";
+echo "  ITER Research Profile - Demo Faculty Seeder (Dev Only)\n";
 echo "========================================================\n\n";
 
 try {
@@ -383,12 +392,11 @@ try {
 
     echo "Demo faculty data and Assistant delegation seeded successfully!\n";
     echo "========================================================\n";
-    echo "Demo Logins (Password for all demo accounts: Faculty@123):\n";
+    echo "Development Demo Faculty Accounts Seeded (Local Dev Only):\n";
     echo "1. Faculty:   debabrata.singh@iter.ac.in (Prof. & Head, CSE)\n";
     echo "2. Faculty:   priyadarshi.kanungo@iter.ac.in (Dean Research, ECE)\n";
     echo "3. Faculty:   rasmita.dash@iter.ac.in (Assoc. Prof., CSE)\n";
     echo "4. Assistant: assistant.cse@iter.ac.in (Research Delegate for Dr. Debabrata Singh)\n";
-    echo "5. SuperAdmin: superadmin@iter.ac.in (Pass: AdminPassword@123)\n";
     echo "========================================================\n";
 
 } catch (Exception $e) {

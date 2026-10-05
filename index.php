@@ -173,7 +173,7 @@ require_once __DIR__ . '/includes/preloader.php';
                             <!-- Avatar -->
                             <div class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400">
                                 <?php if (!empty($fac['photo_url'])): ?>
-                                    <img src="<?= e($fac['photo_url']) ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover">
+                                    <img src="<?= safe_url($fac['photo_url']) ?>" alt="<?= e($fac['full_name']) ?>" class="w-full h-full object-cover">
                                 <?php else: ?>
                                     <i class="fa-solid fa-user-tie text-2xl text-slate-300"></i>
                                 <?php endif; ?>
@@ -181,7 +181,7 @@ require_once __DIR__ . '/includes/preloader.php';
 
                             <div class="flex-grow min-w-0">
                                 <h3 class="font-bold text-slate-900 text-base leading-tight truncate">
-                                    <a href="<?= url('profile.php?id=' . $fac['id']) ?>" class="hover:text-iter-700 transition">
+                                    <a href="<?= researcher_url($fac) ?>" class="hover:text-iter-700 transition">
                                         <?= e($fac['salutation'] . ' ' . $fac['full_name']) ?>
                                     </a>
                                 </h3>
@@ -230,7 +230,7 @@ require_once __DIR__ . '/includes/preloader.php';
                     </div>
 
                     <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                        <a href="<?= url('profile.php?id=' . $fac['id']) ?>" class="font-semibold text-iter-700 hover:text-iter-900 flex items-center gap-1 transition">
+                        <a href="<?= researcher_url($fac) ?>" class="font-semibold text-iter-700 hover:text-iter-900 flex items-center gap-1 transition">
                             <span>View Full Profile</span>
                             <i class="fa-solid fa-arrow-right text-[10px]"></i>
                         </a>

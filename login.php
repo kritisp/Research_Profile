@@ -134,24 +134,6 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- Pre-configured Credentials Quick Card -->
-        <div class="mt-6 bg-slate-100 rounded-xl p-4 border border-slate-200 text-xs text-slate-600">
-            <div class="font-semibold text-slate-800 flex items-center gap-1.5 mb-2">
-                <i class="fa-solid fa-key text-amber-600"></i>
-                <span>Initial Super Admin Credentials (Default Setup)</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2 font-mono text-[11px] bg-white p-2.5 rounded-lg border border-slate-200">
-                <div>
-                    <span class="text-slate-400">Email:</span>
-                    <p class="text-slate-900 font-semibold select-all">superadmin@iter.ac.in</p>
-                </div>
-                <div>
-                    <span class="text-slate-400">Password:</span>
-                    <p class="text-slate-900 font-semibold select-all">AdminPassword@123</p>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
