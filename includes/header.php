@@ -91,8 +91,8 @@ $flashes   = get_flashes();
                 <!-- Branding -->
                 <div class="flex items-center">
                     <a href="<?= url() ?>" class="flex items-center gap-3 group">
-                        <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-iter-900 to-iter-700 flex items-center justify-center text-white shadow-sm ring-1 ring-iter-800">
-                            <i class="fa-solid fa-graduation-cap text-lg"></i>
+                        <div class="w-10 h-10 rounded-full bg-white p-0.5 shadow-sm ring-1 ring-slate-200 overflow-hidden flex items-center justify-center">
+                            <img src="<?= url('assets/img/soa_logo.png') ?>" alt="SOA Logo" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
                             <span class="font-bold text-lg text-slate-900 tracking-tight leading-tight group-hover:text-iter-700 transition">ITER Research</span>

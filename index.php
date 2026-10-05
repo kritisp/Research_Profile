@@ -44,17 +44,9 @@ require_once __DIR__ . '/includes/preloader.php';
 
 <!-- Hero Showcase Section -->
 <div class="relative bg-gradient-to-b from-iter-950 via-iter-900 to-slate-900 text-white py-16 sm:py-24 overflow-hidden">
-    <!-- Subtle Background Accent -->
-    <div class="absolute inset-0 opacity-10 pointer-events-none">
-        <svg class="h-full w-full" fill="none" viewBox="0 0 800 800">
-            <defs>
-                <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1" />
-                </pattern>
-            </defs>
-            <rect width="800" height="800" fill="url(#grid-pattern)" />
-        </svg>
-    </div>
+    <!-- Subtle Real Campus Gate Background Overlay -->
+    <div class="absolute inset-0 bg-cover bg-center opacity-15 mix-blend-luminosity pointer-events-none" style="background-image: url('<?= url('assets/img/iter_gate.jpg') ?>');"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-iter-950/80 pointer-events-none"></div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <!-- Badge -->
