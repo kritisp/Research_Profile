@@ -47,10 +47,10 @@ if (!empty($featuredFaculty)) {
     $facIds = array_map('intval', array_column($featuredFaculty, 'id'));
     $inClause = implode(',', $facIds);
     $pubsStmt = $db->query("
-        SELECT p.faculty_profile_id, p.title, p.venue, p.year, p.citations
+        SELECT p.faculty_profile_id, p.title, p.journal_conference_name as venue, p.publication_year as year, p.citation_count as citations
         FROM publications p
         WHERE p.faculty_profile_id IN ($inClause)
-        ORDER BY p.citations DESC, p.year DESC
+        ORDER BY p.citation_count DESC, p.publication_year DESC
     ");
     while ($row = $pubsStmt->fetch(PDO::FETCH_ASSOC)) {
         if (!isset($topPubsByFaculty[$row['faculty_profile_id']])) {
