@@ -139,7 +139,124 @@ $activeNav = 'directory';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
+<div id="profile-page-wrapper">
+
+<?php
+/* === FIXED SIDEBAR (hidden; animated in on scroll) === */
+$sidebarSalutation = $faculty['salutation'] ? $faculty['salutation'] . ' ' : '';
+$sidebarFullName   = $sidebarSalutation . $faculty['full_name'];
+$sidebarResolvedPhoto = faculty_photo_url($faculty['photo_url'] ?? null);
+?>
+<aside id="profile-sidebar-fixed" aria-hidden="true" aria-label="Faculty quick reference">
+
+    <!-- Header row: avatar + name -->
+    <div class="flex items-start gap-2.5">
+        <!-- Mini avatar -->
+        <div class="sidebar-avatar overflow-hidden flex-shrink-0">
+            <?php if ($sidebarResolvedPhoto): ?>
+                <img src="<?= $sidebarResolvedPhoto ?>" alt="<?= e($faculty['full_name']) ?>" class="w-full h-full object-cover"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div style="display:none;" class="w-full h-full items-center justify-center text-slate-300">
+                    <i class="fa-solid fa-user-graduate text-xl"></i>
+                </div>
+            <?php else: ?>
+                <div class="w-full h-full flex items-center justify-center text-slate-300">
+                    <i class="fa-solid fa-user-graduate text-xl"></i>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="min-w-0 flex-1">
+            <div class="sidebar-name leading-tight truncate" title="<?= e($sidebarFullName) ?>">
+                <?= e($sidebarFullName) ?>
+            </div>
+            <div class="sidebar-designation mt-0.5"><?= e($faculty['designation']) ?></div>
+            <div class="sidebar-dept">
+                <?= e($faculty['department_code'] ?? '') ?> · <?= e($faculty['institution'] ?? 'ITER') ?>
+            </div>
+        </div>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <!-- Contact Info -->
+    <?php if (!empty($faculty['email'])): ?>
+    <a href="mailto:<?= e($faculty['email']) ?>" class="sidebar-registry-link">
+        <i class="fa-solid fa-envelope text-slate-400 text-[10px]"></i>
+        <span class="truncate"><?= e($faculty['email']) ?></span>
+    </a>
+    <?php endif; ?>
+    <?php if (!empty($faculty['phone'])): ?>
+    <div class="sidebar-registry-link" style="cursor:default;">
+        <i class="fa-solid fa-phone text-slate-400 text-[10px]"></i>
+        <span class="font-mono text-[11px]"><?= e($faculty['phone']) ?></span>
+    </div>
+    <?php endif; ?>
+    <?php if (!empty($faculty['cabin'])): ?>
+    <div class="sidebar-registry-link" style="cursor:default;">
+        <i class="fa-solid fa-door-open text-slate-400 text-[10px]"></i>
+        <span><?= e($faculty['cabin']) ?></span>
+    </div>
+    <?php endif; ?>
+
+    <?php
+    $hasSidebarRegistries = !empty($faculty['orcid_id']) || !empty($faculty['google_scholar_url'])
+        || !empty($faculty['scopus_id']) || !empty($faculty['researchgate_url'])
+        || !empty($faculty['website_url']);
+    if ($hasSidebarRegistries): ?>
+    <hr class="sidebar-divider">
+    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-1">External Registries</div>
+
+    <?php if (!empty($faculty['orcid_id'])): $cleanOrcid = safe_orcid($faculty['orcid_id']); if ($cleanOrcid): ?>
+    <a href="https://orcid.org/<?= $cleanOrcid ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-link">
+        <i class="fa-brands fa-orcid text-emerald-600 text-[11px]"></i>
+        <span class="font-mono"><?= e($cleanOrcid) ?></span>
+    </a>
+    <?php endif; endif; ?>
+
+    <?php if (!empty($faculty['google_scholar_url'])): ?>
+    <a href="<?= safe_url($faculty['google_scholar_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-link">
+        <i class="fa-brands fa-google text-blue-600 text-[11px]"></i>
+        <span>Google Scholar</span>
+    </a>
+    <?php endif; ?>
+
+    <?php if (!empty($faculty['scopus_id'])): ?>
+    <div class="sidebar-registry-link" style="cursor:default;">
+        <i class="fa-solid fa-database text-amber-600 text-[11px]"></i>
+        <span class="font-mono">Scopus: <?= e($faculty['scopus_id']) ?></span>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($faculty['researchgate_url'])): ?>
+    <a href="<?= safe_url($faculty['researchgate_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-link">
+        <i class="fa-brands fa-researchgate text-teal-700 text-[11px]"></i>
+        <span>ResearchGate</span>
+    </a>
+    <?php endif; ?>
+
+    <?php if (!empty($faculty['website_url'])): ?>
+    <a href="<?= safe_url($faculty['website_url']) ?>" target="_blank" rel="noopener noreferrer" class="sidebar-registry-link">
+        <i class="fa-solid fa-globe text-slate-500 text-[11px]"></i>
+        <span>Homepage</span>
+    </a>
+    <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if ($canEdit): ?>
+    <hr class="sidebar-divider">
+    <a href="<?= url('dashboard/edit_profile.php?id=' . $faculty['id']) ?>" class="sidebar-registry-link">
+        <i class="fa-solid fa-pen-to-square text-oxford-slate text-[11px]"></i>
+        <span class="font-semibold text-oxford-navy">Edit Profile</span>
+    </a>
+    <?php endif; ?>
+
+</aside>
+
+<div id="profile-main-area">
+
 <!-- Breadcrumbs Bar -->
+
 <div class="bg-white border-b border-scholar-border py-2.5">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-sans">
         <nav aria-label="Breadcrumb" class="flex items-center gap-2">
@@ -332,13 +449,13 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </header>
 
-<!-- Sticky In-Page Jump Anchor Bar (Allows instant jumping while preserving full vertical reading flow) -->
+<!-- Sticky In-Page Tab Navigation Bar -->
 <nav class="academic-jump-nav no-print" aria-label="Profile Sections">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 overflow-x-auto scrollbar-none">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center flex-wrap gap-0">
         <a href="#overview" class="academic-jump-link">Overview</a>
         <a href="#impact" class="academic-jump-link">Academic Impact</a>
         <a href="#publications" class="academic-jump-link">
-            Publications <span class="text-xs text-slate-400 font-normal">(<?= count($publications) ?>)</span>
+            Publications <span class="ml-1 text-xs text-slate-400 font-normal">(<?= count($publications) ?>)</span>
         </a>
         <?php if (!empty($projects)): ?>
             <a href="#projects" class="academic-jump-link">Research Grants (<?= count($projects) ?>)</a>
@@ -353,16 +470,17 @@ require_once __DIR__ . '/includes/header.php';
             <a href="#education" class="academic-jump-link">Education</a>
         <?php endif; ?>
         <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0)): ?>
-            <a href="#teaching" class="academic-jump-link">Teaching & Mentorship</a>
+            <a href="#teaching" class="academic-jump-link">Teaching &amp; Mentorship</a>
         <?php endif; ?>
         <?php if (!empty($awards)): ?>
-            <a href="#awards" class="academic-jump-link">Honors & Awards</a>
+            <a href="#awards" class="academic-jump-link">Honors &amp; Awards</a>
         <?php endif; ?>
         <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles'])): ?>
-            <a href="#service" class="academic-jump-link">Service & Affiliations</a>
+            <a href="#service" class="academic-jump-link">Service &amp; Affiliations</a>
         <?php endif; ?>
     </div>
 </nav>
+
 
 <!-- Main Vertical Scrollable Academic Content Container -->
 <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12">
@@ -1182,25 +1300,101 @@ document.getElementById('copyCitationBtn')?.addEventListener('click', function()
     });
 });
 
-// Update active state on scroll for sticky anchor links
-window.addEventListener('scroll', () => {
-    const sections = document.querySelectorAll('main > section[id]');
-    const scrollPos = window.scrollY + 100;
+// =====================================================
+// PROFILE SIDEBAR SCROLL-DRIVEN ANIMATION + TAB LOGIC
+// =====================================================
+(function () {
+    const sidebar       = document.getElementById('profile-sidebar-fixed');
+    const mainArea      = document.getElementById('profile-main-area');
+    const heroSection   = document.querySelector('#profile-main-area header');   // the faculty hero <header>
+    const jumpNav       = document.querySelector('.academic-jump-nav');
+    const jumpLinks     = document.querySelectorAll('.academic-jump-link');
+    const sections      = document.querySelectorAll('main > section[id]');
 
-    sections.forEach(sec => {
-        const top = sec.offsetTop;
-        const height = sec.offsetHeight;
-        const id = sec.getAttribute('id');
-        const link = document.querySelector(`.academic-jump-link[href="#${id}"]`);
-        if (link) {
-            if (scrollPos >= top && scrollPos < top + height) {
+    if (!sidebar || !mainArea || !heroSection || !jumpNav) return;
+
+    // ─── 1. Sidebar reveal on scroll ───────────────────────
+    // Trigger: when the hero header has scrolled mostly out of view
+    let lastSidebarState = false;
+
+    function updateSidebar() {
+        const heroBottom = heroSection.getBoundingClientRect().bottom;
+        // Once the hero's bottom edge is above the viewport midpoint (or just above fold)
+        const shouldShow = heroBottom < 60;
+
+        if (shouldShow !== lastSidebarState) {
+            lastSidebarState = shouldShow;
+            if (shouldShow) {
+                sidebar.classList.add('sidebar-visible');
+                sidebar.setAttribute('aria-hidden', 'false');
+                mainArea.classList.add('sidebar-pushed');
+            } else {
+                sidebar.classList.remove('sidebar-visible');
+                sidebar.setAttribute('aria-hidden', 'true');
+                mainArea.classList.remove('sidebar-pushed');
+            }
+        }
+    }
+
+    // ─── 2. Tab active state on scroll ─────────────────────
+    function updateActiveTabs() {
+        if (!jumpNav) return;
+        const navHeight = jumpNav.offsetHeight || 50;
+        const scrollPos = window.scrollY + navHeight + 16;
+
+        let activeId = null;
+        sections.forEach(sec => {
+            const top = sec.offsetTop;
+            if (scrollPos >= top) {
+                activeId = sec.getAttribute('id');
+            }
+        });
+
+        jumpLinks.forEach(link => {
+            const href = link.getAttribute('href') || link.getAttribute('data-section');
+            const targetId = href ? href.replace('#', '') : null;
+            if (targetId && targetId === activeId) {
                 link.classList.add('active');
             } else {
                 link.classList.remove('active');
             }
-        }
+        });
+    }
+
+    // ─── 3. Smooth scroll on tab click (prevent default <a>) ──
+    jumpLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const href = this.getAttribute('href') || this.getAttribute('data-section');
+            if (!href) return;
+            const targetId = href.replace('#', '');
+            const target   = document.getElementById(targetId);
+            if (!target) return;
+
+            const navHeight = (jumpNav ? jumpNav.offsetHeight : 0) + 8;
+            const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight;
+
+            window.scrollTo({ top: targetTop, behavior: 'smooth' });
+
+            // Optimistically set active state immediately on click
+            jumpLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
     });
-}, { passive: true });
+
+    // ─── 4. Combined scroll handler ────────────────────────
+    window.addEventListener('scroll', function () {
+        updateSidebar();
+        updateActiveTabs();
+    }, { passive: true });
+
+    // Run once on load to set initial state
+    updateSidebar();
+    updateActiveTabs();
+})();
 </script>
+
+</div><!-- /#profile-main-area -->
+</div><!-- /#profile-page-wrapper -->
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
