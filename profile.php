@@ -149,6 +149,18 @@ $sidebarResolvedPhoto = faculty_photo_url($faculty['photo_url'] ?? null);
 $sbPubs               = count($publications);
 $sbCitations          = (int)($faculty['total_citations'] ?? 0);
 $sbHIndex             = (int)($faculty['h_index'] ?? 0);
+$sbI10                = (int)($faculty['i10_index'] ?? 0);
+$sbGrants             = count($projects);
+$sbPatents            = count($patents);
+$sbPhD                = (int)($faculty['phd_supervised'] ?? 0);
+$sbGrantsAmt          = $totalGrantsAmount ?? 0; /* already computed earlier in profile.php */
+$sbResearchTags       = [];
+if (!empty($faculty['research_interests'])) {
+    $sbResearchTags = array_slice(
+        array_filter(array_map('trim', explode(',', $faculty['research_interests']))),
+        0, 5
+    );
+}
 ?>
 <aside id="profile-sidebar-fixed" aria-hidden="true" aria-label="Faculty profile card">
 
@@ -158,17 +170,17 @@ $sbHIndex             = (int)($faculty['h_index'] ?? 0);
         <!-- ── Dark header with avatar + identity ── -->
         <div class="sidebar-header">
 
-            <!-- Avatar with glow ring -->
+            <!-- Avatar with animated glow ring -->
             <div class="sidebar-avatar-wrap">
                 <?php if ($sidebarResolvedPhoto): ?>
                     <img src="<?= $sidebarResolvedPhoto ?>" alt="<?= e($faculty['full_name']) ?>"
                          onerror="this.style.display='none'; document.getElementById('sb-avatar-fallback').style.display='flex';">
                     <div id="sb-avatar-fallback" class="sidebar-avatar-placeholder" style="display:none;">
-                        <i class="fa-solid fa-user-graduate text-white/40 text-2xl"></i>
+                        <i class="fa-solid fa-user-graduate" style="font-size:1.75rem;color:rgba(255,255,255,0.3);"></i>
                     </div>
                 <?php else: ?>
                     <div class="sidebar-avatar-placeholder">
-                        <i class="fa-solid fa-user-graduate text-white/40 text-2xl"></i>
+                        <i class="fa-solid fa-user-graduate" style="font-size:1.75rem;color:rgba(255,255,255,0.3);"></i>
                     </div>
                 <?php endif; ?>
             </div>
@@ -182,23 +194,23 @@ $sbHIndex             = (int)($faculty['h_index'] ?? 0);
             <div class="sidebar-name"><?= e($sidebarFullName) ?></div>
 
             <!-- Designation -->
-            <div class="sidebar-designation mt-1"><?= e($faculty['designation']) ?></div>
+            <div class="sidebar-designation" style="margin-top:0.25rem;"><?= e($faculty['designation']) ?></div>
 
-            <!-- Institution (truncated) -->
-            <div class="sidebar-institution"><?= e($faculty['institution'] ?? 'ITER, SOA University') ?></div>
+            <!-- Institution -->
+            <div class="sidebar-institution"><?= e($faculty['institution'] ?? 'ITER, SOA Deemed to be University') ?></div>
 
-            <!-- Verified badge -->
-            <div class="sidebar-verified">
-                <i class="fa-solid fa-circle-check text-[10px]"></i>
+            <!-- Verified Faculty — boxed badge -->
+            <div class="sidebar-verified-badge">
+                <i class="fa-solid fa-circle-check" style="font-size:0.65rem;"></i>
                 <span>Verified Faculty</span>
             </div>
         </div>
 
-        <!-- ── Metrics strip: Publications · Citations · h-index ── -->
+        <!-- ── 2×2 Metric Grid: Papers · Citations · h-index · i10-index ── -->
         <div class="sidebar-metrics">
             <div class="sidebar-metric-item">
                 <div class="sidebar-metric-val"><?= $sbPubs ?></div>
-                <div class="sidebar-metric-label">Papers</div>
+                <div class="sidebar-metric-label">Publications</div>
             </div>
             <div class="sidebar-metric-item">
                 <div class="sidebar-metric-val"><?= $sbCitations > 999 ? number_format($sbCitations/1000, 1) . 'k' : $sbCitations ?></div>
@@ -208,10 +220,76 @@ $sbHIndex             = (int)($faculty['h_index'] ?? 0);
                 <div class="sidebar-metric-val"><?= $sbHIndex ?></div>
                 <div class="sidebar-metric-label">h-index</div>
             </div>
+            <div class="sidebar-metric-item">
+                <div class="sidebar-metric-val"><?= $sbI10 ?></div>
+                <div class="sidebar-metric-label">i10-index</div>
+            </div>
         </div>
 
-        <!-- ── Body: Contact + Registries ── -->
+        <!-- ── Quick Stats strip: Grants · Patents · Ph.D ── -->
+        <?php if ($sbGrants > 0 || $sbPatents > 0 || $sbPhD > 0): ?>
+        <div class="sidebar-quick-stats">
+            <?php if ($sbGrantsAmt > 0): ?>
+            <div class="sidebar-stat-pill">
+                <div class="sidebar-stat-val">
+                    <?php
+                    if ($sbGrantsAmt >= 100000) {
+                        echo '₹' . number_format($sbGrantsAmt / 100000, 1) . 'L';
+                    } elseif ($sbGrantsAmt >= 1000) {
+                        echo '₹' . number_format($sbGrantsAmt / 1000, 0) . 'K';
+                    } else {
+                        echo '₹' . number_format($sbGrantsAmt);
+                    }
+                    ?>
+                </div>
+                <div class="sidebar-stat-label">Grants</div>
+            </div>
+            <?php elseif ($sbGrants > 0): ?>
+            <div class="sidebar-stat-pill">
+                <div class="sidebar-stat-val"><?= $sbGrants ?></div>
+                <div class="sidebar-stat-label">Grants</div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($sbGrants > 0 && ($sbPatents > 0 || $sbPhD > 0)): ?>
+            <div class="sidebar-stat-divider"></div>
+            <?php endif; ?>
+
+            <?php if ($sbPatents > 0): ?>
+            <div class="sidebar-stat-pill">
+                <div class="sidebar-stat-val"><?= $sbPatents ?></div>
+                <div class="sidebar-stat-label">Patents</div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($sbPatents > 0 && $sbPhD > 0): ?>
+            <div class="sidebar-stat-divider"></div>
+            <?php endif; ?>
+
+            <?php if ($sbPhD > 0): ?>
+            <div class="sidebar-stat-pill">
+                <div class="sidebar-stat-val"><?= $sbPhD ?></div>
+                <div class="sidebar-stat-label">Ph.D.</div>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+
+
+        <!-- ── Body: Research Areas + Contact + Registries ── -->
         <div class="sidebar-body">
+
+            <!-- Research Areas Tags -->
+            <?php if (!empty($sbResearchTags)): ?>
+            <div class="sidebar-section-label">Research Areas</div>
+            <div class="sidebar-tags">
+                <?php foreach ($sbResearchTags as $tag): ?>
+                <span class="sidebar-tag"><?= e($tag) ?></span>
+                <?php endforeach; ?>
+            </div>
+            <hr class="sidebar-divider">
+            <?php endif; ?>
 
             <?php if (!empty($faculty['email']) || !empty($faculty['phone']) || !empty($faculty['cabin'])): ?>
             <div class="sidebar-section-label">Contact</div>
@@ -1369,30 +1447,40 @@ document.getElementById('copyCitationBtn')?.addEventListener('click', function()
 });
 
 // =====================================================
-// PROFILE SIDEBAR SCROLL-DRIVEN ANIMATION + TAB LOGIC
+// PROFILE CARD — SCROLL-DRIVEN ANIMATION + TAB LOGIC
 // =====================================================
 (function () {
-    const sidebar       = document.getElementById('profile-sidebar-fixed');
-    const mainArea      = document.getElementById('profile-main-area');
-    const heroSection   = document.querySelector('#profile-main-area header');   // the faculty hero <header>
-    const jumpNav       = document.querySelector('.academic-jump-nav');
-    const jumpLinks     = document.querySelectorAll('.academic-jump-link');
-    const sections      = document.querySelectorAll('main > section[id]');
+    const sidebar     = document.getElementById('profile-sidebar-fixed');
+    const mainArea    = document.getElementById('profile-main-area');
+    const heroSection = document.querySelector('#profile-main-area header');
+    const jumpNav     = document.querySelector('.academic-jump-nav');
+    const jumpLinks   = document.querySelectorAll('.academic-jump-link');
+    const sections    = document.querySelectorAll('main > section[id]');
 
     if (!sidebar || !mainArea || !heroSection || !jumpNav) return;
 
-    // ─── 1. Sidebar reveal on scroll ───────────────────────
-    // Trigger: when the hero header has scrolled mostly out of view
+    // ─── 1. Card position: always sits just below the sticky tab nav ─────
+    function updateCardPosition() {
+        // The jump nav is sticky; getBoundingClientRect() gives its actual viewport position
+        const navRect  = jumpNav.getBoundingClientRect();
+        const cardTop  = navRect.bottom + 8;   // 8px breathing room below tab bar
+        const cardMaxH = window.innerHeight - cardTop - 10;  // 10px from bottom
+
+        sidebar.style.top       = cardTop + 'px';
+        sidebar.style.maxHeight = cardMaxH + 'px';
+    }
+
+    // ─── 2. Sidebar reveal on scroll ─────────────────────────────────────
     let lastSidebarState = false;
 
     function updateSidebar() {
         const heroBottom = heroSection.getBoundingClientRect().bottom;
-        // Once the hero's bottom edge is above the viewport midpoint (or just above fold)
-        const shouldShow = heroBottom < 60;
+        const shouldShow = heroBottom < 55;   // trigger once hero is ~scrolled off
 
         if (shouldShow !== lastSidebarState) {
             lastSidebarState = shouldShow;
             if (shouldShow) {
+                updateCardPosition();  // set position before animating in
                 sidebar.classList.add('sidebar-visible');
                 sidebar.setAttribute('aria-hidden', 'false');
                 mainArea.classList.add('sidebar-pushed');
@@ -1402,65 +1490,61 @@ document.getElementById('copyCitationBtn')?.addEventListener('click', function()
                 mainArea.classList.remove('sidebar-pushed');
             }
         }
+
+        // Keep updating position while visible (tab nav height can change on wrap)
+        if (lastSidebarState) {
+            updateCardPosition();
+        }
     }
 
-    // ─── 2. Tab active state on scroll ─────────────────────
+    // ─── 3. Tab active state on scroll ───────────────────────────────────
     function updateActiveTabs() {
-        if (!jumpNav) return;
-        const navHeight = jumpNav.offsetHeight || 50;
-        const scrollPos = window.scrollY + navHeight + 16;
+        const navH   = jumpNav.offsetHeight || 48;
+        const offset = window.scrollY + navH + 20;
 
         let activeId = null;
         sections.forEach(sec => {
-            const top = sec.offsetTop;
-            if (scrollPos >= top) {
+            if (offset >= sec.offsetTop) {
                 activeId = sec.getAttribute('id');
             }
         });
 
         jumpLinks.forEach(link => {
-            const href = link.getAttribute('href') || link.getAttribute('data-section');
-            const targetId = href ? href.replace('#', '') : null;
-            if (targetId && targetId === activeId) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
+            const href = link.getAttribute('href') || '';
+            const id   = href.replace('#', '');
+            link.classList.toggle('active', id === activeId);
         });
     }
 
-    // ─── 3. Smooth scroll on tab click (prevent default <a>) ──
+    // ─── 4. Tab click: smooth scroll with correct offset ─────────────────
     jumpLinks.forEach(link => {
         link.addEventListener('click', function (e) {
             e.preventDefault();
-            const href = this.getAttribute('href') || this.getAttribute('data-section');
-            if (!href) return;
+            const href     = this.getAttribute('href') || '';
             const targetId = href.replace('#', '');
             const target   = document.getElementById(targetId);
             if (!target) return;
 
-            const navHeight = (jumpNav ? jumpNav.offsetHeight : 0) + 8;
-            const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight;
-
+            // Offset = global nav (64px) + tab nav height + small gap
+            const offset    = 64 + jumpNav.offsetHeight + 8;
+            const targetTop = target.getBoundingClientRect().top + window.scrollY - offset;
             window.scrollTo({ top: targetTop, behavior: 'smooth' });
 
-            // Optimistically set active state immediately on click
             jumpLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
         });
     });
 
-    // ─── 4. Combined scroll handler ────────────────────────
-    window.addEventListener('scroll', function () {
-        updateSidebar();
-        updateActiveTabs();
-    }, { passive: true });
+    // ─── 5. Combined scroll + resize handler ─────────────────────────────
+    window.addEventListener('scroll',  () => { updateSidebar(); updateActiveTabs(); }, { passive: true });
+    window.addEventListener('resize',  () => { if (lastSidebarState) updateCardPosition(); }, { passive: true });
 
-    // Run once on load to set initial state
+    // Initial run
     updateSidebar();
     updateActiveTabs();
 })();
 </script>
+
 
 </div><!-- /#profile-main-area -->
 </div><!-- /#profile-page-wrapper -->
