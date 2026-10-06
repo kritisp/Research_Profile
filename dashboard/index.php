@@ -558,7 +558,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="p-5 border-b border-scholar-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             <div>
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Education & Qualifications</h2>
-                <p class="text-xs text-scholar-muted mt-0.5">Doctoral, postgraduate, and collegiate degrees</p>
+                <p class="text-xs text-scholar-muted mt-0.5">Doctoral, postgraduate, and undergraduate degrees</p>
             </div>
             <a href="<?= url('dashboard/add_education.php?profile_id=' . $faculty['id']) ?>" 
                class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">

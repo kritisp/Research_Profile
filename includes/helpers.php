@@ -61,6 +61,24 @@ function safe_orcid(?string $orcid): string {
 }
 
 /**
+ * Format faculty display name cleanly, avoiding duplicated titles (e.g. 'Dr. Dr.' or 'Prof. Dr. Dr.')
+ */
+function clean_faculty_display_name(?string $salutation, ?string $fullName): string {
+    $salutation = trim($salutation ?? '');
+    $fullName = trim($fullName ?? '');
+    if (empty($fullName)) {
+        return '';
+    }
+    // If full_name already starts with Prof., Dr., etc., strip them from full_name
+    $strippedName = preg_replace('/^(Prof\.\s*|Dr\.\s*|Mr\.\s*|Ms\.\s*|Mrs\.\s*)+/i', '', $fullName);
+    $strippedName = trim($strippedName);
+    if (!empty($salutation)) {
+        return $salutation . ' ' . $strippedName;
+    }
+    return $fullName;
+}
+
+/**
  * Generate clean researcher URL using slug with ID fallback
  */
 function researcher_url(array $faculty): string {

@@ -143,8 +143,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <?php
 /* === FIXED PROFILE CARD (hidden; animated in on scroll) === */
-$sidebarSalutation    = $faculty['salutation'] ? $faculty['salutation'] . ' ' : '';
-$sidebarFullName      = $sidebarSalutation . $faculty['full_name'];
+$sidebarFullName      = clean_faculty_display_name($faculty['salutation'] ?? '', $faculty['full_name'] ?? '');
 $sidebarResolvedPhoto = faculty_photo_url($faculty['photo_url'] ?? null);
 $sbPubs               = count($publications);
 $sbCitations          = (int)($faculty['total_citations'] ?? 0);
@@ -312,7 +311,13 @@ if (!empty($faculty['research_interests'])) {
             <?php endif; ?>
 
             <!-- External Scholarly IDs (grid of badge pills) -->
-            <?php if ($hasRegistries): ?>
+            <?php
+            $hasSidebarRegistries = !empty($faculty['orcid_id']) || !empty($faculty['google_scholar_url'])
+                || !empty($faculty['scopus_id']) || !empty($faculty['researchgate_url'])
+                || !empty($faculty['website_url']) || !empty($faculty['wos_id'])
+                || !empty($faculty['dblp_url']) || !empty($faculty['semantic_scholar_url']);
+            ?>
+            <?php if ($hasSidebarRegistries): ?>
             <hr class="sidebar-divider">
             <div class="sidebar-section-label">Scholarly Profiles</div>
             <div class="sidebar-registries-grid">
@@ -447,7 +452,7 @@ if (!empty($faculty['research_interests'])) {
                 </div>
 
                 <h1 class="font-serif text-2xl sm:text-4xl font-bold text-oxford-navy leading-tight">
-                    <?= e(($faculty['salutation'] ? $faculty['salutation'] . ' ' : '') . $faculty['full_name']) ?>
+                    <?= e(clean_faculty_display_name($faculty['salutation'] ?? '', $faculty['full_name'] ?? '')) ?>
                 </h1>
 
                 <p class="text-base sm:text-lg font-medium text-oxford-slate mt-1">
@@ -567,7 +572,7 @@ if (!empty($faculty['research_interests'])) {
 
 <!-- Sticky In-Page Tab Navigation Bar -->
 <nav class="academic-jump-nav no-print" aria-label="Profile Sections">
-    <div class="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-start lg:justify-center overflow-x-auto scrollbar-none gap-0">
+    <div class="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-start xl:justify-between overflow-x-auto scrollbar-none gap-1 sm:gap-2">
         <a href="#overview" class="academic-jump-link">Overview</a>
         <a href="#impact" class="academic-jump-link">Academic Impact</a>
         <a href="#publications" class="academic-jump-link">

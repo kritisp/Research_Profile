@@ -67,7 +67,7 @@ require_once __DIR__ . '/../includes/header.php';
             <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
         </a>
         <h1 class="font-serif text-2xl font-bold text-oxford-navy">Add Teaching Assignment</h1>
-        <p class="text-xs text-scholar-muted mt-0.5 font-sans">Record collegiate courses, laboratories, and curriculum modules taught</p>
+        <p class="text-xs text-scholar-muted mt-0.5 font-sans">Record academic courses, laboratories, and curriculum modules taught</p>
     </div>
 
     <?php if ($error): ?>

@@ -23,7 +23,7 @@ $deptStmt = $db->query("
 ");
 $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Collegiate Academic Departments — Faculty Profiles';
+$pageTitle = 'Academic Departments — Faculty Profiles';
 $activeNav = 'departments';
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -31,10 +31,10 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Header Banner -->
 <section class="bg-oxford-navy text-white py-10 sm:py-12 border-b border-oxford-blue/60">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <span class="text-xs font-semibold text-amber-300 uppercase tracking-widest font-sans">Collegiate Academic Structure</span>
+        <span class="text-xs font-semibold text-amber-300 uppercase tracking-widest font-sans">University Academic Structure</span>
         <h1 class="font-serif text-2xl sm:text-4xl font-normal text-white mt-1.5 leading-tight">Academic Departments</h1>
         <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl leading-relaxed font-sans">
-            Explore departmental research output, publication volumes, and faculty directories across collegiate divisions.
+            Explore departmental research output, publication volumes, and faculty directories across university departments.
         </p>
     </div>
 </section>

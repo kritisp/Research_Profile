@@ -90,7 +90,7 @@ require_once __DIR__ . '/includes/header.php';
 <section class="bg-oxford-navy text-white py-10 sm:py-12 border-b border-oxford-blue/60">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl">
-            <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">Collegiate Scholarly Directory</span>
+            <span class="text-xs font-mono font-semibold text-amber-300 uppercase tracking-widest">University Scholarly Directory</span>
             <h1 class="font-serif text-2xl sm:text-4xl font-normal text-white mt-1.5 leading-tight">Faculty Researchers</h1>
             <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed font-sans">
                 Browse verified academic scholars, publication bibliographies, citations, and research areas across institutional departments.
@@ -247,7 +247,7 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                                 <h3 class="font-serif font-bold text-oxford-navy text-base leading-tight truncate mt-1">
                                     <a href="<?= researcher_url($fac) ?>" class="hover:text-oxford-blue transition">
-                                        <?= e($fac['salutation'] . ' ' . $fac['full_name']) ?>
+                                        <?= e(clean_faculty_display_name($fac['salutation'] ?? '', $fac['full_name'] ?? '')) ?>
                                     </a>
                                 </h3>
                                 <p class="text-xs text-scholar-muted mt-0.5 truncate font-medium"><?= e($fac['designation']) ?></p>

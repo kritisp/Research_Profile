@@ -62,6 +62,7 @@ if (!empty($featuredFaculty)) {
 $pageTitle = 'Home — Faculty Research Directory & Repository';
 $activeNav = 'home';
 require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/preloader.php';
 ?>
 
 <!-- Academic Hero Section -->
@@ -82,7 +83,7 @@ require_once __DIR__ . '/includes/header.php';
             Faculty Research & Scholarly Directory
         </h1>
         <p class="mt-3.5 text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-sans font-normal">
-            Explore peer-reviewed publications, citation metrics, extramural grants, and intellectual property across collegiate academic departments.
+            Explore peer-reviewed publications, citation metrics, extramural grants, and intellectual property across university academic departments.
         </p>
 
         <!-- Focused Search Form -->
@@ -176,7 +177,7 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 <h3 class="font-serif font-bold text-oxford-navy text-lg leading-tight truncate">
                                     <a href="<?= researcher_url($fac) ?>" class="hover:text-oxford-blue transition">
-                                        <?= e($fac['salutation'] . ' ' . $fac['full_name']) ?>
+                                        <?= e(clean_faculty_display_name($fac['salutation'] ?? '', $fac['full_name'] ?? '')) ?>
                                     </a>
                                 </h3>
                                 <span class="academic-tag academic-tag-green text-[10px] !py-0.5">
@@ -270,7 +271,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-3.5 border-b border-scholar-border">
             <div>
                 <span class="text-xs font-semibold text-academic-gold uppercase tracking-wider font-mono">Academic Divisions</span>
-                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-oxford-navy mt-1">Collegiate Departments</h2>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-oxford-navy mt-1">Academic Departments</h2>
             </div>
             <a href="<?= url('departments.php') ?>" class="text-xs font-semibold text-oxford-slate hover:text-oxford-navy flex items-center gap-1.5 mt-2 sm:mt-0 transition group">
                 <span>View All Departments</span>

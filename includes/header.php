@@ -96,8 +96,7 @@ $flashes   = get_flashes();
             <div class="flex items-center gap-3">
                 <span class="font-bold tracking-wider text-amber-300 font-mono text-[11px] uppercase">Departmental Scholar</span>
                 <span class="text-slate-600">|</span>
-                <span class="text-slate-300 font-medium text-[11px] hidden sm:inline">Faculty Scholarly Directory & Research Repository</span>
-                <span class="text-slate-400 font-mono text-[11px]">ITER • SOA University</span>
+                <span class="text-slate-300 font-medium text-[11px] hidden sm:inline">Faculty Scholarly Directory &amp; Research Repository</span>
             </div>
             <div class="flex items-center gap-4 text-slate-400 text-[11px]">
                 <span class="hidden sm:inline-flex items-center gap-1.5">
