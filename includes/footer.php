@@ -131,6 +131,57 @@
         </div>
     </footer>
 
+    <!-- External Co-Author / Collaborator: Profile Not Available Modal -->
+    <div id="profileNotFoundModal" 
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden transition-opacity duration-200" 
+         role="dialog" 
+         aria-modal="true" 
+         aria-labelledby="pNotFoundTitle"
+         onclick="if(event.target === this) closeProfileNotFoundModal()">
+        <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 sm:p-7 text-center transform transition-all animate-in fade-in zoom-in-95 duration-150" 
+             onclick="event.stopPropagation()">
+            <!-- Close Button -->
+            <button type="button" 
+                    onclick="closeProfileNotFoundModal()" 
+                    class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors" 
+                    aria-label="Close dialog">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            <!-- Academic Icon -->
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-oxford-slate mb-4 shadow-xs">
+                <i class="fa-solid fa-user-slash text-xl text-slate-500"></i>
+            </div>
+
+            <!-- Header -->
+            <h3 id="pNotFoundTitle" class="font-serif font-bold text-xl text-oxford-navy mb-2">
+                Profile Not Available
+            </h3>
+
+            <!-- Notice Message -->
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans mb-6">
+                <strong id="pNotFoundAuthorName" class="font-bold text-oxford-navy"></strong> is an external co-author / collaborator without an institutional profile in Departmental Scholar.
+            </p>
+
+            <!-- Actions -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-center gap-3">
+                <button type="button" 
+                        onclick="closeProfileNotFoundModal()" 
+                        class="btn-academic-secondary text-xs !py-2.5 !px-5 shadow-xs">
+                    Dismiss
+                </button>
+                <a id="pNotFoundScholarLink" 
+                   href="#" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-academic-primary text-xs !py-2.5 !px-5 shadow-xs inline-flex items-center gap-1.5">
+                    <i class="fa-brands fa-google-scholar text-xs"></i>
+                    <span>Search Scholar</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Shared Modular Frontend Script -->
     <script src="<?= url('assets/js/scholar.js') ?>"></script>
 </body>

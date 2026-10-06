@@ -324,4 +324,278 @@ function faculty_photo_url(?string $photoPath): ?string {
     return null;
 }
 
+/**
+ * Clean & normalize author/faculty name for indexing and matching
+ */
+function normalize_name_tokens(string $name): string {
+    $clean = strtolower($name);
+    $clean = preg_replace('/[.,\-\'\"]+/', ' ', $clean);
+    $clean = preg_replace('/^(dr|prof|er|mr|ms|mrs)\s+/i', '', trim($clean));
+    return preg_replace('/\s+/', ' ', trim($clean));
+}
+
+/**
+ * Generate permutation lookup keys for a faculty profile (initials, variations, full name)
+ */
+function generate_faculty_match_keys(array $faculty): array {
+    $keys = [];
+    $rawName = $faculty['full_name'] ?? '';
+    $normalized = normalize_name_tokens($rawName);
+    if (empty($normalized)) return [];
+    
+    $keys[$normalized] = true;
+
+    if (!empty($faculty['salutation'])) {
+        $keys[normalize_name_tokens($faculty['salutation'] . ' ' . $rawName)] = true;
+    }
+
+    $parts = explode(' ', $normalized);
+    $count = count($parts);
+
+    if ($count === 1) {
+        $keys[$parts[0]] = true;
+    } elseif ($count === 2) {
+        $first = $parts[0];
+        $last = $parts[1];
+        if (!empty($first) && !empty($last)) {
+            $keys[$first[0] . ' ' . $last] = true;
+            $keys[$last . ' ' . $first[0]] = true;
+        }
+    } elseif ($count >= 3) {
+        $first = $parts[0];
+        $last = $parts[$count - 1];
+        $middles = array_slice($parts, 1, $count - 2);
+        
+        $initials = [$first[0]];
+        foreach ($middles as $m) {
+            if (!empty($m)) $initials[] = $m[0];
+        }
+        $keys[implode(' ', $initials) . ' ' . $last] = true;
+        $keys[implode('', $initials) . ' ' . $last] = true;
+        $keys[$first[0] . ' ' . $last] = true;
+        $keys[$first . ' ' . $last] = true;
+        $keys[$last . ' ' . implode(' ', $initials)] = true;
+    }
+
+    return array_keys($keys);
+}
+
+/**
+ * Cached lookup index of active faculty profiles mapped to match keys
+ */
+function get_faculty_author_index(): array {
+    static $index = null;
+    if ($index !== null) {
+        return $index;
+    }
+    $index = [];
+    try {
+        $db = Database::getConnection();
+        $faculties = $db->query("
+            SELECT fp.id, fp.slug, u.full_name, fp.salutation 
+            FROM faculty_profiles fp 
+            JOIN users u ON fp.user_id = u.id 
+            WHERE u.status = 'active'
+        ")->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($faculties as $f) {
+            $keys = generate_faculty_match_keys($f);
+            foreach ($keys as $k) {
+                if (!isset($index[$k])) {
+                    $index[$k] = $f;
+                }
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Failed to build faculty author index: " . $e->getMessage());
+    }
+    return $index;
+}
+
+/**
+ * Render publication author list with bold, clickable names.
+ * Local faculty members link directly to their profile; external collaborators trigger a sleek "Profile not available" popup.
+ */
+function render_interactive_authors(?string $authorsString): string {
+    if (empty($authorsString)) {
+        return '';
+    }
+    $index = get_faculty_author_index();
+
+    // Support both comma-separated and semicolon-separated author strings
+    $delimiter = (strpos($authorsString, ';') !== false) ? ';' : ',';
+    $rawAuthors = explode($delimiter, $authorsString);
+    $rendered = [];
+
+    foreach ($rawAuthors as $raw) {
+        $author = trim($raw);
+        if ($author === '') continue;
+
+        $normalized = normalize_name_tokens($author);
+        $matched = $index[$normalized] ?? null;
+
+        $safeName = htmlspecialchars($author, ENT_QUOTES, 'UTF-8');
+        $jsEscaped = htmlspecialchars(addslashes($author), ENT_QUOTES, 'UTF-8');
+
+        if ($matched) {
+            $url = htmlspecialchars(researcher_url($matched), ENT_QUOTES, 'UTF-8');
+            $fullName = htmlspecialchars($matched['full_name'], ENT_QUOTES, 'UTF-8');
+            $rendered[] = '<a href="' . $url . '" class="font-bold text-oxford-navy hover:text-[#0969da] hover:underline decoration-1 underline-offset-2 transition-colors cursor-pointer" title="View ' . $fullName . '\'s Faculty Profile">' . $safeName . '</a>';
+        } else {
+            $rendered[] = '<button type="button" onclick="showProfileNotFoundModal(\'' . $jsEscaped . '\')" class="font-bold text-slate-800 hover:text-oxford-navy cursor-pointer hover:underline decoration-dotted underline-offset-2 transition-colors inline-block bg-transparent border-0 p-0 text-inherit font-inherit text-left" title="Click to view co-author profile">' . $safeName . '</button>';
+        }
+    }
+
+    return implode(', ', $rendered);
+}
+
+/**
+ * Safely resolve primary URL for a publication (DOI resolver, Direct paper URL, PDF, or Google Scholar search fallback)
+ */
+function publication_target_url(array $pub): array {
+    if (!empty($pub['doi'])) {
+        $doi = safe_doi($pub['doi']);
+        if ($doi) {
+            return [
+                'url' => 'https://doi.org/' . $doi,
+                'type' => 'doi',
+                'label' => 'Official DOI Resolver'
+            ];
+        }
+    }
+    if (!empty($pub['url'])) {
+        $u = safe_url($pub['url']);
+        if ($u && $u !== '#') {
+            return [
+                'url' => $u,
+                'type' => 'direct',
+                'label' => 'Direct Paper URL'
+            ];
+        }
+    }
+    if (!empty($pub['pdf_url'])) {
+        $pdf = safe_url($pub['pdf_url']);
+        if ($pdf && $pdf !== '#') {
+            return [
+                'url' => $pdf,
+                'type' => 'pdf',
+                'label' => 'Full-Text PDF'
+            ];
+        }
+    }
+    $title = trim($pub['title'] ?? '');
+    return [
+        'url' => 'https://scholar.google.com/scholar?q=' . urlencode('"' . $title . '"'),
+        'type' => 'scholar',
+        'label' => 'Find on Google Scholar'
+    ];
+}
+
+/**
+ * Target URL for patents (Google Patents lookup)
+ */
+function patent_target_url(array $patent): array {
+    $num = trim($patent['patent_number'] ?? '');
+    $title = trim($patent['title'] ?? '');
+    $query = $num ?: $title;
+    return [
+        'url' => 'https://patents.google.com/?q=' . urlencode($query),
+        'label' => 'Google Patents'
+    ];
+}
+
+/**
+ * Standard genuine academic indexing categories and groupings
+ */
+function get_academic_indexing_categories(): array {
+    return [
+        'High Impact & Global Core' => [
+            'SCI / SCIE (Clarivate Web of Science)',
+            'Scopus (Elsevier)',
+            'Web of Science (WoS Core Collection)',
+            'SCI Q1 / Scopus',
+            'SCI Q2 / Scopus',
+            'SCIE / Scopus',
+        ],
+        'Scopus Quartiles (Elsevier / Scimago)' => [
+            'Scopus Q1',
+            'Scopus Q2',
+            'Scopus Q3',
+            'Scopus Q4',
+        ],
+        'Clarivate JCR Quartiles & Emerging' => [
+            'SCI Q1',
+            'SCI Q2',
+            'SCI Q3',
+            'SCI Q4',
+            'ESCI (Emerging Sources Citation Index)',
+        ],
+        'Computer Science, Engineering & Medical' => [
+            'IEEE Xplore Digital Library',
+            'ACM Digital Library',
+            'DBLP Computer Science Bibliography',
+            'PubMed / MEDLINE (NLM / NIH)',
+        ],
+        'National UGC & Accreditations (India / NIRF)' => [
+            'UGC CARE Group I',
+            'UGC CARE Group II',
+        ],
+        'Open Access & Management Disciplines' => [
+            'DOAJ (Directory of Open Access Journals)',
+            'ABDC Journal Quality List',
+            'Peer-Reviewed / Refereed Journal',
+        ],
+    ];
+}
+
+/**
+ * Render genuine academic indexing badges
+ */
+function render_indexing_badges(?string $indexingString): string {
+    if (empty($indexingString)) {
+        return '';
+    }
+    // Check if contains multiple separated by comma or slash
+    $parts = preg_split('~[,/]~', $indexingString);
+    if (count($parts) > 1 && !preg_match('~Q[1-4]~i', $indexingString)) {
+        $tokens = array_map('trim', $parts);
+    } else {
+        $tokens = [trim($indexingString)];
+    }
+
+    $html = [];
+    foreach ($tokens as $token) {
+        if ($token === '') continue;
+        $lower = strtolower($token);
+        
+        $badgeClass = 'academic-tag font-semibold';
+        $icon = 'fa-solid fa-bookmark';
+
+        if (str_contains($lower, 'scopus')) {
+            $badgeClass = 'academic-tag academic-tag-gold font-semibold';
+            $icon = 'fa-solid fa-certificate';
+        } elseif (str_contains($lower, 'sci') || str_contains($lower, 'wos') || str_contains($lower, 'web of science') || str_contains($lower, 'clarivate')) {
+            $badgeClass = 'academic-tag academic-tag-navy font-semibold';
+            $icon = 'fa-solid fa-award';
+        } elseif (str_contains($lower, 'ugc')) {
+            $badgeClass = 'academic-tag academic-tag-green font-semibold';
+            $icon = 'fa-solid fa-shield-check';
+        } elseif (str_contains($lower, 'ieee') || str_contains($lower, 'acm') || str_contains($lower, 'dblp')) {
+            $badgeClass = 'academic-tag font-semibold bg-indigo-50 text-indigo-900 border-indigo-200';
+            $icon = 'fa-solid fa-network-wired';
+        } elseif (str_contains($lower, 'pubmed') || str_contains($lower, 'medline')) {
+            $badgeClass = 'academic-tag font-semibold bg-rose-50 text-rose-900 border-rose-200';
+            $icon = 'fa-solid fa-heart-pulse';
+        } elseif (str_contains($lower, 'doaj') || str_contains($lower, 'abdc')) {
+            $badgeClass = 'academic-tag font-semibold bg-teal-50 text-teal-900 border-teal-200';
+            $icon = 'fa-solid fa-globe';
+        }
+
+        $html[] = '<span class="' . $badgeClass . '"><i class="' . $icon . ' text-[9px] mr-1 opacity-80"></i>' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+
+    return implode(' ', $html);
+}
+
+
 

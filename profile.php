@@ -1249,21 +1249,20 @@ if (!empty($faculty['research_interests'])) {
                                     
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="flex-grow space-y-1">
-                                            <!-- Title -->
-                                            <h3 class="font-serif text-base sm:text-lg font-bold text-oxford-navy leading-snug">
-                                                <?php if (!empty($pub['doi'])): ?>
-                                                    <a href="https://doi.org/<?= e($pub['doi']) ?>" target="_blank" rel="noopener noreferrer" 
-                                                       class="hover:text-oxford-slate transition">
-                                                        <?= e($pub['title']) ?>
-                                                    </a>
-                                                <?php else: ?>
-                                                    <?= e($pub['title']) ?>
-                                                <?php endif; ?>
+                                            <!-- Smart Clickable Title -->
+                                            <?php $pubTarget = publication_target_url($pub); ?>
+                                            <h3 class="font-serif text-base sm:text-lg font-bold text-oxford-navy leading-snug group">
+                                                <a href="<?= e($pubTarget['url']) ?>" target="_blank" rel="noopener noreferrer" 
+                                                   class="hover:text-oxford-blue transition inline-flex items-baseline gap-1.5"
+                                                   title="<?= e($pubTarget['label']) ?>: <?= e($pub['title']) ?>">
+                                                    <span><?= e($pub['title']) ?></span>
+                                                    <i class="fa-solid fa-arrow-up-right-from-square text-[11px] text-slate-400 group-hover:text-oxford-blue transition-colors flex-shrink-0"></i>
+                                                </a>
                                             </h3>
 
-                                            <!-- Authors -->
-                                            <p class="text-xs sm:text-sm text-slate-700 font-medium">
-                                                <?= e($pub['authors']) ?>
+                                            <!-- Bold & Interactive Clickable Authors List -->
+                                            <p class="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
+                                                <?= render_interactive_authors($pub['authors']) ?>
                                             </p>
 
                                             <!-- Venue & Journal Reference (Italicized) -->
@@ -1283,15 +1282,20 @@ if (!empty($faculty['research_interests'])) {
                                                     </span>
                                                 <?php endif; ?>
 
+                                                <!-- Genuine Academic Indexing Badges -->
                                                 <?php if (!empty($pub['indexing'])): ?>
-                                                    <span class="academic-tag academic-tag-gold font-semibold">
-                                                        <?= e($pub['indexing']) ?>
-                                                    </span>
+                                                    <?= render_indexing_badges($pub['indexing']) ?>
                                                 <?php endif; ?>
 
                                                 <?php if (!empty($pub['doi'])): ?>
-                                                    <a href="https://doi.org/<?= e($pub['doi']) ?>" target="_blank" rel="noopener" class="text-slate-500 hover:text-oxford-navy transition font-mono">
-                                                        <i class="fa-solid fa-link text-[10px]"></i> DOI: <?= e($pub['doi']) ?>
+                                                    <a href="https://doi.org/<?= safe_doi($pub['doi']) ?>" target="_blank" rel="noopener" class="text-slate-500 hover:text-oxford-navy transition font-mono">
+                                                        <i class="fa-solid fa-link text-[10px]"></i> DOI: <?= safe_doi($pub['doi']) ?>
+                                                    </a>
+                                                <?php endif; ?>
+
+                                                <?php if (!empty($pub['url'])): ?>
+                                                    <a href="<?= safe_url($pub['url']) ?>" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-oxford-navy transition text-[11px]">
+                                                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Publisher Paper
                                                     </a>
                                                 <?php endif; ?>
 
@@ -1300,6 +1304,12 @@ if (!empty($faculty['research_interests'])) {
                                                        class="inline-flex items-center gap-1 text-rose-700 hover:text-rose-900 font-semibold px-2 py-0.5 rounded-[4px] bg-rose-50 border border-rose-200 transition text-[11px]">
                                                         <i class="fa-solid fa-file-pdf text-[11px]"></i>
                                                         <span>PDF</span>
+                                                    </a>
+                                                <?php endif; ?>
+
+                                                <?php if (empty($pub['doi']) && empty($pub['url']) && empty($pub['pdf_url'])): ?>
+                                                    <a href="https://scholar.google.com/scholar?q=<?= urlencode('"' . $pub['title'] . '"') ?>" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-oxford-navy transition text-[11px]">
+                                                        <i class="fa-brands fa-google-scholar text-[10px] text-slate-400"></i> Google Scholar
                                                     </a>
                                                 <?php endif; ?>
 
@@ -1440,14 +1450,25 @@ if (!empty($faculty['research_interests'])) {
         <?php else: ?>
             <div class="divide-y divide-slate-100">
                 <?php foreach ($patents as $pat): ?>
+                    <?php $patTarget = patent_target_url($pat); ?>
                     <div class="py-4 flex items-start justify-between gap-4">
                         <div class="space-y-1">
                             <span class="inline-block px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider <?= $pat['status'] === 'granted' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-slate-200 text-slate-800' ?>">
                                 <?= e($pat['status']) ?>
                             </span>
-                            <h3 class="font-serif text-base font-bold text-oxford-navy"><?= e($pat['title']) ?></h3>
+                            <h3 class="font-serif text-base font-bold text-oxford-navy group">
+                                <a href="<?= e($patTarget['url']) ?>" target="_blank" rel="noopener noreferrer" 
+                                   class="hover:text-oxford-blue transition inline-flex items-baseline gap-1.5"
+                                   title="Inspect patent on Google Patents">
+                                    <span><?= e($pat['title']) ?></span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400 group-hover:text-oxford-blue transition-colors flex-shrink-0"></i>
+                                </a>
+                            </h3>
                             <p class="text-xs text-slate-600 font-sans">
-                                <strong>Application / Patent No:</strong> <span class="font-mono"><?= e($pat['patent_number'] ?? 'Pending') ?></span>
+                                <strong>Application / Patent No:</strong> 
+                                <a href="<?= e($patTarget['url']) ?>" target="_blank" rel="noopener noreferrer" class="font-mono text-oxford-navy font-semibold hover:underline" title="Search patent register">
+                                    <?= e($pat['patent_number'] ?? 'Pending') ?>
+                                </a>
                                 | <strong>Jurisdiction:</strong> <?= e($pat['country']) ?>
                             </p>
                         </div>

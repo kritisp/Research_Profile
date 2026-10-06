@@ -283,3 +283,37 @@ function initCitationModal() {
     });
   }
 }
+
+/**
+ * Co-Author: Profile Not Available Modal Handlers
+ */
+window.showProfileNotFoundModal = function(authorName) {
+  const modal = document.getElementById('profileNotFoundModal');
+  const nameEl = document.getElementById('pNotFoundAuthorName');
+  const scholarLink = document.getElementById('pNotFoundScholarLink');
+  if (!modal) return;
+  if (nameEl) nameEl.textContent = authorName || 'Co-author';
+  if (scholarLink) {
+    scholarLink.href = 'https://scholar.google.com/scholar?q=' + encodeURIComponent('"' + (authorName || '') + '"');
+  }
+  modal.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+};
+
+window.closeProfileNotFoundModal = function() {
+  const modal = document.getElementById('profileNotFoundModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+};
+
+// Global ESC key dismiss listener
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('profileNotFoundModal');
+    if (modal && !modal.classList.contains('hidden')) {
+      window.closeProfileNotFoundModal();
+    }
+  }
+});
+

@@ -351,12 +351,20 @@ require_once __DIR__ . '/../includes/header.php';
                         <?php foreach ($publications as $pub): ?>
                             <tr>
                                 <td class="py-3 px-4 max-w-md">
-                                    <div class="font-semibold text-oxford-navy leading-snug line-clamp-2"><?= e($pub['title']) ?></div>
-                                    <div class="text-[11px] text-slate-500 mt-0.5 truncate"><?= e($pub['authors']) ?></div>
+                                    <?php $pubTarget = publication_target_url($pub); ?>
+                                    <a href="<?= e($pubTarget['url']) ?>" target="_blank" rel="noopener noreferrer" 
+                                       class="font-semibold text-oxford-navy hover:text-oxford-blue hover:underline leading-snug line-clamp-2 inline-flex items-baseline gap-1 group"
+                                       title="<?= e($pubTarget['label']) ?>: <?= e($pub['title']) ?>">
+                                        <span><?= e($pub['title']) ?></span>
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400 group-hover:text-oxford-blue"></i>
+                                    </a>
+                                    <div class="text-[11px] text-slate-600 mt-1 leading-normal">
+                                        <?= render_interactive_authors($pub['authors']) ?>
+                                    </div>
                                     <?php if (!empty($pub['indexing'])): ?>
-                                        <span class="academic-tag academic-tag-gold text-[10px] mt-1">
-                                            <?= e($pub['indexing']) ?>
-                                        </span>
+                                        <div class="mt-1.5 flex flex-wrap gap-1">
+                                            <?= render_indexing_badges($pub['indexing']) ?>
+                                        </div>
                                     <?php endif; ?>
                                 </td>
                                 <td class="py-3 px-4 capitalize font-mono text-[11px]">
@@ -394,9 +402,24 @@ require_once __DIR__ . '/../includes/header.php';
             <!-- Mobile Card Stack View -->
             <div class="md:hidden divide-y divide-slate-100 p-4 space-y-4">
                 <?php foreach ($publications as $pub): ?>
+                    <?php $pubTarget = publication_target_url($pub); ?>
                     <div class="pt-3 first:pt-0 space-y-2">
-                        <div class="font-serif font-bold text-sm text-oxford-navy leading-snug"><?= e($pub['title']) ?></div>
-                        <div class="text-xs text-slate-600"><?= e($pub['authors']) ?></div>
+                        <div class="font-serif font-bold text-sm text-oxford-navy leading-snug">
+                            <a href="<?= e($pubTarget['url']) ?>" target="_blank" rel="noopener noreferrer" 
+                               class="hover:text-oxford-blue hover:underline inline-flex items-baseline gap-1"
+                               title="<?= e($pubTarget['label']) ?>: <?= e($pub['title']) ?>">
+                                <span><?= e($pub['title']) ?></span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                            </a>
+                        </div>
+                        <div class="text-xs text-slate-600 leading-relaxed">
+                            <?= render_interactive_authors($pub['authors']) ?>
+                        </div>
+                        <?php if (!empty($pub['indexing'])): ?>
+                            <div class="flex flex-wrap gap-1 pt-0.5">
+                                <?= render_indexing_badges($pub['indexing']) ?>
+                            </div>
+                        <?php endif; ?>
                         <div class="text-xs text-oxford-slate italic font-serif"><?= e($pub['journal_conference_name']) ?> (<?= e($pub['publication_year']) ?>)</div>
                         <div class="flex items-center justify-between text-xs pt-1">
                             <span class="font-mono text-slate-500">Citations: <strong><?= (int)$pub['citation_count'] ?></strong></span>

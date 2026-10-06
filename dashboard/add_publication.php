@@ -42,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pdf_url     = trim($_POST['pdf_url'] ?? '');
     $is_oa       = isset($_POST['is_open_access']) ? 1 : 0;
     $indexing    = trim($_POST['indexing'] ?? '');
+    if ($indexing === '__custom__') {
+        $indexing = trim($_POST['custom_indexing'] ?? '');
+    }
     $citations   = (int)($_POST['citation_count'] ?? 0);
     $abstract    = trim($_POST['abstract'] ?? '');
 
@@ -116,7 +119,7 @@ require_once __DIR__ . '/../includes/header.php';
             <input type="text" name="authors" required value="<?= e($_POST['authors'] ?? '') ?>"
                 placeholder="e.g. D. Singh, R. K. Patra, S. K. Mishra"
                 class="academic-input text-xs sm:text-sm">
-            <span class="text-[11px] text-slate-400 mt-1 block font-sans">List authors separated by commas in standard bibliographic order.</span>
+            <span class="text-[11px] text-slate-400 mt-1 block font-sans">List authors separated by commas in standard bibliographic order. Local faculty names will link to their profile.</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -174,9 +177,42 @@ require_once __DIR__ . '/../includes/header.php';
                     class="academic-input text-xs font-mono">
             </div>
             <div>
-                <label class="academic-label">Indexing Category</label>
-                <input type="text" name="indexing" value="<?= e($_POST['indexing'] ?? '') ?>" placeholder="e.g. SCI Q1 / Scopus"
-                    class="academic-input text-xs font-mono">
+                <label class="academic-label flex items-center justify-between">
+                    <span>Indexing Category</span>
+                    <span class="text-[10px] text-slate-400 font-normal font-sans">Verified Academic Index</span>
+                </label>
+                <?php 
+                $indexingCategories = get_academic_indexing_categories();
+                $curIdxVal = trim($_POST['indexing'] ?? '');
+                if ($curIdxVal === '__custom__') {
+                    $curIdxVal = trim($_POST['custom_indexing'] ?? '');
+                }
+                $isMatchedIdx = false;
+                ?>
+                <select name="indexing" id="indexingSelect" class="academic-input text-xs font-medium" onchange="toggleCustomIndexing(this)">
+                    <option value="">— Select Academic Indexing —</option>
+                    <?php foreach ($indexingCategories as $grp => $opts): ?>
+                        <optgroup label="<?= e($grp) ?>">
+                            <?php foreach ($opts as $opt): 
+                                $isSel = ($curIdxVal === $opt);
+                                if ($isSel) $isMatchedIdx = true;
+                            ?>
+                                <option value="<?= e($opt) ?>" <?= $isSel ? 'selected' : '' ?>><?= e($opt) ?></option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endforeach; ?>
+                    <?php if (!empty($curIdxVal) && !$isMatchedIdx): ?>
+                        <optgroup label="Custom / Other">
+                            <option value="<?= e($curIdxVal) ?>" selected><?= e($curIdxVal) ?></option>
+                        </optgroup>
+                    <?php endif; ?>
+                    <optgroup label="Other">
+                        <option value="__custom__">+ Other Index (Specify Custom)...</option>
+                    </optgroup>
+                </select>
+                <div id="customIndexingBox" class="<?= (!empty($curIdxVal) && !$isMatchedIdx) ? '' : 'hidden' ?> mt-2">
+                    <input type="text" id="customIndexingInput" name="custom_indexing" value="<?= (!empty($curIdxVal) && !$isMatchedIdx) ? e($curIdxVal) : '' ?>" placeholder="Type genuine indexing category..." class="academic-input text-xs font-mono">
+                </div>
             </div>
         </div>
 
@@ -225,5 +261,19 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     </form>
 </div>
+
+<script>
+function toggleCustomIndexing(sel) {
+    const box = document.getElementById('customIndexingBox');
+    const input = document.getElementById('customIndexingInput');
+    if (!box) return;
+    if (sel.value === '__custom__') {
+        box.classList.remove('hidden');
+        if (input) input.focus();
+    } else {
+        box.classList.add('hidden');
+    }
+}
+</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
