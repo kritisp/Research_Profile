@@ -125,9 +125,7 @@
             <div class="mt-12 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
                 <p>&copy; <?= date('Y') ?> Departmental Scholar. Institutional Academic Repository. All rights reserved.</p>
                 <div class="flex items-center gap-4 text-[11px]">
-                    <span class="text-slate-400">Oxford-Ivy Academic Typography</span>
-                    <span class="text-slate-700">•</span>
-                    <span class="text-slate-400">Swiss Editorial Layout</span>
+                    <span class="text-slate-400">Peer-Reviewed Academic Repository</span>
                 </div>
             </div>
         </div>

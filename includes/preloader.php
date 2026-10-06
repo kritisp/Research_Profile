@@ -210,10 +210,10 @@
     // Rich narrative stages matching university scholarly portal
     const stages = [
         { upTo: 28, text: 'Connecting to academic repository...' },
-        { upTo: 52, text: 'Synchronizing ITER faculty directory...' },
+        { upTo: 52, text: 'Synchronizing faculty directory...' },
         { upTo: 78, text: 'Loading indexed research publications...' },
         { upTo: 95, text: 'Preparing scholar analytics...' },
-        { upTo: 100, text: 'Welcome to ITER Research Portal' }
+        { upTo: 100, text: 'Welcome to Departmental Scholar' }
     ];
 
     const updateDisplay = (p) => {
