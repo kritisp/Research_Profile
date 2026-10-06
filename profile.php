@@ -705,9 +705,19 @@ if (!empty($faculty['research_interests'])) {
             foreach ($publications as $p) {
                 $y = (int)($p['publication_year'] ?? 0);
                 if ($y <= 0) continue;
-                $dt = !empty($p['created_at']) && str_starts_with($p['created_at'], (string)$y)
-                    ? date('Y-m-d', strtotime($p['created_at']))
-                    : sprintf('%04d-%02d-%02d', $y, (($p['id'] * 4) % 12) + 1, (($p['id'] * 7) % 25) + 1);
+                // Dynamic live date from database:
+                if (!empty($p['created_at'])) {
+                    $cYear = (int)date('Y', strtotime($p['created_at']));
+                    if ($cYear === $y) {
+                        $dt = date('Y-m-d', strtotime($p['created_at']));
+                    } else {
+                        $cMonth = (int)date('m', strtotime($p['created_at']));
+                        $cDay   = (int)date('d', strtotime($p['created_at']));
+                        $dt = sprintf('%04d-%02d-%02d', $y, $cMonth, min(28, max(1, ($cDay + (($p['id'] * 5) % 22)))));
+                    }
+                } else {
+                    $dt = sprintf('%04d-%02d-%02d', $y, (($p['id'] * 4) % 12) + 1, (($p['id'] * 7) % 25) + 1);
+                }
 
                 $scholarlyEvents[] = [
                     'id'       => 'pub-' . $p['id'],
@@ -840,24 +850,24 @@ if (!empty($faculty['research_interests'])) {
         ?>
 
         <?php if (!empty($scholarlyEvents)): ?>
-            <!-- GitHub Contribution Graph Card -->
-            <div class="mt-8 academic-card bg-white border border-[#d0d7de] rounded-xl p-5 shadow-xs">
+            <!-- Research Activity Matrix & Heatmap Card -->
+            <div class="mt-8 academic-card bg-white border border-[#d0d7de] rounded-xl p-5 sm:p-6 shadow-xs">
                 
-                <!-- GitHub Card Header -->
+                <!-- Card Header -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-3 border-b border-slate-100">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-md bg-[#24292f] text-white flex items-center justify-center text-sm shadow-xs flex-shrink-0">
-                            <i class="fa-brands fa-github"></i>
+                        <div class="w-8 h-8 rounded-lg bg-oxford-navy text-white flex items-center justify-center text-xs shadow-xs flex-shrink-0">
+                            <i class="fa-solid fa-chart-simple"></i>
                         </div>
                         <div>
                             <h3 class="text-sm font-semibold text-slate-900 font-sans leading-tight">
                                 <span id="ghTotalLabel"><?= count($eventsByYear[$defaultActiveYear] ?? $scholarlyEvents) ?></span> scholarly contributions in <span id="ghYearActiveName"><?= $defaultActiveYear ?></span>
                             </h3>
-                            <p class="text-[11px] text-slate-500 font-sans mt-0.5">Tracked research publications, funded projects, patents, and academic milestones</p>
+                            <p class="text-[11px] text-slate-500 font-sans mt-0.5">Live index of peer-reviewed publications, funded projects, patents, and academic milestones</p>
                         </div>
                     </div>
 
-                    <!-- Year Selector Tabs (GitHub style) -->
+                    <!-- Year Selector Tabs -->
                     <div class="flex items-center flex-wrap gap-1">
                         <button type="button" onclick="switchGhYear('all')" id="ghBtn-all"
                                 class="gh-year-btn px-2.5 py-1 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
@@ -883,10 +893,10 @@ if (!empty($faculty['research_interests'])) {
                         $weeks = $generateYearWeeks($y); 
                         $yearCount = count($eventsByYear[$y] ?? []);
                     ?>
-                    <div id="gh-cal-<?= $y ?>" class="gh-calendar-container <?= $y === $defaultActiveYear ? '' : 'hidden' ?> overflow-x-auto pb-2">
+                    <div id="gh-cal-<?= $y ?>" class="gh-calendar-container <?= $y === $defaultActiveYear ? '' : 'hidden' ?> overflow-x-auto pb-3">
                         
                         <!-- Month labels header row -->
-                        <div class="flex items-center text-[10px] text-slate-400 font-sans pl-7 mb-1 select-none min-w-[720px]">
+                        <div class="flex items-center text-[10px] text-slate-400 font-sans pl-8 sm:pl-8.5 mb-1.5 select-none min-w-[920px]">
                             <?php 
                                 $seenMonths = [];
                                 foreach ($weeks as $wIdx => $week): 
@@ -900,35 +910,35 @@ if (!empty($faculty['research_interests'])) {
                                         $mLabel = $monthNames[$firstValidDay['month']] ?? '';
                                     }
                             ?>
-                                <div class="w-[13.5px] text-left truncate flex-shrink-0"><?= $mLabel ?></div>
+                                <div class="w-[16.5px] sm:w-[19px] text-left truncate flex-shrink-0 font-medium"><?= $mLabel ?></div>
                             <?php endforeach; ?>
                         </div>
 
                         <!-- Days Grid with Weekday Labels on Left -->
-                        <div class="flex items-start gap-1.5 min-w-[720px]">
+                        <div class="flex items-start gap-1.5 min-w-[920px]">
                             <!-- Day labels (Mon, Wed, Fri) -->
-                            <div class="flex flex-col gap-[3.5px] text-[9px] text-slate-400 font-sans w-6 pt-[1px] select-none text-right pr-1 flex-shrink-0">
-                                <span class="h-[10px] sm:h-[11px] leading-[10px] block"></span>
-                                <span class="h-[10px] sm:h-[11px] leading-[10px] block">Mon</span>
-                                <span class="h-[10px] sm:h-[11px] leading-[10px] block"></span>
-                                <span class="h-[10px] sm:h-[11px] leading-[10px] block">Wed</span>
-                                <span class="h-[10px] sm:h-[11px] leading-[10px] block"></span>
-                                <span class="h-[10px] sm:h-[11px] leading-[10px] block">Fri</span>
-                                <span class="h-[10px] sm:h-[11px] leading-[10px] block"></span>
+                            <div class="flex flex-col gap-[3.5px] sm:gap-[4px] text-[10px] text-slate-400 font-sans w-7 pt-[1px] select-none text-right pr-1 flex-shrink-0">
+                                <span class="h-[13px] sm:h-[15px] leading-[13px] sm:leading-[15px] block"></span>
+                                <span class="h-[13px] sm:h-[15px] leading-[13px] sm:leading-[15px] block">Mon</span>
+                                <span class="h-[13px] sm:h-[15px] leading-[13px] sm:leading-[15px] block"></span>
+                                <span class="h-[13px] sm:h-[15px] leading-[13px] sm:leading-[15px] block">Wed</span>
+                                <span class="h-[13px] sm:h-[15px] leading-[13px] sm:leading-[15px] block"></span>
+                                <span class="h-[13px] sm:h-[15px] leading-[13px] sm:leading-[15px] block">Fri</span>
+                                <span class="h-[13px] sm:h-[15px] leading-[13px] sm:leading-[15px] block"></span>
                             </div>
 
-                            <!-- 53 Columns of 7 Squares -->
-                            <div class="flex items-start gap-[3px] flex-shrink-0">
+                            <!-- 53 Columns of 7 Squares (Enlarged for tactile clarity) -->
+                            <div class="flex items-start gap-[3.5px] sm:gap-[4px] flex-shrink-0">
                                 <?php foreach ($weeks as $week): ?>
-                                    <div class="flex flex-col gap-[3px]">
+                                    <div class="flex flex-col gap-[3.5px] sm:gap-[4px]">
                                         <?php for ($dow = 0; $dow < 7; $dow++): ?>
                                             <?php $dayCell = $week[$dow] ?? null; ?>
                                             <?php if ($dayCell === null): ?>
-                                                <div class="w-[10px] h-[10px] sm:w-[11px] sm:h-[11px] rounded-[2px] opacity-0 pointer-events-none"></div>
+                                                <div class="w-[13px] h-[13px] sm:w-[15px] sm:h-[15px] rounded-[3px] opacity-0 pointer-events-none"></div>
                                             <?php else: ?>
                                                 <?php
                                                     $cCount = count($dayCell['events']);
-                                                    // GitHub exact green levels
+                                                    // Green activity level shades
                                                     $levelClass = 'bg-[#ebedf0] outline outline-1 outline-black/5';
                                                     if ($cCount === 1) $levelClass = 'bg-[#9be9a8] outline outline-1 outline-[#1b1f2426]';
                                                     elseif ($cCount === 2) $levelClass = 'bg-[#40c463] outline outline-1 outline-[#1b1f2426]';
@@ -939,7 +949,7 @@ if (!empty($faculty['research_interests'])) {
                                                         ? '<strong>' . $cCount . ' contribution' . ($cCount > 1 ? 's' : '') . '</strong> on ' . date('M j, Y', strtotime($dayCell['date'])) . '<br><span class="text-slate-300">' . e(substr($dayCell['events'][0]['title'], 0, 60)) . '...</span>'
                                                         : 'No contributions on ' . date('M j, Y', strtotime($dayCell['date']));
                                                 ?>
-                                                <div class="w-[10px] h-[10px] sm:w-[11px] sm:h-[11px] rounded-[2px] cursor-pointer transition-transform hover:scale-125 <?= $levelClass ?>"
+                                                <div class="w-[13px] h-[13px] sm:w-[15px] sm:h-[15px] rounded-[3px] cursor-pointer transition-transform hover:scale-125 <?= $levelClass ?>"
                                                      data-tip="<?= htmlspecialchars($tipText, ENT_QUOTES) ?>"
                                                      onmouseenter="showGhTip(event, this)"
                                                      onmouseleave="hideGhTip()"></div>
@@ -969,20 +979,20 @@ if (!empty($faculty['research_interests'])) {
                     </div>
                 </div>
 
-                <!-- GitHub Legend & Meta Row -->
+                <!-- Legend & Scale Row -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-100 text-[11px] text-slate-500 font-sans">
                     <div class="flex items-center gap-1.5">
                         <i class="fa-regular fa-circle-question text-slate-400"></i>
-                        <span>Indexed research output from verified faculty bibliography and projects</span>
+                        <span>Live indexed output from verified faculty bibliography, sponsored grants, and patents</span>
                     </div>
 
                     <div class="flex items-center gap-1.5 self-end sm:self-auto">
                         <span>Less</span>
-                        <span class="w-[10px] h-[10px] rounded-[2px] bg-[#ebedf0] outline outline-1 outline-black/5 inline-block" title="0 contributions"></span>
-                        <span class="w-[10px] h-[10px] rounded-[2px] bg-[#9be9a8] outline outline-1 outline-[#1b1f2426] inline-block" title="1 contribution"></span>
-                        <span class="w-[10px] h-[10px] rounded-[2px] bg-[#40c463] outline outline-1 outline-[#1b1f2426] inline-block" title="2 contributions"></span>
-                        <span class="w-[10px] h-[10px] rounded-[2px] bg-[#30a14e] outline outline-1 outline-[#1b1f2426] inline-block" title="3 contributions"></span>
-                        <span class="w-[10px] h-[10px] rounded-[2px] bg-[#216e39] outline outline-1 outline-[#1b1f2426] inline-block" title="4+ contributions"></span>
+                        <span class="w-[13px] h-[13px] sm:w-[14px] sm:h-[14px] rounded-[3px] bg-[#ebedf0] outline outline-1 outline-black/5 inline-block" title="0 contributions"></span>
+                        <span class="w-[13px] h-[13px] sm:w-[14px] sm:h-[14px] rounded-[3px] bg-[#9be9a8] outline outline-1 outline-[#1b1f2426] inline-block" title="1 contribution"></span>
+                        <span class="w-[13px] h-[13px] sm:w-[14px] sm:h-[14px] rounded-[3px] bg-[#40c463] outline outline-1 outline-[#1b1f2426] inline-block" title="2 contributions"></span>
+                        <span class="w-[13px] h-[13px] sm:w-[14px] sm:h-[14px] rounded-[3px] bg-[#30a14e] outline outline-1 outline-[#1b1f2426] inline-block" title="3 contributions"></span>
+                        <span class="w-[13px] h-[13px] sm:w-[14px] sm:h-[14px] rounded-[3px] bg-[#216e39] outline outline-1 outline-[#1b1f2426] inline-block" title="4+ contributions"></span>
                         <span>More</span>
                     </div>
                 </div>
@@ -1156,7 +1166,7 @@ if (!empty($faculty['research_interests'])) {
                     tooltipEl.classList.remove('hidden');
                     
                     const rect = cell.getBoundingClientRect();
-                    tooltipEl.style.left = (rect.left + window.scrollX - (tooltipEl.offsetWidth / 2) + 6) + 'px';
+                    tooltipEl.style.left = (rect.left + window.scrollX - (tooltipEl.offsetWidth / 2) + 7.5) + 'px';
                     tooltipEl.style.top = (rect.top + window.scrollY - tooltipEl.offsetHeight - 8) + 'px';
                 }
 

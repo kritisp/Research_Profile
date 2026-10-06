@@ -54,11 +54,11 @@ try {
 
     // 3. Seed Default Super Admin Account (Environment-driven or secure random)
     echo "[4/4] Checking initial Super Admin account... ";
-    $adminEmail = env('INITIAL_ADMIN_EMAIL', 'superadmin@iter.ac.in');
+    $adminEmail = env('INITIAL_ADMIN_EMAIL', 'super@admin.com');
     $customPass = env('INITIAL_ADMIN_PASSWORD');
     $adminPass  = !empty($customPass) ? $customPass : 'Admin@123';
     $adminHash  = password_hash($adminPass, PASSWORD_DEFAULT);
-    $adminName  = 'Dr. ITER Super Administrator';
+    $adminName  = 'Master Super Administrator';
 
     $checkStmt = $db->prepare("SELECT id FROM users WHERE email = ?");
     $checkStmt->execute([$adminEmail]);
