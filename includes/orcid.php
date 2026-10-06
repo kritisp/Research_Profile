@@ -69,9 +69,9 @@ function sync_orcid_to_faculty(int $profileId, string $orcidId, int $userId): ar
 
     $db = Database::getConnection();
 
-    // 1. Get faculty user's full name to use as author fallback
+    // 1. Get current faculty profile info
     $uStmt = $db->prepare("
-        SELECT u.full_name, fp.bio, fp.research_interests 
+        SELECT u.full_name, fp.bio, fp.research_interests, fp.scopus_id, fp.website_url 
         FROM faculty_profiles fp 
         JOIN users u ON fp.user_id = u.id 
         WHERE fp.id = ?
@@ -80,17 +80,50 @@ function sync_orcid_to_faculty(int $profileId, string $orcidId, int $userId): ar
     $facultyInfo = $uStmt->fetch(PDO::FETCH_ASSOC);
     $facultyName = $facultyInfo['full_name'] ?? 'Faculty Member';
 
-    // 2. Update ORCID ID and Bio if bio is currently empty
+    // 2. Extract profile metadata from ORCID person section
     $orcidBio = trim($data['person']['biography']['content'] ?? '');
-    if (!empty($orcidBio) && empty($facultyInfo['bio'])) {
-        $db->prepare("UPDATE faculty_profiles SET orcid_id = ?, bio = ? WHERE id = ?")->execute([$cleanId, $orcidBio, $profileId]);
-    } else {
-        $db->prepare("UPDATE faculty_profiles SET orcid_id = ? WHERE id = ?")->execute([$cleanId, $profileId]);
+
+    // Extract keywords -> research interests
+    $keywords = [];
+    foreach ($data['person']['keywords']['keyword'] ?? [] as $kw) {
+        if (!empty($kw['content'])) $keywords[] = trim($kw['content']);
     }
+    $orcidKeywords = implode(', ', array_slice($keywords, 0, 10));
+
+    // Extract Scopus Author ID
+    $orcidScopusId = '';
+    foreach ($data['person']['external-identifiers']['external-identifier'] ?? [] as $eid) {
+        if (stripos($eid['external-id-type'] ?? '', 'scopus') !== false) {
+            $orcidScopusId = trim($eid['external-id-value'] ?? '');
+            break;
+        }
+    }
+
+    // Extract Researcher URL / Website
+    $orcidWebsite = '';
+    foreach ($data['person']['researcher-urls']['researcher-url'] ?? [] as $rurl) {
+        $u = safe_url($rurl['url']['value'] ?? '');
+        if ($u !== '#' && !empty($u)) {
+            $orcidWebsite = $u;
+            break;
+        }
+    }
+
+    // Update faculty profile: only overwrite empty fields
+    $bio = (!empty($orcidBio) && empty($facultyInfo['bio'])) ? $orcidBio : ($facultyInfo['bio'] ?? null);
+    $interests = (!empty($orcidKeywords) && empty($facultyInfo['research_interests'])) ? $orcidKeywords : ($facultyInfo['research_interests'] ?? null);
+    $scopus = (!empty($orcidScopusId) && empty($facultyInfo['scopus_id'])) ? $orcidScopusId : ($facultyInfo['scopus_id'] ?? null);
+    $website = (!empty($orcidWebsite) && empty($facultyInfo['website_url'])) ? $orcidWebsite : ($facultyInfo['website_url'] ?? null);
+
+    $db->prepare("
+        UPDATE faculty_profiles 
+        SET orcid_id = ?, bio = ?, research_interests = ?, scopus_id = ?, website_url = ? 
+        WHERE id = ?
+    ")->execute([$cleanId, $bio, $interests, $scopus, $website, $profileId]);
 
     // 3. Process works / publications
     $workGroups = $data['activities-summary']['works']['group'] ?? [];
-    $importedCount = 0;
+    $importedPubCount = 0;
 
     foreach ($workGroups as $group) {
         $summaries = $group['work-summary'] ?? [];
@@ -163,14 +196,78 @@ function sync_orcid_to_faculty(int $profileId, string $orcidId, int $userId): ar
             $userId
         ]);
 
-        $importedCount++;
+        $importedPubCount++;
     }
 
-    record_audit('orcid_synced', 'faculty_profiles', $profileId, "Synced ORCID {$cleanId}: imported {$importedCount} works");
+    // 4. Process employments -> academic_experience
+    $importedExpCount = 0;
+    $employmentGroups = $data['activities-summary']['employments']['affiliation-group'] ?? [];
+    foreach ($employmentGroups as $grp) {
+        $summaries = $grp['summaries'] ?? [];
+        foreach ($summaries as $s) {
+            $emp = $s['employment-summary'] ?? null;
+            if (!$emp) continue;
+            $pos = trim($emp['role-title'] ?? '');
+            $org = trim($emp['organization']['name'] ?? '');
+            if (empty($pos) || empty($org)) continue;
+
+            $dept = trim($emp['department-name'] ?? '');
+            $startYr = (int)($emp['start-date']['year']['value'] ?? 0) ?: null;
+            $endYr = (int)($emp['end-date']['year']['value'] ?? 0) ?: null;
+            $isCurr = empty($endYr) ? 1 : 0;
+
+            $chk = $db->prepare("SELECT id FROM academic_experience WHERE faculty_profile_id = ? AND position_title = ? AND organization = ? LIMIT 1");
+            $chk->execute([$profileId, $pos, $org]);
+            if ($chk->fetch()) continue;
+
+            $insExp = $db->prepare("
+                INSERT INTO academic_experience (faculty_profile_id, position_title, organization, department, start_year, end_year, is_current)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            $insExp->execute([$profileId, $pos, $org, $dept ?: null, $startYr, $endYr, $isCurr]);
+            $importedExpCount++;
+        }
+    }
+
+    // 5. Process educations -> education
+    $importedEduCount = 0;
+    $eduGroups = $data['activities-summary']['educations']['affiliation-group'] ?? [];
+    foreach ($eduGroups as $grp) {
+        $summaries = $grp['summaries'] ?? [];
+        foreach ($summaries as $s) {
+            $edu = $s['education-summary'] ?? null;
+            if (!$edu) continue;
+            $degree = trim($edu['role-title'] ?? 'Degree');
+            $inst = trim($edu['organization']['name'] ?? '');
+            if (empty($inst)) continue;
+
+            $spec = trim($edu['department-name'] ?? '');
+            $yr = (int)($edu['end-date']['year']['value'] ?? $edu['start-date']['year']['value'] ?? 0) ?: null;
+
+            $chk = $db->prepare("SELECT id FROM education WHERE faculty_profile_id = ? AND degree = ? AND institution = ? LIMIT 1");
+            $chk->execute([$profileId, $degree, $inst]);
+            if ($chk->fetch()) continue;
+
+            $insEdu = $db->prepare("
+                INSERT INTO education (faculty_profile_id, degree, institution, year, specialization)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $insEdu->execute([$profileId, $degree, $inst, $yr, $spec ?: null]);
+            $importedEduCount++;
+        }
+    }
+
+    $summaryParts = [];
+    if ($importedPubCount > 0) $summaryParts[] = "{$importedPubCount} publication(s)";
+    if ($importedExpCount > 0) $summaryParts[] = "{$importedExpCount} appointment(s)";
+    if ($importedEduCount > 0) $summaryParts[] = "{$importedEduCount} qualification(s)";
+    $summaryText = !empty($summaryParts) ? implode(', ', $summaryParts) : 'profile synced (no new entries)';
+
+    record_audit('orcid_synced', 'faculty_profiles', $profileId, "Synced ORCID {$cleanId}: {$summaryText}");
 
     return [
         'success' => true,
-        'count'   => $importedCount,
-        'message' => "ORCID sync complete. Imported {$importedCount} new publication(s)."
+        'count'   => $importedPubCount,
+        'message' => "ORCID sync complete: {$summaryText}."
     ];
 }
