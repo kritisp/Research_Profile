@@ -681,25 +681,28 @@ require_once __DIR__ . '/../includes/header.php';
                 <table class="academic-table w-full text-left text-xs">
                     <thead>
                         <tr>
-                            <th class="py-3 px-4">User & Profile</th>
-                            <th class="py-3 px-4">Email</th>
-                            <th class="py-3 px-4">Department</th>
-                            <th class="py-3 px-4">Role</th>
-                            <th class="py-3 px-4">Profile Completeness</th>
-                            <th class="py-3 px-4">Status</th>
-                            <th class="py-3 px-4 text-right">Update Permissions</th>
+                            <th class="py-3 px-4">User &amp; Profile</th>
+                            <th class="py-3 px-4">Contact &amp; Department</th>
+                            <th class="py-3 px-4">Role Assignment</th>
+                            <th class="py-3 px-4">Account Status</th>
+                            <th class="py-3 px-4 text-center">Completeness</th>
+                            <th class="py-3 px-4 text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-700">
                         <?php if (empty($usersList)): ?>
                             <tr>
-                                <td colspan="7" class="py-12 text-center text-slate-400 text-xs">
+                                <td colspan="6" class="py-12 text-center text-slate-400 text-xs">
                                     No accounts match the current search or filter criteria.
                                 </td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($usersList as $usr): ?>
-                                <?php $comp = compute_completeness($usr); ?>
+                                <?php 
+                                    $comp = compute_completeness($usr);
+                                    $isSelf = ((int)$usr['id'] === (int)user_id());
+                                    $formId = 'user-form-' . (int)$usr['id'];
+                                ?>
                                 <tr class="hover:bg-slate-50/70 transition">
                                     
                                     <!-- User Name & Link -->
@@ -709,7 +712,12 @@ require_once __DIR__ . '/../includes/header.php';
                                                 <?= strtoupper(substr($usr['full_name'], 0, 1)) ?>
                                             </div>
                                             <div>
-                                                <div class="font-semibold text-oxford-navy"><?= e($usr['full_name']) ?></div>
+                                                <div class="font-semibold text-oxford-navy flex items-center gap-1.5">
+                                                    <span><?= e($usr['full_name']) ?></span>
+                                                    <?php if ($isSelf): ?>
+                                                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">You</span>
+                                                    <?php endif; ?>
+                                                </div>
                                                 <?php if (!empty($usr['profile_id'])): ?>
                                                     <a href="<?= url('researchers/' . (!empty($usr['slug']) ? $usr['slug'] : $usr['profile_id'])) ?>" target="_blank" class="text-[11px] text-oxford-blue hover:underline inline-flex items-center gap-1 font-medium">
                                                         <span>Public Profile</span>
@@ -720,40 +728,42 @@ require_once __DIR__ . '/../includes/header.php';
                                         </div>
                                     </td>
 
-                                    <!-- Email -->
-                                    <td class="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
-                                        <?= e($usr['email']) ?>
-                                    </td>
-
-                                    <!-- Department -->
-                                    <td class="py-3.5 px-4 text-slate-600 whitespace-nowrap">
-                                        <?= e($usr['dept_name'] ?? '—') ?>
-                                    </td>
-
-                                    <!-- Current Role Badge -->
+                                    <!-- Contact & Department -->
                                     <td class="py-3.5 px-4 whitespace-nowrap">
-                                        <?php if ($usr['role'] === 'super_admin'): ?>
-                                            <span class="academic-tag bg-rose-50 text-rose-800 border-rose-200 font-mono text-[10px] font-bold uppercase">
-                                                Super Admin
-                                            </span>
-                                        <?php elseif ($usr['role'] === 'admin'): ?>
-                                            <span class="academic-tag academic-tag-gold font-mono text-[10px] font-bold uppercase">
-                                                Assistant (Admin)
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="academic-tag font-mono text-[10px] font-bold uppercase">
-                                                Faculty
-                                            </span>
-                                        <?php endif; ?>
+                                        <div class="font-mono text-slate-700 text-xs flex items-center gap-1.5">
+                                            <i class="fa-solid fa-envelope text-[10px] text-slate-400"></i>
+                                            <span><?= e($usr['email']) ?></span>
+                                        </div>
+                                        <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-building-columns text-[10px] text-slate-400"></i>
+                                            <span><?= e($usr['dept_name'] ?? '—') ?></span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Role Dropdown -->
+                                    <td class="py-3.5 px-4 whitespace-nowrap">
+                                        <select name="new_role" form="<?= $formId ?>" class="academic-input !py-1 !px-2.5 text-xs font-semibold rounded-[4px] border border-slate-300 text-slate-800 bg-white shadow-xs w-40 cursor-pointer hover:border-slate-400 focus:border-oxford-navy transition" aria-label="Role for <?= e($usr['full_name']) ?>">
+                                            <option value="faculty" <?= $usr['role'] === 'faculty' ? 'selected' : '' ?>>Faculty</option>
+                                            <option value="admin" <?= $usr['role'] === 'admin' ? 'selected' : '' ?>>Assistant (Admin)</option>
+                                            <option value="super_admin" <?= $usr['role'] === 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
+                                        </select>
+                                    </td>
+
+                                    <!-- Status Dropdown -->
+                                    <td class="py-3.5 px-4 whitespace-nowrap">
+                                        <select name="new_status" form="<?= $formId ?>" class="academic-input !py-1 !px-2.5 text-xs font-semibold rounded-[4px] border border-slate-300 text-slate-800 bg-white shadow-xs w-28 cursor-pointer hover:border-slate-400 focus:border-oxford-navy transition" aria-label="Status for <?= e($usr['full_name']) ?>">
+                                            <option value="active" <?= $usr['status'] === 'active' ? 'selected' : '' ?>>Active</option>
+                                            <option value="inactive" <?= $usr['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                                        </select>
                                     </td>
 
                                     <!-- Profile Completeness Indicator -->
-                                    <td class="py-3.5 px-4 whitespace-nowrap">
+                                    <td class="py-3.5 px-4 whitespace-nowrap text-center">
                                         <?php if ($comp < 0): ?>
                                             <span class="text-slate-400 font-mono text-[11px]">System Account</span>
                                         <?php else: ?>
-                                            <div class="flex items-center gap-2">
-                                                <div class="w-20 bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200">
+                                            <div class="inline-flex items-center gap-2">
+                                                <div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200">
                                                     <div class="h-full <?= $comp >= 80 ? 'bg-emerald-600' : ($comp >= 50 ? 'bg-academic-gold' : 'bg-rose-500') ?>" style="width: <?= $comp ?>%;"></div>
                                                 </div>
                                                 <span class="font-mono text-[11px] font-bold <?= $comp >= 80 ? 'text-emerald-700' : ($comp >= 50 ? 'text-slate-700' : 'text-rose-600') ?>">
@@ -763,36 +773,17 @@ require_once __DIR__ . '/../includes/header.php';
                                         <?php endif; ?>
                                     </td>
 
-                                    <!-- Status Badge -->
-                                    <td class="py-3.5 px-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold <?= $usr['status'] === 'active' ? 'text-emerald-700' : 'text-slate-400' ?>">
-                                            <span class="w-2 h-2 rounded-full <?= $usr['status'] === 'active' ? 'bg-emerald-600' : 'bg-slate-400' ?>"></span>
-                                            <span class="capitalize"><?= e($usr['status']) ?></span>
-                                        </span>
-                                    </td>
-
                                     <!-- Action Form (With Self-Demotion Confirmation Safeguard) -->
                                     <td class="py-3.5 px-4 text-right whitespace-nowrap">
-                                        <form action="<?= url('admin/index.php') ?>" method="POST" class="inline-flex items-center gap-1.5"
+                                        <form id="<?= $formId ?>" action="<?= url('admin/index.php') ?>" method="POST" class="inline"
                                               onsubmit="return confirm('Update role and account status for <?= addslashes(e($usr['full_name'])) ?>?');">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="action" value="update_user">
                                             <input type="hidden" name="target_user_id" value="<?= (int)$usr['id'] ?>">
                                             <input type="hidden" name="return_tab" value="users">
-
-                                            <select name="new_role" class="academic-input !py-1 !px-2 text-xs" aria-label="Role for <?= e($usr['full_name']) ?>">
-                                                <option value="faculty" <?= $usr['role'] === 'faculty' ? 'selected' : '' ?>>Faculty</option>
-                                                <option value="admin" <?= $usr['role'] === 'admin' ? 'selected' : '' ?>>Assistant (Admin)</option>
-                                                <option value="super_admin" <?= $usr['role'] === 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
-                                            </select>
-
-                                            <select name="new_status" class="academic-input !py-1 !px-2 text-xs" aria-label="Status for <?= e($usr['full_name']) ?>">
-                                                <option value="active" <?= $usr['status'] === 'active' ? 'selected' : '' ?>>Active</option>
-                                                <option value="inactive" <?= $usr['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
-                                            </select>
-
-                                            <button type="submit" class="btn-academic-secondary text-xs !py-1 !px-2.5 font-semibold shadow-xs">
-                                                Save
+                                            <button type="submit" class="btn-academic-secondary text-xs !py-1 !px-3 font-semibold shadow-xs hover:border-oxford-navy hover:text-oxford-navy transition">
+                                                <i class="fa-solid fa-check text-[10px] mr-1 text-emerald-600"></i>
+                                                <span>Save</span>
                                             </button>
                                         </form>
                                     </td>
