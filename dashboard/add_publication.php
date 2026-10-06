@@ -176,11 +176,71 @@ require_once __DIR__ . '/../includes/header.php';
                 <input type="text" name="doi" value="<?= e($_POST['doi'] ?? '') ?>" placeholder="e.g. 10.1109/TMI.2024.3129841"
                     class="academic-input text-xs font-mono">
             </div>
-            <div>
-                <label class="academic-label flex items-center justify-between">
-                    <span>Indexing Category</span>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-1.5">
+                        <label class="academic-label !mb-0" for="indexingSelect">Indexing Category</label>
+                        <button type="button" 
+                                id="indexingInfoBtn"
+                                onclick="toggleIndexingInfoPopover(event)"
+                                class="text-slate-400 hover:text-oxford-navy transition-colors focus:outline-none p-0.5 rounded-full inline-flex items-center justify-center cursor-pointer"
+                                title="Click or hover to inspect indexing categories and criteria"
+                                aria-label="Academic Indexing Guide">
+                            <i class="fa-solid fa-circle-info text-xs text-oxford-slate"></i>
+                        </button>
+                    </div>
                     <span class="text-[10px] text-slate-400 font-normal font-sans">Verified Academic Index</span>
-                </label>
+                </div>
+
+                <!-- Academic Indexing Guide Popover -->
+                <div id="indexingInfoPopover" 
+                     class="hidden absolute right-0 top-full mt-1.5 z-40 w-full sm:w-[440px] max-w-[95vw] bg-white rounded-xl shadow-2xl border border-scholar-border p-4 text-left font-sans transition-all duration-150 animate-in fade-in zoom-in-95">
+                    
+                    <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-100">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-6 h-6 rounded-md bg-blue-50 text-oxford-navy flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-book-bookmark"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-serif font-bold text-xs text-oxford-navy">Academic Indexing Guide</h4>
+                                <p class="text-[10px] text-slate-400">Click any tier to auto-select in the dropdown</p>
+                            </div>
+                        </div>
+                        <button type="button" 
+                                onclick="closeIndexingInfoPopover()" 
+                                class="text-slate-400 hover:text-slate-600 w-6 h-6 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors text-xs"
+                                title="Close guide">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="max-h-72 overflow-y-auto space-y-1.5 pr-1 text-xs divide-y divide-slate-100">
+                        <?php foreach (get_academic_indexing_details() as $guideItem): ?>
+                            <button type="button" 
+                                    class="w-full text-left pt-2 first:pt-0 group rounded-md p-1.5 -mx-1 hover:bg-slate-50 transition-colors block border-0 bg-transparent cursor-pointer"
+                                    onclick="selectIndexFromGuide('<?= e($guideItem['val']) ?>')">
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                    <span class="font-semibold text-oxford-navy group-hover:text-oxford-blue transition-colors flex items-center gap-1.5">
+                                        <i class="fa-solid fa-check text-[10px] text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        <span><?= e($guideItem['name']) ?></span>
+                                    </span>
+                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-mono border <?= $guideItem['badge_color'] ?>">
+                                        <?= e($guideItem['category']) ?>
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 leading-relaxed font-sans">
+                                    <?= e($guideItem['desc']) ?>
+                                </p>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="pt-2.5 mt-2.5 border-t border-slate-100 text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Aligned with NAAC, NIRF & UGC CARE guidelines</span>
+                        <button type="button" onclick="closeIndexingInfoPopover()" class="text-oxford-navy hover:underline font-semibold">Done</button>
+                    </div>
+                </div>
+
                 <?php 
                 $indexingCategories = get_academic_indexing_categories();
                 $curIdxVal = trim($_POST['indexing'] ?? '');
@@ -274,6 +334,61 @@ function toggleCustomIndexing(sel) {
         box.classList.add('hidden');
     }
 }
+
+// Hover & Click controls for Indexing Info Popover
+const infoBtn = document.getElementById('indexingInfoBtn');
+const infoPopover = document.getElementById('indexingInfoPopover');
+let popoverHideTimer = null;
+
+if (infoBtn && infoPopover) {
+    infoBtn.addEventListener('mouseenter', () => {
+        clearTimeout(popoverHideTimer);
+        infoPopover.classList.remove('hidden');
+    });
+    infoBtn.addEventListener('mouseleave', () => {
+        popoverHideTimer = setTimeout(() => {
+            infoPopover.classList.add('hidden');
+        }, 250);
+    });
+
+    infoPopover.addEventListener('mouseenter', () => {
+        clearTimeout(popoverHideTimer);
+    });
+    infoPopover.addEventListener('mouseleave', () => {
+        popoverHideTimer = setTimeout(() => {
+            infoPopover.classList.add('hidden');
+        }, 250);
+    });
+}
+
+function toggleIndexingInfoPopover(e) {
+    if (e) e.stopPropagation();
+    if (!infoPopover) return;
+    clearTimeout(popoverHideTimer);
+    infoPopover.classList.toggle('hidden');
+}
+
+function closeIndexingInfoPopover() {
+    if (infoPopover) infoPopover.classList.add('hidden');
+}
+
+function selectIndexFromGuide(val) {
+    const sel = document.getElementById('indexingSelect');
+    if (sel) {
+        sel.value = val;
+        toggleCustomIndexing(sel);
+    }
+    closeIndexingInfoPopover();
+}
+
+// Dismiss popover on click outside
+document.addEventListener('click', (e) => {
+    if (infoPopover && !infoPopover.classList.contains('hidden')) {
+        if (!infoPopover.contains(e.target) && !infoBtn.contains(e.target)) {
+            closeIndexingInfoPopover();
+        }
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

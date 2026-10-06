@@ -597,5 +597,126 @@ function render_indexing_badges(?string $indexingString): string {
     return implode(' ', $html);
 }
 
+/**
+ * Detailed guide and criteria for all genuine academic indexes
+ */
+function get_academic_indexing_details(): array {
+    return [
+        [
+            'name'        => 'SCI / SCIE (Clarivate)',
+            'val'         => 'SCI / SCIE (Clarivate Web of Science)',
+            'category'    => 'Clarivate Analytics',
+            'badge_color' => 'bg-blue-50 text-blue-800 border-blue-200',
+            'desc'        => 'Science Citation Index Expanded: Clarivate’s premier global index of rigorous peer-reviewed science & engineering journals tracked with Journal Impact Factor (JIF).'
+        ],
+        [
+            'name'        => 'Scopus (Elsevier)',
+            'val'         => 'Scopus (Elsevier)',
+            'category'    => 'Elsevier BV',
+            'badge_color' => 'bg-amber-50 text-amber-800 border-amber-200',
+            'desc'        => 'World’s largest curated abstract & citation database indexing high-standard peer-reviewed journals, book series, and conference proceedings with CiteScore metrics.'
+        ],
+        [
+            'name'        => 'Web of Science (WoS Core)',
+            'val'         => 'Web of Science (WoS Core Collection)',
+            'category'    => 'Clarivate Core',
+            'badge_color' => 'bg-blue-50 text-blue-800 border-blue-200',
+            'desc'        => 'Multidisciplinary Core Collection indexing world-class scholarship across natural sciences, technology, arts, and humanities with full backward/forward citation networks.'
+        ],
+        [
+            'name'        => 'SCI Q1 / Scopus (Tier 1)',
+            'val'         => 'SCI Q1 / Scopus',
+            'category'    => 'Joint Top Tier',
+            'badge_color' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            'desc'        => 'Premier joint tier: simultaneously indexed in Clarivate SCI (Top 25% Quartile) and Scopus. High NIRF, NAAC, and global academic weight.'
+        ],
+        [
+            'name'        => 'Scopus Quartiles (Q1 – Q4)',
+            'val'         => 'Scopus Q1',
+            'category'    => 'Scimago / Elsevier',
+            'badge_color' => 'bg-amber-50 text-amber-800 border-amber-200',
+            'desc'        => 'Percentile rank within subject category: Q1 = Top 25% (highest prestige), Q2 = 25%–50%, Q3 = 50%–75%, Q4 = 75%–100% of journals in the field.'
+        ],
+        [
+            'name'        => 'SCI Quartiles (Q1 – Q4)',
+            'val'         => 'SCI Q1',
+            'category'    => 'Clarivate JCR',
+            'badge_color' => 'bg-blue-50 text-blue-800 border-blue-200',
+            'desc'        => 'Journal Citation Reports (JCR) quartile ranking based on Journal Impact Factor (JIF) distribution within discipline.'
+        ],
+        [
+            'name'        => 'UGC CARE Group I (India)',
+            'val'         => 'UGC CARE Group I',
+            'category'    => 'Statutory National',
+            'badge_color' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            'desc'        => 'Consortium for Academic and Research Ethics (UGC-CARE) List I: Scrutinized and approved Indian and bilingual academic journals.'
+        ],
+        [
+            'name'        => 'UGC CARE Group II (India)',
+            'val'         => 'UGC CARE Group II',
+            'category'    => 'Statutory National',
+            'badge_color' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            'desc'        => 'Globally indexed journals (Scopus, Web of Science, MLA, etc.) automatically qualified under UGC-CARE Group II for Indian academic appointments and promotions.'
+        ],
+        [
+            'name'        => 'IEEE Xplore Digital Library',
+            'val'         => 'IEEE Xplore Digital Library',
+            'category'    => 'Electrical & CS',
+            'badge_color' => 'bg-indigo-50 text-indigo-800 border-indigo-200',
+            'desc'        => 'Premier digital collection of electrical engineering, electronics, communications, computer engineering, and robotics literature.'
+        ],
+        [
+            'name'        => 'ACM Digital Library',
+            'val'         => 'ACM Digital Library',
+            'category'    => 'Computing & AI',
+            'badge_color' => 'bg-indigo-50 text-indigo-800 border-indigo-200',
+            'desc'        => 'Association for Computing Machinery’s comprehensive database of computer science, software engineering, algorithms, systems, and AI.'
+        ],
+        [
+            'name'        => 'PubMed / MEDLINE (NLM)',
+            'val'         => 'PubMed / MEDLINE (NLM / NIH)',
+            'category'    => 'Biomedical & Health',
+            'badge_color' => 'bg-rose-50 text-rose-800 border-rose-200',
+            'desc'        => 'National Library of Medicine (NLM / NIH) premier international bibliographic index for medicine, life sciences, healthcare, and biotechnology.'
+        ],
+        [
+            'name'        => 'DBLP Computer Science',
+            'val'         => 'DBLP Computer Science Bibliography',
+            'category'    => 'Informatics',
+            'badge_color' => 'bg-indigo-50 text-indigo-800 border-indigo-200',
+            'desc'        => 'Trier University open bibliographic database of major computer science journals and proceedings worldwide.'
+        ],
+        [
+            'name'        => 'ESCI (Emerging Sources)',
+            'val'         => 'ESCI (Emerging Sources Citation Index)',
+            'category'    => 'Clarivate Web of Science',
+            'badge_color' => 'bg-blue-50 text-blue-800 border-blue-200',
+            'desc'        => 'Clarivate WoS index for high-quality peer-reviewed publications meeting rigorous editorial standards and undergoing evaluation for full SCI/SCIE.'
+        ],
+        [
+            'name'        => 'DOAJ (Open Access)',
+            'val'         => 'DOAJ (Directory of Open Access Journals)',
+            'category'    => 'Open Access',
+            'badge_color' => 'bg-teal-50 text-teal-800 border-teal-200',
+            'desc'        => 'Community-curated directory indexing verified peer-reviewed, open-access scholarly journals conforming to best practices.'
+        ],
+        [
+            'name'        => 'ABDC Quality List',
+            'val'         => 'ABDC Journal Quality List',
+            'category'    => 'Business & Management',
+            'badge_color' => 'bg-teal-50 text-teal-800 border-teal-200',
+            'desc'        => 'Australian Business Deans Council ranking list for economics, business, finance, accounting, and management journals (A*, A, B, C).'
+        ],
+        [
+            'name'        => 'Peer-Reviewed / Refereed',
+            'val'         => 'Peer-Reviewed / Refereed Journal',
+            'category'    => 'Standard Academic',
+            'badge_color' => 'bg-slate-100 text-slate-800 border-slate-200',
+            'desc'        => 'Scholarly works subject to formal double-blind or single-blind peer evaluation by domain experts prior to publication.'
+        ]
+    ];
+}
+
+
 
 
