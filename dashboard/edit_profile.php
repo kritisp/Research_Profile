@@ -373,11 +373,22 @@ require_once __DIR__ . '/../includes/header.php';
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="academic-label">ORCID ID</label>
+                    <div class="flex items-center justify-between">
+                        <label class="academic-label !mb-0">ORCID ID</label>
+                        <?php if (!empty($profile['orcid_id'])): ?>
+                            <button type="submit" 
+                                    formaction="<?= url('dashboard/sync_orcid.php') ?>" 
+                                    formmethod="POST" 
+                                    class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                                    title="Fetch and import public publications directly from ORCID">
+                                <i class="fa-brands fa-orcid"></i> Sync from ORCID
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <input type="text" name="orcid_id" value="<?= e($profile['orcid_id'] ?? '') ?>"
                         placeholder="0000-0002-1825-0097"
-                        class="academic-input text-xs font-mono">
-                    <span class="text-[10px] text-slate-400 mt-0.5 block">Format: 0000-0002-XXXX-XXXX</span>
+                        class="academic-input text-xs font-mono mt-1">
+                    <span class="text-[10px] text-slate-400 mt-0.5 block">Format: 0000-0002-XXXX-XXXX — Save profile or click Sync to import.</span>
                 </div>
 
                 <div>

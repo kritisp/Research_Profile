@@ -7,6 +7,7 @@
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/csrf.php';
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/orcid.php';
 
 // Redirect if already logged in
 if (is_logged_in()) {
@@ -88,13 +89,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $salutation = 'Dr.';
             $designation = 'Assistant Professor';
+            $orcidId = clean_orcid_input($_POST['orcid_id'] ?? '');
             $profileStmt = $db->prepare("
-                INSERT INTO faculty_profiles (user_id, slug, department_id, institution, salutation, designation, is_verified) 
-                VALUES (?, ?, ?, ?, ?, ?, 1)
+                INSERT INTO faculty_profiles (user_id, slug, department_id, institution, salutation, designation, orcid_id, is_verified) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1)
             ");
-            $profileStmt->execute([$newUserId, $slug, $departmentId, $institution, $salutation, $designation]);
+            $profileStmt->execute([$newUserId, $slug, $departmentId, $institution, $salutation, $designation, $orcidId ?: null]);
+            $newProfileId = (int)$db->lastInsertId();
 
             $db->commit();
+
+            // Auto-sync ORCID public works if supplied on registration
+            $syncMsg = '';
+            if (!empty($orcidId) && $newProfileId > 0) {
+                try {
+                    $syncRes = sync_orcid_to_faculty($newProfileId, $orcidId, $newUserId);
+                    if ($syncRes['success'] && $syncRes['count'] > 0) {
+                        $syncMsg = " Auto-imported {$syncRes['count']} publications from ORCID.";
+                    }
+                } catch (Exception $oe) {
+                    error_log("Initial ORCID sync failed: " . $oe->getMessage());
+                }
+            }
 
             // Fetch newly created user and log in
             $fetchStmt = $db->prepare("SELECT * FROM users WHERE id = ?");
@@ -102,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newUser = $fetchStmt->fetch(PDO::FETCH_ASSOC);
 
             login_user($newUser);
-            set_flash('success', 'Account registered successfully! Welcome to the Academic Research Portal.');
+            set_flash('success', 'Account registered successfully!' . $syncMsg . ' Welcome to the Academic Research Portal.');
             redirect('dashboard/index.php');
         } catch (Exception $e) {
             $db->rollBack();
@@ -193,6 +209,22 @@ require_once __DIR__ . '/includes/header.php';
                         value="<?= e($_POST['email'] ?? '') ?>"
                         placeholder="e.g. yourname@iter.ac.in or university.edu"
                         class="academic-input text-xs sm:text-sm">
+                </div>
+
+                <!-- ORCID iD (Optional) -->
+                <div>
+                    <div class="flex items-center justify-between">
+                        <label for="orcid_id" class="academic-label !mb-0">ORCID iD <span class="text-slate-400 font-normal font-sans">(Optional)</span></label>
+                        <span class="text-[10px] text-emerald-700 font-medium inline-flex items-center gap-1">
+                            <i class="fa-brands fa-orcid"></i>
+                            <span>Auto-imports research output</span>
+                        </span>
+                    </div>
+                    <input type="text" id="orcid_id" name="orcid_id"
+                        value="<?= e($_POST['orcid_id'] ?? '') ?>"
+                        placeholder="0000-0002-1825-0097"
+                        class="academic-input text-xs sm:text-sm font-mono mt-1">
+                    <span class="text-[10px] text-slate-400 mt-0.5 block font-sans">Optional: Provide your 16-character ORCID iD to automatically import public publications.</span>
                 </div>
 
                 <!-- Password and Confirm Password Grid -->

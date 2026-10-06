@@ -317,11 +317,20 @@ require_once __DIR__ . '/../includes/header.php';
                 <h2 class="font-serif font-bold text-oxford-navy text-lg">Publications & Research Papers</h2>
                 <p class="text-xs text-scholar-muted mt-0.5">Peer-reviewed journal articles, conference papers, and book chapters</p>
             </div>
-            <a href="<?= url('dashboard/add_publication.php?profile_id=' . $faculty['id']) ?>" 
-               class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
-                <i class="fa-solid fa-plus text-[10px]"></i>
-                <span>Add Publication</span>
-            </a>
+            <div class="flex items-center gap-2">
+                <button type="button" 
+                        onclick="openOrcidSyncModal()"
+                        class="btn-academic-secondary text-xs !py-1.5 !px-3 shadow-xs inline-flex items-center gap-1.5"
+                        title="Import publications from ORCID">
+                    <i class="fa-brands fa-orcid text-emerald-600"></i>
+                    <span>Sync ORCID</span>
+                </button>
+                <a href="<?= url('dashboard/add_publication.php?profile_id=' . $faculty['id']) ?>" 
+                   class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>Add Publication</span>
+                </a>
+            </div>
         </div>
 
         <?php if (empty($publications)): ?>
@@ -788,4 +797,59 @@ require_once __DIR__ . '/../includes/header.php';
 
 </div>
 
+<!-- ORCID Sync Modal -->
+<div id="orcidSyncModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="academic-card max-w-md w-full p-6 shadow-xl relative bg-white" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeOrcidSyncModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+        <div class="flex items-center gap-2 mb-3">
+            <i class="fa-brands fa-orcid text-emerald-600 text-2xl"></i>
+            <h3 class="font-serif font-bold text-lg text-oxford-navy">Sync from ORCID</h3>
+        </div>
+        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            Import your public publications and scholarly works directly from the official ORCID registry. Existing publications will not be duplicated.
+        </p>
+        <form action="<?= url('dashboard/sync_orcid.php') ?>" method="POST" class="space-y-4">
+            <?= csrf_field() ?>
+            <input type="hidden" name="profile_id" value="<?= (int)$faculty['id'] ?>">
+            <div>
+                <label class="academic-label">ORCID iD</label>
+                <input type="text" name="orcid_id" 
+                       value="<?= e($faculty['orcid_id'] ?? '') ?>" 
+                       placeholder="0000-0002-1825-0097" 
+                       class="academic-input font-mono text-xs" 
+                       required>
+                <p class="text-[10px] text-slate-400 mt-1">16-digit iD (e.g. 0000-0002-1825-0097 or https://orcid.org/...)</p>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="closeOrcidSyncModal()" class="btn-academic-secondary text-xs !py-2 !px-4">
+                    Cancel
+                </button>
+                <button type="submit" class="btn-academic-primary text-xs !py-2 !px-4 bg-emerald-700 hover:bg-emerald-800 border-emerald-800">
+                    <i class="fa-solid fa-arrows-rotate mr-1"></i> Fetch & Sync
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openOrcidSyncModal() {
+    const modal = document.getElementById('orcidSyncModal');
+    if (modal) modal.classList.remove('hidden');
+}
+function closeOrcidSyncModal() {
+    const modal = document.getElementById('orcidSyncModal');
+    if (modal) modal.classList.add('hidden');
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeOrcidSyncModal();
+});
+document.getElementById('orcidSyncModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeOrcidSyncModal();
+});
+</script>
+
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
+
