@@ -76,7 +76,7 @@ def run_tests():
 
     # Super Admin Access
     sa = AdminTester()
-    sa.login('superadmin@iter.ac.in', 'Admin@123')
+    sa.login('super@admin.com', 'Admin@123')
     status, html, final_url = sa.get('admin/index.php')
     print("[PASS] Super Admin accesses admin/index.php:", status == 200 and "admin/index.php" in final_url)
 

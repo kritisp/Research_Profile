@@ -138,6 +138,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     redirect('admin/index.php?tab=delegations');
 }
 
+// 6. Create New User / Assistant directly
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_user') {
+    require_csrf();
+    $name     = trim($_POST['full_name'] ?? '');
+    $email    = strtolower(trim($_POST['email'] ?? ''));
+    $password = $_POST['password'] ?? '';
+    $role     = $_POST['role'] ?? 'admin';
+    $status   = $_POST['status'] ?? 'active';
+
+    if (empty($name) || empty($email) || empty($password)) {
+        set_flash('danger', 'Name, email, and password are required.');
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        set_flash('danger', 'Please provide a valid email address.');
+    } elseif (!in_array($role, ['faculty', 'admin', 'super_admin'], true)) {
+        set_flash('danger', 'Invalid role selected.');
+    } elseif (!in_array($status, ['active', 'inactive'], true)) {
+        set_flash('danger', 'Invalid status selected.');
+    } else {
+        try {
+            $chk = $db->prepare("SELECT id FROM users WHERE email = ?");
+            $chk->execute([$email]);
+            if ($chk->fetch()) {
+                set_flash('danger', 'A user account with this email address already exists.');
+            } else {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $db->prepare("INSERT INTO users (full_name, email, password_hash, role, status) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$name, $email, $hash, $role, $status]);
+                $newUserId = (int)$db->lastInsertId();
+                record_audit('user_created', 'users', $newUserId, "Created user {$name} ({$email}) with role {$role}");
+                set_flash('success', "Account for {$name} ({$role}) created successfully.");
+            }
+        } catch (Exception $e) {
+            error_log("Error creating user: " . $e->getMessage());
+            set_flash('danger', 'Failed to create user account.');
+        }
+    }
+    redirect('admin/index.php?tab=users');
+}
+
 // =========================================================================
 // DATA QUERIES & METRICS
 // =========================================================================
@@ -522,9 +561,79 @@ require_once __DIR__ . '/../includes/header.php';
                         <h2 class="font-serif font-bold text-lg text-oxford-navy">User Accounts & Role Permissions</h2>
                         <p class="text-xs text-scholar-muted mt-0.5">Search accounts, manage authorization roles, toggle active status, and audit profile readiness.</p>
                     </div>
-                    <span class="text-xs font-mono text-slate-500">
-                        Total matching: <strong><?= $totalFilteredUsers ?></strong>
-                    </span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-mono text-slate-500">
+                            Total matching: <strong><?= $totalFilteredUsers ?></strong>
+                        </span>
+                        <button type="button" onclick="document.getElementById('createUserModal').classList.remove('hidden')" class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs">
+                            <i class="fa-solid fa-user-plus text-[11px]"></i>
+                            <span>Create Account</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Create User Modal -->
+                <div id="createUserModal" class="fixed inset-0 z-50 flex items-center justify-center bg-oxford-navy/50 backdrop-blur-xs hidden p-4">
+                    <div class="academic-card max-w-md w-full p-6 bg-white shadow-2xl relative animate-fade-in border border-scholar-border rounded-xl">
+                        <div class="flex items-center justify-between pb-3 mb-4 border-b border-scholar-border">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-oxford-navy text-white flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </div>
+                                <h3 class="font-serif font-bold text-base text-oxford-navy">Create User Account</h3>
+                            </div>
+                            <button type="button" onclick="document.getElementById('createUserModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-sm"></i>
+                            </button>
+                        </div>
+
+                        <form method="POST" action="<?= url('admin/index.php') ?>" class="space-y-4 text-xs">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="action" value="create_user">
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Full Name <span class="text-rose-500">*</span></label>
+                                <input type="text" name="full_name" required placeholder="e.g. John Doe / Dept Assistant" class="academic-input w-full text-xs">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Email Address <span class="text-rose-500">*</span></label>
+                                <input type="email" name="email" required placeholder="e.g. assistant@institution.edu" class="academic-input w-full text-xs">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Initial Password <span class="text-rose-500">*</span></label>
+                                <input type="password" name="password" required placeholder="Enter strong password" class="academic-input w-full text-xs">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Role <span class="text-rose-500">*</span></label>
+                                    <select name="role" class="academic-input w-full text-xs">
+                                        <option value="admin">Assistant (Admin)</option>
+                                        <option value="faculty">Faculty</option>
+                                        <option value="super_admin">Super Admin</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Account Status</label>
+                                    <select name="status" class="academic-input w-full text-xs">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-2 pt-3 border-t border-scholar-border">
+                                <button type="button" onclick="document.getElementById('createUserModal').classList.add('hidden')" class="btn-academic-secondary text-xs !py-1.5 !px-3">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn-academic-primary text-xs !py-1.5 !px-4">
+                                    Create Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 text-xs">

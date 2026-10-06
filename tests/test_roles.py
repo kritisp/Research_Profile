@@ -19,7 +19,7 @@ def test_login(email, password, expected_sub):
     passed = expected_sub in final_url
     print(f"{email} ({expected_sub}) -> {final_url} | OK: {passed}")
 
-test_login('superadmin@iter.ac.in', 'Admin@123', 'admin/index.php')
+test_login('super@admin.com', 'Admin@123', 'admin/index.php')
 test_login('assistant.cse@iter.ac.in', 'Assistant@123', 'assistant/index.php')
 test_login('debabrata.singh@iter.ac.in', 'Faculty@123', 'dashboard/index.php')
 test_login('ksp@soa.ac.in', 'Faculty@123', 'dashboard/index.php')

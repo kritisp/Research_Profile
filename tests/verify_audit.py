@@ -95,7 +95,7 @@ def run_tests():
 
     # 2. Test Login Page for default credentials & sensitive exposure
     status, login_html, _ = tester.get('login.php')
-    has_demo_card = "AdminPassword@123" in login_html or "superadmin@iter.ac.in" in login_html or "Demo Credentials" in login_html
+    has_demo_card = "AdminPassword@123" in login_html or "superadmin@iter.ac.in" in login_html or "super@admin.com" in login_html or "Demo Credentials" in login_html
     tester.log_result("Default Credentials Exposure check in login.php", not has_demo_card, "No demo credentials cards or hardcoded passwords exposed")
 
     # 3. Test CSRF Protection Enforcement on public POST without token
