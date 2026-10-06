@@ -372,9 +372,39 @@ if (!empty($faculty['research_interests'])) {
 
 </aside>
 
+<!-- Sticky In-Page Tab Navigation Bar (Spans full page width from the left edge directly above the card) -->
+<nav class="academic-jump-nav no-print" aria-label="Profile Sections">
+    <div class="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-start xl:justify-between overflow-x-auto scrollbar-none gap-0.5 sm:gap-1">
+        <a href="#overview" class="academic-jump-link">Overview</a>
+        <a href="#impact" class="academic-jump-link">Academic Impact</a>
+        <a href="#publications" class="academic-jump-link">
+            Publications <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($publications) ?>)</span>
+        </a>
+        <?php if (!empty($projects)): ?>
+            <a href="#projects" class="academic-jump-link">Grants <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($projects) ?>)</span></a>
+        <?php endif; ?>
+        <?php if (!empty($patents)): ?>
+            <a href="#patents" class="academic-jump-link">Patents <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($patents) ?>)</span></a>
+        <?php endif; ?>
+        <?php if (!empty($experience)): ?>
+            <a href="#experience" class="academic-jump-link">Experience</a>
+        <?php endif; ?>
+        <?php if (!empty($education)): ?>
+            <a href="#education" class="academic-jump-link">Education</a>
+        <?php endif; ?>
+        <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0)): ?>
+            <a href="#teaching" class="academic-jump-link">Teaching &amp; Mentorship</a>
+        <?php endif; ?>
+        <?php if (!empty($awards)): ?>
+            <a href="#awards" class="academic-jump-link">Honors &amp; Awards</a>
+        <?php endif; ?>
+        <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles'])): ?>
+            <a href="#service" class="academic-jump-link">Service &amp; Affiliations</a>
+        <?php endif; ?>
+    </div>
+</nav>
+
 <div id="profile-main-area">
-
-
 
 <!-- Breadcrumbs Bar -->
 
@@ -570,37 +600,8 @@ if (!empty($faculty['research_interests'])) {
     </div>
 </header>
 
-<!-- Sticky In-Page Tab Navigation Bar -->
-<nav class="academic-jump-nav no-print" aria-label="Profile Sections">
-    <div class="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-start xl:justify-between overflow-x-auto scrollbar-none gap-1 sm:gap-2">
-        <a href="#overview" class="academic-jump-link">Overview</a>
-        <a href="#impact" class="academic-jump-link">Academic Impact</a>
-        <a href="#publications" class="academic-jump-link">
-            Publications <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($publications) ?>)</span>
-        </a>
-        <?php if (!empty($projects)): ?>
-            <a href="#projects" class="academic-jump-link">Grants <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($projects) ?>)</span></a>
-        <?php endif; ?>
-        <?php if (!empty($patents)): ?>
-            <a href="#patents" class="academic-jump-link">Patents <span class="ml-1 text-xs opacity-60 font-mono">(<?= count($patents) ?>)</span></a>
-        <?php endif; ?>
-        <?php if (!empty($experience)): ?>
-            <a href="#experience" class="academic-jump-link">Experience</a>
-        <?php endif; ?>
-        <?php if (!empty($education)): ?>
-            <a href="#education" class="academic-jump-link">Education</a>
-        <?php endif; ?>
-        <?php if (!empty($teaching) || ((int)($faculty['phd_supervised'] ?? 0) > 0)): ?>
-            <a href="#teaching" class="academic-jump-link">Teaching &amp; Mentorship</a>
-        <?php endif; ?>
-        <?php if (!empty($awards)): ?>
-            <a href="#awards" class="academic-jump-link">Honors &amp; Awards</a>
-        <?php endif; ?>
-        <?php if (!empty($faculty['memberships']) || !empty($faculty['editorial_roles'])): ?>
-            <a href="#service" class="academic-jump-link">Service &amp; Affiliations</a>
-        <?php endif; ?>
-    </div>
-</nav>
+
+
 
 
 <!-- Main Vertical Scrollable Academic Content Container -->
