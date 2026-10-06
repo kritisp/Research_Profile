@@ -694,25 +694,185 @@ if (!empty($faculty['research_interests'])) {
             </div>
         </div>
 
-        <!-- Annual Publication Trajectory Chart -->
+        <!-- Annual Publication Trajectory & Scholarly Velocity Card -->
         <?php if (!empty($pubsByYear)): ?>
-            <div class="mt-8 pt-6 border-t border-scholar-border-light">
-                <div class="flex items-center justify-between mb-3 text-xs text-slate-500 font-sans">
-                    <span class="font-semibold text-oxford-slate">Publication Trajectory (Works Published by Year)</span>
-                    <span class="font-mono"><?= count($publications) ?> Total Indexed Works</span>
-                </div>
-                <?php $maxCount = max($pubsByYear); ?>
-                <div class="flex items-end gap-2 h-20 pt-2 px-1">
-                    <?php foreach ($pubsByYear as $yr => $cnt): ?>
-                        <?php $barHeight = round(($cnt / $maxCount) * 100); ?>
-                        <div class="flex-1 flex flex-col items-center gap-1 group relative">
-                            <div class="absolute -top-7 hidden group-hover:flex items-center px-1.5 py-0.5 bg-oxford-navy text-white rounded-[4px] text-[10px] whitespace-nowrap z-10 shadow font-mono">
-                                <?= $yr ?>: <?= $cnt ?> publication<?= $cnt > 1 ? 's' : '' ?>
-                            </div>
-                            <div class="w-full bg-slate-200 group-hover:bg-oxford-navy rounded-t-[2px] transition" style="height: <?= max(12, $barHeight) ?>%;"></div>
-                            <span class="text-[10px] text-slate-500 font-mono"><?= substr((string)$yr, -2) ?></span>
+            <?php
+                $yearsList = array_keys($pubsByYear);
+                $firstPubYear = min($yearsList);
+                $lastPubYear = max($yearsList);
+                $totalYearsSpan = max(1, count($yearsList));
+                $maxCount = max($pubsByYear);
+                $peakYear = null;
+                $peakCount = 0;
+                foreach ($pubsByYear as $yr => $cnt) {
+                    if ($cnt >= $peakCount) {
+                        $peakCount = $cnt;
+                        $peakYear = $yr;
+                    }
+                }
+                $avgPubsPerYear = round(count($publications) / $totalYearsSpan, 1);
+
+                // Format breakdown for analytical context
+                $formatCounts = [
+                    'journal' => 0,
+                    'conference' => 0,
+                    'book' => 0,
+                    'other' => 0
+                ];
+                foreach ($publications as $p) {
+                    $typeLower = strtolower($p['publication_type'] ?? '');
+                    if (str_contains($typeLower, 'journal')) {
+                        $formatCounts['journal']++;
+                    } elseif (str_contains($typeLower, 'conf')) {
+                        $formatCounts['conference']++;
+                    } elseif (str_contains($typeLower, 'book') || str_contains($typeLower, 'chapter')) {
+                        $formatCounts['book']++;
+                    } else {
+                        $formatCounts['other']++;
+                    }
+                }
+            ?>
+            <div class="mt-8 academic-card overflow-hidden bg-white/95 border border-scholar-border rounded-xl shadow-xs">
+                <!-- Header with analytical title and badges -->
+                <div class="px-5 py-4 border-b border-scholar-border-light bg-gradient-to-r from-slate-50 via-white to-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-oxford-navy text-white flex items-center justify-center text-sm shadow-xs flex-shrink-0">
+                            <i class="fa-solid fa-chart-column"></i>
                         </div>
-                    <?php endforeach; ?>
+                        <div>
+                            <h3 class="font-serif font-bold text-base text-oxford-navy leading-tight flex items-center gap-2">
+                                <span>Publication Trajectory & Output Velocity</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 font-sans mt-0.5">Annual distribution of indexed scholarly works across career timeline</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center flex-wrap gap-2 text-xs">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-mono font-medium border border-slate-200">
+                            <i class="fa-regular fa-calendar text-[11px] text-slate-500"></i>
+                            <?= $firstPubYear === $lastPubYear ? $firstPubYear : ($firstPubYear . ' – ' . $lastPubYear) ?>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-oxford-navy/5 text-oxford-navy font-mono font-semibold border border-oxford-navy/15">
+                            <i class="fa-solid fa-book-bookmark text-[10px] text-oxford-slate"></i>
+                            <?= count($publications) ?> Indexed Work<?= count($publications) !== 1 ? 's' : '' ?>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Quick Insights Metric Strip -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 bg-slate-50/60 border-b border-scholar-border-light">
+                    <div class="px-4 py-3 text-center sm:text-left">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-sans font-semibold">Active Span</div>
+                        <div class="font-mono text-base font-bold text-oxford-navy mt-0.5"><?= count($pubsByYear) ?> <span class="text-xs font-normal text-slate-500">Year<?= count($pubsByYear) !== 1 ? 's' : '' ?></span></div>
+                        <div class="text-[11px] text-slate-500 font-sans"><?= $firstPubYear ?> to <?= $lastPubYear ?></div>
+                    </div>
+                    <div class="px-4 py-3 text-center sm:text-left">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-sans font-semibold">Peak Productivity</div>
+                        <div class="font-mono text-base font-bold text-amber-700 mt-0.5 flex items-center justify-center sm:justify-start gap-1">
+                            <span><?= $peakYear ?></span>
+                            <span class="text-xs px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold"><?= $peakCount ?> works</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 font-sans">Most active publishing year</div>
+                    </div>
+                    <div class="px-4 py-3 text-center sm:text-left">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-sans font-semibold">Annual Pace</div>
+                        <div class="font-mono text-base font-bold text-oxford-slate mt-0.5"><?= $avgPubsPerYear ?> <span class="text-xs font-normal text-slate-500">works / yr</span></div>
+                        <div class="text-[11px] text-slate-500 font-sans">Career average velocity</div>
+                    </div>
+                    <div class="px-4 py-3 text-center sm:text-left">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-sans font-semibold">Format Breakdown</div>
+                        <div class="flex items-center justify-center sm:justify-start gap-1.5 mt-1 font-mono text-xs">
+                            <?php if ($formatCounts['journal'] > 0): ?>
+                                <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold" title="Journal Articles"><?= $formatCounts['journal'] ?> Journal<?= $formatCounts['journal'] !== 1 ? 's' : '' ?></span>
+                            <?php endif; ?>
+                            <?php if ($formatCounts['conference'] > 0): ?>
+                                <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-semibold" title="Conference Papers"><?= $formatCounts['conference'] ?> Conf</span>
+                            <?php endif; ?>
+                            <?php if ($formatCounts['book'] > 0): ?>
+                                <span class="px-1.5 py-0.5 rounded bg-purple-50 text-purple-800 border border-purple-200 font-semibold" title="Books & Chapters"><?= $formatCounts['book'] ?> Book</span>
+                            <?php endif; ?>
+                            <?php if ($formatCounts['other'] > 0): ?>
+                                <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-semibold" title="Other / Patents"><?= $formatCounts['other'] ?> Other</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-sans mt-0.5">Indexed format distribution</div>
+                    </div>
+                </div>
+
+                <!-- Visual Bar Chart Canvas -->
+                <div class="p-6">
+                    <div class="relative pt-6 pb-2">
+                        <!-- Horizontal Gridlines for Analytical Depth -->
+                        <div class="absolute inset-x-0 top-6 bottom-9 pointer-events-none flex flex-col justify-between opacity-60">
+                            <div class="border-b border-dashed border-slate-200 flex items-center justify-between">
+                                <span class="text-[10px] font-mono text-slate-400 -translate-y-2">Peak (<?= $maxCount ?>)</span>
+                                <span class="text-[9px] font-sans text-slate-300 -translate-y-2">Max Output Level</span>
+                            </div>
+                            <div class="border-b border-dashed border-slate-200 flex items-center justify-between">
+                                <span class="text-[10px] font-mono text-slate-400 -translate-y-2">Mid (<?= round($maxCount / 2, 1) ?>)</span>
+                                <span class="text-[9px] font-sans text-slate-300 -translate-y-2">Baseline Reference</span>
+                            </div>
+                            <div class="border-b border-slate-300"></div>
+                        </div>
+
+                        <!-- Bar Pillars Container -->
+                        <div class="relative h-44 flex items-end <?= count($pubsByYear) <= 6 ? 'justify-center gap-6 sm:gap-12' : 'justify-between gap-2 overflow-x-auto pb-1' ?> px-3">
+                            <?php foreach ($pubsByYear as $yr => $cnt): ?>
+                                <?php 
+                                    $percent = $maxCount > 0 ? round(($cnt / $maxCount) * 100) : 25;
+                                    $isPeak = ($cnt === $peakCount && count($pubsByYear) > 1);
+                                ?>
+                                <div class="flex flex-col items-center group relative <?= count($pubsByYear) <= 6 ? 'w-20 sm:w-24' : 'flex-1 min-w-[44px] max-w-[68px]' ?>">
+                                    <!-- Tooltip on hover -->
+                                    <div class="absolute -top-10 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 transform -translate-y-1 group-hover:translate-y-0 z-20 flex flex-col items-center">
+                                        <div class="px-2.5 py-1 bg-oxford-navy text-white rounded-md text-[11px] font-mono whitespace-nowrap shadow-md border border-slate-700 flex items-center gap-1.5">
+                                            <span class="font-bold"><?= $yr ?>:</span>
+                                            <span><?= $cnt ?> publication<?= $cnt > 1 ? 's' : '' ?></span>
+                                            <?php if ($isPeak): ?>
+                                                <span class="text-amber-300 font-bold text-[10px]">★ Peak</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="w-1.5 h-1.5 bg-oxford-navy transform rotate-45 -mt-0.5"></div>
+                                    </div>
+
+                                    <!-- Value Badge Directly Above Bar -->
+                                    <div class="mb-2 transition-transform duration-200 group-hover:-translate-y-1">
+                                        <?php if ($isPeak): ?>
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500 text-white font-mono text-[11px] font-bold shadow-xs border border-amber-400">
+                                                <i class="fa-solid fa-star text-[8px] text-amber-200"></i> <?= $cnt ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 group-hover:bg-oxford-navy text-oxford-navy group-hover:text-white font-mono text-[11px] font-bold border border-slate-300 group-hover:border-oxford-navy transition-colors">
+                                                <?= $cnt ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <!-- Bar Pillar -->
+                                    <div class="w-full relative transition-all duration-300 group-hover:scale-y-[1.02] origin-bottom cursor-pointer" style="height: <?= max(22, $percent) ?>%;">
+                                        <div class="w-full h-full rounded-t-lg shadow-xs transition-all <?= $isPeak ? 'bg-gradient-to-t from-oxford-navy via-[#1E3A5F] to-amber-600 group-hover:to-amber-500 ring-2 ring-amber-400/30' : 'bg-gradient-to-t from-oxford-navy via-[#1E3A5F] to-slate-600 group-hover:to-oxford-navy' ?>">
+                                            <div class="w-full h-1 bg-white/20 rounded-t-lg"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4-Digit Year Label Below Bar -->
+                                    <div class="mt-3 text-center">
+                                        <span class="block font-mono text-xs font-bold text-oxford-navy group-hover:text-blue-700 transition">
+                                            <?= $yr ?>
+                                        </span>
+                                        <?php if ($isPeak): ?>
+                                            <span class="inline-block mt-0.5 text-[9px] uppercase tracking-wider font-sans font-extrabold text-amber-700 bg-amber-100/90 px-1.5 py-0.2 rounded border border-amber-200">
+                                                Peak
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="inline-block mt-0.5 text-[10px] font-sans text-slate-400">
+                                                <?= $cnt ?> <?= $cnt === 1 ? 'work' : 'works' ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         <?php endif; ?>
