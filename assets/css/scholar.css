@@ -444,8 +444,7 @@ body {
   transition:
     transform 480ms cubic-bezier(0.16, 1, 0.3, 1),
     opacity 360ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 280ms ease,
-    top 200ms ease;
+    box-shadow 280ms ease;
 }
 
 #profile-sidebar-fixed.sidebar-visible {

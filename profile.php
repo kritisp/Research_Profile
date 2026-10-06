@@ -1894,15 +1894,33 @@ document.getElementById('copyCitationBtn')?.addEventListener('click', function()
 
     if (!sidebar || !mainArea || !heroSection || !jumpNav) return;
 
-    // ─── 1. Card position: always sits just below the sticky tab nav ─────
+    const footerEl    = document.querySelector('footer');
+
+    // ─── 1. Card position: sits below sticky tab nav & stops before footer ─────
     function updateCardPosition() {
-        // The jump nav is sticky; getBoundingClientRect() gives its actual viewport position
         const navRect  = jumpNav.getBoundingClientRect();
-        const cardTop  = navRect.bottom + 8;   // 8px breathing room below tab bar
-        const cardMaxH = window.innerHeight - cardTop - 10;  // 10px from bottom
+        const baseTop  = navRect.bottom + 8;   // 8px breathing room below tab bar
+        let cardTop    = baseTop;
+        let cardMaxH   = window.innerHeight - baseTop - 12;
+
+        if (footerEl) {
+            const footerRect = footerEl.getBoundingClientRect();
+            const cardHeight = sidebar.offsetHeight || 480;
+            const bottomGap  = 24; // 24px breathing room above footer
+
+            // If the bottom of the card would collide with the top of the footer:
+            if (footerRect.top < (baseTop + cardHeight + bottomGap)) {
+                // Pin card to stay strictly above the footer
+                cardTop = footerRect.top - cardHeight - bottomGap;
+            }
+
+            // Ensure the max-height also never pushes through the footer
+            const spaceToFooter = footerRect.top - cardTop - bottomGap;
+            cardMaxH = Math.min(cardMaxH, spaceToFooter);
+        }
 
         sidebar.style.top       = cardTop + 'px';
-        sidebar.style.maxHeight = cardMaxH + 'px';
+        sidebar.style.maxHeight = Math.max(160, cardMaxH) + 'px';
     }
 
     // ─── 2. Sidebar reveal on scroll ─────────────────────────────────────

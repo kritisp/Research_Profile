@@ -243,32 +243,44 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 
-    <!-- Quick Navigation Sub-Bar -->
-    <div class="flex flex-wrap items-center gap-2 border-b border-scholar-border pb-3 text-xs font-semibold">
-        <a href="#section-publications" class="academic-tag !bg-oxford-navy !text-white !border-oxford-navy px-3 py-1.5 shadow-xs">
-            Publications (<?= count($publications) ?>)
-        </a>
-        <a href="#section-projects" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
-            Projects (<?= count($projects) ?>)
-        </a>
-        <a href="#section-patents" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
-            Patents (<?= count($patents) ?>)
-        </a>
-        <a href="#section-experience" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
-            Appointments (<?= count($experience) ?>)
-        </a>
-        <a href="#section-education" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
-            Education (<?= count($education) ?>)
-        </a>
-        <a href="#section-teaching" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
-            Teaching (<?= count($teaching) ?>)
-        </a>
-        <a href="#section-awards" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
-            Awards (<?= count($awards) ?>)
-        </a>
-        <a href="<?= url('dashboard/delegates.php?profile_id=' . $faculty['id']) ?>" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
-            <i class="fa-solid fa-users-gear mr-1 text-slate-400"></i> Delegates (<?= count($delegates) ?>)
-        </a>
+    <!-- Quick Navigation Sub-Bar with Right-Aligned Add Delegate Button -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-scholar-border pb-3 text-xs font-semibold">
+        <!-- Left: In-page Section Navigation -->
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="#section-publications" class="academic-tag !bg-oxford-navy !text-white !border-oxford-navy px-3 py-1.5 shadow-xs">
+                Publications (<?= count($publications) ?>)
+            </a>
+            <a href="#section-projects" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
+                Projects (<?= count($projects) ?>)
+            </a>
+            <a href="#section-patents" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
+                Patents (<?= count($patents) ?>)
+            </a>
+            <a href="#section-experience" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
+                Appointments (<?= count($experience) ?>)
+            </a>
+            <a href="#section-education" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
+                Education (<?= count($education) ?>)
+            </a>
+            <a href="#section-teaching" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
+                Teaching (<?= count($teaching) ?>)
+            </a>
+            <a href="#section-awards" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
+                Awards (<?= count($awards) ?>)
+            </a>
+        </div>
+
+        <!-- Right: Glowing / Highlighted Add Delegate/Assistant Button -->
+        <div class="flex-shrink-0">
+            <a href="<?= url('dashboard/delegates.php?profile_id=' . $faculty['id']) ?>" 
+               class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-oxford-navy shadow-xs hover:shadow-md hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 border border-blue-400/40 ring-2 ring-blue-500/20 hover:ring-blue-500/50 group">
+                <i class="fa-solid fa-user-plus text-[11px] text-blue-200 group-hover:scale-110 transition-transform"></i>
+                <span>Add Delegate / Assistant</span>
+                <?php if (count($delegates) > 0): ?>
+                    <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-mono"><?= count($delegates) ?></span>
+                <?php endif; ?>
+            </a>
+        </div>
     </div>
 
     <!-- SECTION 1: Publications Management -->
