@@ -420,7 +420,7 @@ body {
   top: 120px;
   left: 18px;
   width: 340px;
-  z-index: 38;
+  z-index: 25;
 
   /* True Glassmorphic Translucency — Content distinctly visible underneath */
   background: rgba(255, 255, 255, 0.28) !important;

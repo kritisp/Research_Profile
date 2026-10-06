@@ -1,7 +1,7 @@
     </main>
 
     <!-- Institutional Academic Footer -->
-    <footer class="bg-oxford-dark text-slate-300 text-sm mt-20 border-t border-oxford-navy">
+    <footer class="bg-oxford-dark text-slate-300 text-sm mt-20 border-t border-oxford-navy relative z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
                 <!-- Col 1: Institutional Repository Summary -->

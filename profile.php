@@ -1894,33 +1894,36 @@ document.getElementById('copyCitationBtn')?.addEventListener('click', function()
 
     if (!sidebar || !mainArea || !heroSection || !jumpNav) return;
 
-    const footerEl    = document.querySelector('footer');
+    let footerEl = null;
+    function getFooter() {
+        if (!footerEl) {
+            footerEl = document.querySelector('footer');
+        }
+        return footerEl;
+    }
 
-    // ─── 1. Card position: sits below sticky tab nav & stops before footer ─────
+    // ─── 1. Card position: sits below sticky tab nav & stops strictly before footer ───
     function updateCardPosition() {
         const navRect  = jumpNav.getBoundingClientRect();
         const baseTop  = navRect.bottom + 8;   // 8px breathing room below tab bar
         let cardTop    = baseTop;
-        let cardMaxH   = window.innerHeight - baseTop - 12;
+        const cardMaxH = Math.max(200, window.innerHeight - baseTop - 16);
 
-        if (footerEl) {
-            const footerRect = footerEl.getBoundingClientRect();
-            const cardHeight = sidebar.offsetHeight || 480;
+        const footer = getFooter();
+        if (footer) {
+            const footerRect = footer.getBoundingClientRect();
+            const cardHeight = sidebar.offsetHeight || 520;
             const bottomGap  = 24; // 24px breathing room above footer
 
-            // If the bottom of the card would collide with the top of the footer:
+            // If the bottom of the card would collide with or pass the top of the footer:
             if (footerRect.top < (baseTop + cardHeight + bottomGap)) {
-                // Pin card to stay strictly above the footer
+                // Pin card to stay strictly above the footer (scrolls up alongside content)
                 cardTop = footerRect.top - cardHeight - bottomGap;
             }
-
-            // Ensure the max-height also never pushes through the footer
-            const spaceToFooter = footerRect.top - cardTop - bottomGap;
-            cardMaxH = Math.min(cardMaxH, spaceToFooter);
         }
 
         sidebar.style.top       = cardTop + 'px';
-        sidebar.style.maxHeight = Math.max(160, cardMaxH) + 'px';
+        sidebar.style.maxHeight = cardMaxH + 'px';
     }
 
     // ─── 2. Sidebar reveal on scroll ─────────────────────────────────────
@@ -1944,7 +1947,7 @@ document.getElementById('copyCitationBtn')?.addEventListener('click', function()
             }
         }
 
-        // Keep updating position while visible (tab nav height can change on wrap)
+        // Keep updating position while visible (avoids footer overlap during scroll)
         if (lastSidebarState) {
             updateCardPosition();
         }
@@ -1988,9 +1991,35 @@ document.getElementById('copyCitationBtn')?.addEventListener('click', function()
         });
     });
 
-    // ─── 5. Combined scroll + resize handler ─────────────────────────────
-    window.addEventListener('scroll',  () => { updateSidebar(); updateActiveTabs(); }, { passive: true });
-    window.addEventListener('resize',  () => { if (lastSidebarState) updateCardPosition(); }, { passive: true });
+    // ─── 5. Combined scroll + resize handler with requestAnimationFrame ──
+    let scrollTicking = false;
+    function onScrollTick() {
+        updateSidebar();
+        updateActiveTabs();
+        scrollTicking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+        if (!scrollTicking) {
+            window.requestAnimationFrame(onScrollTick);
+            scrollTicking = true;
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+        if (lastSidebarState) updateCardPosition();
+    }, { passive: true });
+
+    // When DOM or page fully ready, re-evaluate to ensure footer is cached and synced
+    document.addEventListener('DOMContentLoaded', () => {
+        getFooter();
+        updateSidebar();
+        updateActiveTabs();
+    });
+    window.addEventListener('load', () => {
+        getFooter();
+        updateSidebar();
+    });
 
     // Initial run
     updateSidebar();
