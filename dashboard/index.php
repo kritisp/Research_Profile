@@ -10,30 +10,43 @@ require_once __DIR__ . '/../includes/auth.php';
 
 require_login();
 
-// If super_admin or admin, redirect to their specific portal unless acting as faculty
 $u = current_user();
-if ($u['role'] === 'super_admin' && empty($_SESSION['active_faculty_profile_id'])) {
-    redirect('admin/index.php');
-} elseif ($u['role'] === 'admin' && empty($_SESSION['active_faculty_profile_id'])) {
-    redirect('assistant/index.php');
-}
-
 $db = Database::getConnection();
+
+// Check if current user has their own faculty profile
+$ownProfileStmt = $db->prepare("SELECT id FROM faculty_profiles WHERE user_id = ? LIMIT 1");
+$ownProfileStmt->execute([user_id()]);
+$ownProfileId = (int)$ownProfileStmt->fetchColumn();
+
+// If super_admin or admin, redirect to their specific portal unless acting as faculty or managing own profile
+if ($u['role'] === 'super_admin' && empty($_SESSION['active_faculty_profile_id'])) {
+    if (isset($_GET['own']) && $ownProfileId) {
+        $_SESSION['active_faculty_profile_id'] = $ownProfileId;
+    } else {
+        redirect('admin/index.php');
+    }
+} elseif ($u['role'] === 'admin' && empty($_SESSION['active_faculty_profile_id'])) {
+    if ($ownProfileId) {
+        // If an admin has their own faculty profile, automatically load their own profile!
+        $_SESSION['active_faculty_profile_id'] = $ownProfileId;
+    } else {
+        redirect('assistant/index.php');
+    }
+}
 
 // Determine which faculty profile is being managed
 if (!empty($_SESSION['active_faculty_profile_id'])) {
     $profileId = (int)$_SESSION['active_faculty_profile_id'];
 } else {
     // Current user's own faculty profile
-    $pStmt = $db->prepare("SELECT id FROM faculty_profiles WHERE user_id = ? LIMIT 1");
-    $pStmt->execute([user_id()]);
-    $profileId = (int)$pStmt->fetchColumn();
+    $profileId = $ownProfileId;
 
     // If faculty profile doesn't exist yet, create one
     if (!$profileId) {
         $ins = $db->prepare("INSERT INTO faculty_profiles (user_id, salutation, designation, is_verified) VALUES (?, 'Dr.', 'Assistant Professor', 1)");
         $ins->execute([user_id()]);
         $profileId = (int)$db->lastInsertId();
+        $ownProfileId = $profileId;
     }
 }
 
@@ -136,7 +149,11 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <?php if (!empty($_SESSION['active_faculty_profile_id'])): ?>
+                        <?php if (!empty($_SESSION['active_faculty_profile_id']) && $ownProfileId && (int)$profileId === (int)$ownProfileId): ?>
+                            <span class="academic-tag bg-blue-50 text-oxford-blue border-blue-200 font-mono text-[10px] font-bold uppercase mb-1">
+                                <i class="fa-solid fa-user-tie mr-1"></i> Your Personal Profile
+                            </span>
+                        <?php elseif (!empty($_SESSION['active_faculty_profile_id'])): ?>
                             <span class="academic-tag academic-tag-gold font-mono text-[10px] font-bold uppercase mb-1">
                                 <i class="fa-solid fa-user-gear mr-1"></i> Active Delegate Mode
                             </span>
@@ -171,7 +188,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <i class="fa-solid fa-plus text-[10px]"></i>
                     <span>Add Publication</span>
                 </a>
-                <?php if (!empty($_SESSION['active_faculty_profile_id'])): ?>
+                <?php if (!empty($_SESSION['active_faculty_profile_id']) && $ownProfileId && (int)$profileId !== (int)$ownProfileId): ?>
                     <form action="<?= url('assistant/switch_back.php') ?>" method="POST" class="inline m-0">
                         <?= csrf_field() ?>
                         <button type="submit" class="btn-academic-secondary text-xs !py-1.5 !px-3 !bg-rose-50 !text-rose-800 !border-rose-200 hover:!bg-rose-100 shadow-xs">
@@ -179,6 +196,16 @@ require_once __DIR__ . '/../includes/header.php';
                             <span>Exit Delegate Mode</span>
                         </button>
                     </form>
+                <?php elseif ($u['role'] === 'admin'): ?>
+                    <a href="<?= url('assistant/index.php') ?>" class="btn-academic-secondary text-xs !py-1.5 !px-3 shadow-xs">
+                        <i class="fa-solid fa-users-gear text-xs mr-1"></i>
+                        <span>Assistant Portal</span>
+                    </a>
+                <?php elseif ($u['role'] === 'super_admin'): ?>
+                    <a href="<?= url('admin/index.php') ?>" class="btn-academic-secondary text-xs !py-1.5 !px-3 shadow-xs">
+                        <i class="fa-solid fa-shield-halved text-xs mr-1"></i>
+                        <span>Super Admin Console</span>
+                    </a>
                 <?php endif; ?>
             </div>
 

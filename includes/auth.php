@@ -165,8 +165,16 @@ function can_manage_faculty_profile(int $facultyProfileId): bool {
         return (bool)$stmt->fetch();
     }
 
-    // Admins / Assistants can manage if delegated
+    // Admins / Assistants can manage if delegated OR if it is their own profile
     if (has_role('admin')) {
+        // 1. Check if this is the admin's own faculty profile
+        $ownStmt = $db->prepare("SELECT id FROM faculty_profiles WHERE id = ? AND user_id = ?");
+        $ownStmt->execute([$facultyProfileId, user_id()]);
+        if ($ownStmt->fetch()) {
+            return true;
+        }
+
+        // 2. Check if delegated by another faculty
         $stmt = $db->prepare("
             SELECT fp.id 
             FROM faculty_profiles fp

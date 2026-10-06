@@ -344,6 +344,21 @@ $auditLogs = $aStmt->fetchAll(PDO::FETCH_ASSOC);
 // Distinct actions for filter dropdown
 $distinctActions = $db->query("SELECT DISTINCT action FROM audit_logs ORDER BY action ASC")->fetchAll(PDO::FETCH_COLUMN);
 
+// Fetch current administrator's own faculty profile if any
+$adminOwnStmt = $db->prepare("
+    SELECT fp.id as profile_id, fp.salutation, fp.designation, fp.photo_url, fp.total_citations, fp.slug,
+           u.id as user_id, u.full_name, u.email, d.name as department_name, d.code as department_code,
+           COUNT(DISTINCT p.id) as pub_count
+    FROM faculty_profiles fp
+    JOIN users u ON fp.user_id = u.id
+    LEFT JOIN departments d ON fp.department_id = d.id
+    LEFT JOIN publications p ON p.faculty_profile_id = fp.id
+    WHERE fp.user_id = ?
+    GROUP BY fp.id, u.id, d.name, d.code
+");
+$adminOwnStmt->execute([user_id()]);
+$adminOwnFaculty = $adminOwnStmt->fetch(PDO::FETCH_ASSOC);
+
 $pageTitle = 'Super Admin Console — Institutional Research System';
 require_once __DIR__ . '/../includes/header.php';
 ?>
@@ -363,6 +378,12 @@ require_once __DIR__ . '/../includes/header.php';
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2.5">
+                <?php if ($adminOwnFaculty): ?>
+                    <a href="<?= url('dashboard/index.php?own=1') ?>" class="btn-academic-primary text-xs !py-2 !px-3 shadow-xs">
+                        <i class="fa-solid fa-id-card text-xs"></i>
+                        <span>Your Faculty Profile</span>
+                    </a>
+                <?php endif; ?>
                 <a href="<?= url('assistant/index.php') ?>" class="btn-academic-secondary text-xs !py-2 !px-3 shadow-xs">
                     <i class="fa-solid fa-users-gear text-xs"></i>
                     <span>Assistant Portal</span>
@@ -414,6 +435,47 @@ require_once __DIR__ . '/../includes/header.php';
     <!-- TAB 1: OVERVIEW & SYSTEM METRICS                                 -->
     <!-- ================================================================= -->
     <?php if ($currentTab === 'overview'): ?>
+
+        <!-- Mandatory Personal Faculty Profile Card (If Super Admin is also Faculty) -->
+        <?php if ($adminOwnFaculty): ?>
+            <div class="academic-card p-5 border-l-4 border-l-oxford-navy shadow-xs bg-white mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-12 h-12 rounded-[6px] bg-slate-100 border border-scholar-border overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <?php $adminPhoto = faculty_photo_url($adminOwnFaculty['photo_url'] ?? null); ?>
+                            <?php if ($adminPhoto): ?>
+                                <img src="<?= e($adminPhoto) ?>" alt="Avatar" class="w-full h-full object-cover">
+                            <?php else: ?>
+                                <i class="fa-solid fa-user-graduate text-xl text-slate-300"></i>
+                            <?php endif; ?>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <span class="text-sm font-bold font-serif text-oxford-navy truncate">
+                                    <?= e(($adminOwnFaculty['salutation'] ? $adminOwnFaculty['salutation'] . ' ' : '') . $adminOwnFaculty['full_name']) ?>
+                                </span>
+                                <span class="academic-tag bg-blue-50 text-oxford-blue border-blue-200 font-mono text-[9px] font-bold uppercase">
+                                    Your Faculty Profile
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 font-sans truncate">
+                                <?= e($adminOwnFaculty['designation'] ?: 'Faculty Member') ?> • <?= e($adminOwnFaculty['department_name'] ?? 'Faculty Division') ?> • <?= (int)$adminOwnFaculty['pub_count'] ?> publications
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <a href="<?= researcher_url($adminOwnFaculty) ?>" target="_blank" class="btn-academic-secondary text-xs !py-1.5 !px-3 shadow-xs">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] mr-1"></i>
+                            <span>Public View</span>
+                        </a>
+                        <a href="<?= url('dashboard/index.php?own=1') ?>" class="btn-academic-primary text-xs !py-1.5 !px-3.5 shadow-xs">
+                            <i class="fa-solid fa-sliders text-xs mr-1"></i>
+                            <span>Manage Your Profile</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
         
         <!-- KPI Ribbon -->
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
