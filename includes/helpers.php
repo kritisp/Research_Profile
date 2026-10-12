@@ -85,7 +85,8 @@ function researcher_url(array $faculty): string {
     if (!empty($faculty['slug'])) {
         return url('researchers/' . urlencode($faculty['slug']));
     }
-    return url('profile.php?id=' . (int)($faculty['id'] ?? 0));
+    $id = (int)($faculty['profile_id'] ?? $faculty['id'] ?? 0);
+    return url('profile.php?id=' . $id);
 }
 
 /**

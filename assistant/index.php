@@ -196,11 +196,11 @@ require_once __DIR__ . '/../includes/header.php';
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="openClaimFacultyModal()"
-                        class="btn-academic-primary text-xs !py-2 !px-4 bg-emerald-600 hover:bg-emerald-700 border-emerald-600 shadow-xs inline-flex items-center gap-1.5">
+                <a href="<?= url('assistant/choose_faculty.php') ?>"
+                   class="btn-academic-primary text-xs !py-2 !px-4 bg-emerald-600 hover:bg-emerald-700 border-emerald-600 shadow-xs inline-flex items-center gap-1.5">
                     <i class="fa-solid fa-user-plus text-xs"></i>
                     <span>Assign / Choose Faculty</span>
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -401,11 +401,11 @@ require_once __DIR__ . '/../includes/header.php';
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="openClaimFacultyModal()"
-                        class="btn-academic-secondary text-xs !py-1.5 !px-3 shadow-xs inline-flex items-center gap-1.5">
+                <a href="<?= url('assistant/choose_faculty.php') ?>"
+                   class="btn-academic-secondary text-xs !py-1.5 !px-3 shadow-xs inline-flex items-center gap-1.5">
                     <i class="fa-solid fa-plus text-[10px]"></i>
                     <span>Add Faculty</span>
-                </button>
+                </a>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-slate-100 border border-slate-200 text-xs font-mono text-slate-700">
                     <span><?= count($assignedFaculties) ?> Active</span>
                 </span>
@@ -419,12 +419,12 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
                 <h3 class="font-serif text-base font-bold text-oxford-navy">No faculty profiles in your portfolio yet</h3>
                 <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto font-sans">
-                    Click <strong>"Assign / Choose Faculty"</strong> to select faculty scholars from your department whose publications and details you will manage.
+                    Click <strong>"Assign / Choose Faculty"</strong> to view all institutional scholars, filter by department, and choose profiles to manage.
                 </p>
-                <button type="button" onclick="openClaimFacultyModal()" class="btn-academic-primary text-xs mt-4 inline-flex items-center gap-1.5">
+                <a href="<?= url('assistant/choose_faculty.php') ?>" class="btn-academic-primary text-xs mt-4 inline-flex items-center gap-1.5">
                     <i class="fa-solid fa-user-plus text-xs"></i>
                     <span>Choose Faculty to Manage</span>
-                </button>
+                </a>
             </div>
         <?php else: ?>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -542,74 +542,5 @@ require_once __DIR__ . '/../includes/header.php';
 
 </div>
 
-<!-- Claim / Assign Faculty Modal -->
-<div id="claimFacultyModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="academic-card max-w-lg w-full p-6 shadow-xl relative bg-white" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeClaimFacultyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-        <div class="flex items-center gap-2 mb-2">
-            <i class="fa-solid fa-user-plus text-emerald-600 text-xl"></i>
-            <h3 class="font-serif font-bold text-lg text-oxford-navy">Assign Faculty to Your Portfolio</h3>
-        </div>
-        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-            Select a faculty member from the directory to add them to your active management list. You will be able to update their research papers, fill missing credentials, and track their data completeness.
-        </p>
-
-        <?php if (empty($availableFaculties)): ?>
-            <div class="p-6 text-center text-slate-500 text-xs bg-slate-50 rounded border border-slate-200">
-                <i class="fa-solid fa-check-double text-2xl text-emerald-600 mb-2"></i>
-                <p class="font-bold text-oxford-navy text-sm">All faculty profiles are already in your portfolio!</p>
-            </div>
-        <?php else: ?>
-            <form action="<?= url('assistant/index.php') ?>" method="POST" class="space-y-4">
-                <?= csrf_field() ?>
-                <input type="hidden" name="action" value="claim_faculty">
-
-                <div>
-                    <label class="academic-label">Select Faculty Scholar</label>
-                    <select name="target_user_id" class="academic-input text-xs" required>
-                        <option value="">— Choose a faculty member —</option>
-                        <?php foreach ($availableFaculties as $avail): ?>
-                            <option value="<?= (int)$avail['user_id'] ?>">
-                                <?= e(($avail['salutation'] ? $avail['salutation'] . ' ' : '') . $avail['full_name']) ?> 
-                                (<?= e($avail['department_code'] ?? 'Faculty') ?> — <?= e($avail['designation']) ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <p class="text-[10px] text-slate-400 mt-1 font-sans">
-                        Showing <?= count($availableFaculties) ?> active faculty scholars available for assignment.
-                    </p>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeClaimFacultyModal()" class="btn-academic-secondary text-xs !py-2 !px-4">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn-academic-primary text-xs !py-2 !px-4 bg-emerald-700 hover:bg-emerald-800 border-emerald-800">
-                        <i class="fa-solid fa-plus mr-1"></i> Add to Portfolio
-                    </button>
-                </div>
-            </form>
-        <?php endif; ?>
-    </div>
-</div>
-
-<script>
-function openClaimFacultyModal() {
-    const modal = document.getElementById('claimFacultyModal');
-    if (modal) modal.classList.remove('hidden');
-}
-function closeClaimFacultyModal() {
-    const modal = document.getElementById('claimFacultyModal');
-    if (modal) modal.classList.add('hidden');
-}
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeClaimFacultyModal();
-});
-document.getElementById('claimFacultyModal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeClaimFacultyModal();
-});
-</script>
-
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
+

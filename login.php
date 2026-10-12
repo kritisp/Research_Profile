@@ -108,7 +108,12 @@ require_once __DIR__ . '/includes/header.php';
                         </span>
                         <input type="password" id="password" name="password" required
                             placeholder="••••••••••••"
-                            class="academic-input pl-9 text-xs sm:text-sm">
+                            class="academic-input pl-9 pr-10 text-xs sm:text-sm">
+                        <button type="button" onclick="togglePasswordVisibility('password', this)"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                            title="Toggle password visibility">
+                            <i class="fa-solid fa-eye text-xs"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -132,5 +137,24 @@ require_once __DIR__ . '/includes/header.php';
 
     </div>
 </div>
+
+<script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    const icon = btn.querySelector('i');
+    if (icon) {
+        if (isPassword) {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+}
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
