@@ -101,29 +101,9 @@ $expStmt = $db->prepare("SELECT * FROM academic_experience WHERE faculty_profile
 $expStmt->execute([$profileId]);
 $experience = $expStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch Active Delegates
-$delStmt = $db->prepare("
-    SELECT fd.*, u.full_name, u.email 
-    FROM faculty_delegates fd
-    JOIN users u ON fd.delegate_user_id = u.id
-    WHERE fd.faculty_user_id = ?
-");
-$delStmt->execute([$faculty['user_id']]);
-$delegates = $delStmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Calculate profile completeness score
-$completenessFields = [
-    'photo_url' => !empty($faculty['photo_url']),
-    'bio' => !empty($faculty['bio']),
-    'department_id' => !empty($faculty['department_id']),
-    'research_interests' => !empty($faculty['research_interests']),
-    'orcid_id' => !empty($faculty['orcid_id']),
-    'google_scholar_url' => !empty($faculty['google_scholar_url']),
-    'publications' => count($publications) > 0,
-    'education' => count($education) > 0,
-];
-$completedCount = count(array_filter($completenessFields));
-$completenessPercent = round(($completedCount / count($completenessFields)) * 100);
+// Calculate profile completeness score and health report
+$healthReport = get_profile_completeness_report($faculty, $publications, $experience, $education);
+$completenessPercent = $healthReport['score'];
 
 $pageTitle = 'Faculty Dashboard — ' . $faculty['full_name'];
 require_once __DIR__ . '/../includes/header.php';
@@ -294,18 +274,6 @@ require_once __DIR__ . '/../includes/header.php';
             </a>
             <a href="#section-awards" class="academic-tag hover:border-oxford-slate px-3 py-1.5 transition">
                 Awards (<?= count($awards) ?>)
-            </a>
-        </div>
-
-        <!-- Right: Glowing / Highlighted Add Delegate/Assistant Button -->
-        <div class="flex-shrink-0">
-            <a href="<?= url('dashboard/delegates.php?profile_id=' . $faculty['id']) ?>" 
-               class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-oxford-navy shadow-xs hover:shadow-md hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 border border-blue-400/40 ring-2 ring-blue-500/20 hover:ring-blue-500/50 group">
-                <i class="fa-solid fa-user-plus text-[11px] text-blue-200 group-hover:scale-110 transition-transform"></i>
-                <span>Add Delegate / Assistant</span>
-                <?php if (count($delegates) > 0): ?>
-                    <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-mono"><?= count($delegates) ?></span>
-                <?php endif; ?>
             </a>
         </div>
     </div>

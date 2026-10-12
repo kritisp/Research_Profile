@@ -138,6 +138,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     redirect('admin/index.php?tab=delegations');
 }
 
+// 5b. Assign Faculty to Administrator Portfolio (Super Admin direct assignment)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'assign_faculty_admin') {
+    require_csrf();
+    $adminUserId = (int)($_POST['admin_user_id'] ?? 0);
+    $facultyUserId = (int)($_POST['faculty_user_id'] ?? 0);
+
+    if ($adminUserId > 0 && $facultyUserId > 0) {
+        try {
+            $ins = $db->prepare("INSERT IGNORE INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
+            $ins->execute([$facultyUserId, $adminUserId, user_id()]);
+            record_audit('portfolio_assigned', 'faculty_delegates', $facultyUserId, "Super Admin assigned faculty user {$facultyUserId} to admin {$adminUserId}");
+            set_flash('success', "Faculty scholar successfully assigned to administrator portfolio.");
+        } catch (Exception $e) {
+            error_log("Error assigning faculty to admin: " . $e->getMessage());
+            set_flash('danger', 'Failed to assign faculty to administrator.');
+        }
+    }
+    redirect('admin/index.php?tab=delegations');
+}
+
 // 6. Create New User / Assistant directly
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_user') {
     require_csrf();
@@ -282,12 +302,13 @@ $uStmt = $db->prepare($userSql);
 $uStmt->execute($userParams);
 $usersList = $uStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 3. Delegations Query
+// 3. Delegations Query & University-Wide Faculty Compliance
 $delegations = $db->query("
     SELECT fd.id as delegation_id, fd.created_at as granted_date,
            del_u.id as delegate_user_id, del_u.full_name as delegate_name, del_u.email as delegate_email, del_u.role as delegate_role,
            fac_u.id as faculty_user_id, fac_u.full_name as faculty_name, fac_u.email as faculty_email,
-           fp.id as profile_id, fp.slug as profile_slug, fp.designation, d.name as dept_name
+           fp.id as profile_id, fp.slug as profile_slug, fp.designation, fp.photo_url, fp.bio, fp.research_interests, fp.orcid_id, fp.cabin, fp.phone,
+           d.name as dept_name
     FROM faculty_delegates fd
     JOIN users del_u ON fd.delegate_user_id = del_u.id
     JOIN users fac_u ON fd.faculty_user_id = fac_u.id
@@ -295,6 +316,34 @@ $delegations = $db->query("
     LEFT JOIN departments d ON fp.department_id = d.id
     ORDER BY fd.id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch admins for the assignment modal
+$adminUsersList = $db->query("
+    SELECT id, full_name, email, role 
+    FROM users 
+    WHERE role IN ('admin', 'super_admin') AND status = 'active' 
+    ORDER BY full_name ASC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch all faculties with their assigned administrator (if any)
+$allFacultiesAudit = $db->query("
+    SELECT fp.id as profile_id, fp.slug as profile_slug, fp.salutation, fp.designation, fp.photo_url, fp.bio, fp.research_interests, fp.orcid_id, fp.cabin, fp.phone,
+           u.id as user_id, u.full_name, u.email,
+           d.name as dept_name, d.code as dept_code,
+           del_u.full_name as assigned_admin_name, del_u.id as assigned_admin_id
+    FROM faculty_profiles fp
+    JOIN users u ON fp.user_id = u.id
+    LEFT JOIN departments d ON fp.department_id = d.id
+    LEFT JOIN faculty_delegates fd ON fd.faculty_user_id = u.id
+    LEFT JOIN users del_u ON fd.delegate_user_id = del_u.id
+    WHERE u.status = 'active'
+    ORDER BY u.full_name ASC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($allFacultiesAudit as &$fAudit) {
+    $fAudit['health'] = get_profile_completeness_report($fAudit);
+}
+unset($fAudit);
 
 // 4. Audit Trail (Searchable & Filterable)
 $auditSearch = trim($_GET['audit_q'] ?? '');
@@ -1018,82 +1067,277 @@ require_once __DIR__ . '/../includes/header.php';
     <!-- ================================================================= -->
     <!-- TAB 4: DELEGATIONS (ASSISTANT -> FACULTY PROFILES MAPPING)        -->
     <!-- ================================================================= -->
+    <!-- ================================================================= -->
+    <!-- TAB 4: ADMINISTRATOR PORTFOLIOS & SCHOLAR OVERSIGHT               -->
+    <!-- ================================================================= -->
     <?php if ($currentTab === 'delegations'): ?>
         
-        <div class="academic-card overflow-hidden">
-            <div class="p-6 border-b border-scholar-border bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                    <h2 class="font-serif font-bold text-lg text-oxford-navy">Active Profile Delegations</h2>
-                    <p class="text-xs text-scholar-muted mt-0.5">Mapping of Department Research Assistants permitted to maintain scholar portfolios.</p>
+        <div class="space-y-8">
+            <!-- Table 1: Active Administrative Assignments -->
+            <div class="academic-card overflow-hidden">
+                <div class="p-6 border-b border-scholar-border bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="font-serif font-bold text-lg text-oxford-navy">Active Administrator Portfolios</h2>
+                        <p class="text-xs text-scholar-muted mt-0.5">Assigned faculty portfolios actively managed by Department Administrators & Assistants.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" 
+                                onclick="document.getElementById('assignFacultyAdminModal').classList.remove('hidden')"
+                                class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-plus text-[10px]"></i>
+                            <span>Assign Faculty to Admin</span>
+                        </button>
+                        <span class="academic-tag font-mono text-xs">
+                            Total: <strong><?= count($delegations) ?></strong>
+                        </span>
+                    </div>
                 </div>
-                <span class="academic-tag font-mono text-xs">
-                    Total active grants: <strong><?= count($delegations) ?></strong>
-                </span>
+
+                <?php if (empty($delegations)): ?>
+                    <div class="p-12 text-center text-slate-500 text-xs">
+                        <i class="fa-solid fa-users text-3xl text-slate-300 mb-2"></i>
+                        <p class="font-serif text-sm font-bold text-oxford-navy">No active admin portfolio assignments</p>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                            Admins can claim faculties directly, or you can assign any faculty to an administrator using the button above.
+                        </p>
+                    </div>
+                <?php else: ?>
+                    <div class="overflow-x-auto">
+                        <table class="academic-table w-full text-left text-xs">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4">Administrator</th>
+                                    <th class="py-3 px-4">Managed Faculty Scholar</th>
+                                    <th class="py-3 px-4">Department</th>
+                                    <th class="py-3 px-4">Profile Completeness & Missing Fields</th>
+                                    <th class="py-3 px-4">Assigned Date</th>
+                                    <th class="py-3 px-4 text-right">Revoke</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <?php foreach ($delegations as $del): ?>
+                                    <?php 
+                                        $dHealth = get_profile_completeness_report($del); 
+                                        $healthBadge = $dHealth['score'] >= 85 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : ($dHealth['score'] >= 60 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-rose-50 text-rose-800 border-rose-200');
+                                    ?>
+                                    <tr class="hover:bg-slate-50/70 transition">
+                                        <td class="py-3.5 px-4 font-semibold text-oxford-navy whitespace-nowrap">
+                                            <div><?= e($del['delegate_name']) ?></div>
+                                            <div class="text-[11px] font-mono text-slate-400 font-normal"><?= e($del['delegate_email']) ?></div>
+                                        </td>
+                                        <td class="py-3.5 px-4 whitespace-nowrap font-medium text-oxford-navy">
+                                            <a href="<?= url('researchers/' . (!empty($del['profile_slug']) ? $del['profile_slug'] : $del['profile_id'])) ?>" target="_blank" class="text-oxford-blue hover:underline inline-flex items-center gap-1 font-semibold">
+                                                <span><?= e($del['faculty_name']) ?></span>
+                                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                            </a>
+                                            <div class="text-[11px] text-slate-400"><?= e($del['designation'] ?? 'Faculty Scholar') ?></div>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-slate-600 whitespace-nowrap">
+                                            <?= e($del['dept_name'] ?? '—') ?>
+                                        </td>
+                                        <td class="py-3.5 px-4 min-w-[220px]">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="academic-tag font-mono text-[10px] font-bold border <?= $healthBadge ?>">
+                                                    <?= $dHealth['score'] ?>% Health
+                                                </span>
+                                            </div>
+                                            <?php if (!empty($dHealth['missing_items'])): ?>
+                                                <div class="flex flex-wrap gap-1">
+                                                    <?php foreach (array_slice($dHealth['missing_items'], 0, 3) as $m): ?>
+                                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 font-medium">
+                                                            <?= e($m['label']) ?>
+                                                        </span>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <span class="text-emerald-700 text-[10px] font-semibold flex items-center gap-1">
+                                                    <i class="fa-solid fa-check text-[9px]"></i> Complete
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="py-3.5 px-4 font-mono text-slate-500 whitespace-nowrap">
+                                            <?= date('M d, Y', strtotime($del['granted_date'])) ?>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                                            <form action="<?= url('admin/index.php') ?>" method="POST" class="inline m-0"
+                                                  onsubmit="return confirm('Revoke portfolio management access for <?= addslashes(e($del['delegate_name'])) ?> on <?= addslashes(e($del['faculty_name'])) ?>?');">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="action" value="revoke_delegation">
+                                                <input type="hidden" name="delegation_id" value="<?= (int)$del['delegation_id'] ?>">
+                                                <button type="submit" class="text-rose-700 hover:text-rose-900 font-semibold text-xs inline-flex items-center gap-1">
+                                                    <i class="fa-solid fa-ban text-[10px]"></i> Revoke
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
             </div>
 
-            <?php if (empty($delegations)): ?>
-                <div class="p-12 text-center text-slate-500 text-xs">
-                    <i class="fa-solid fa-handshake-angle text-3xl text-slate-300 mb-2"></i>
-                    <p class="font-serif text-sm font-bold text-oxford-navy">No active delegations recorded</p>
-                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                        Faculty members can grant assistants profile edit access via their faculty dashboard under the Delegates tab.
-                    </p>
+            <!-- Table 2: University-Wide Faculty Compliance & Missing Data Audit -->
+            <div class="academic-card overflow-hidden">
+                <div class="p-6 border-b border-scholar-border bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="font-serif font-bold text-lg text-oxford-navy">University-Wide Faculty Compliance Audit</h2>
+                        <p class="text-xs text-scholar-muted mt-0.5">Institutional tracking of all faculty profiles, supervising administrators, and overdue/missing scholarly records.</p>
+                    </div>
+                    <span class="academic-tag font-mono text-xs">
+                        Total Faculties: <strong><?= count($allFacultiesAudit) ?></strong>
+                    </span>
                 </div>
-            <?php else: ?>
+
                 <div class="overflow-x-auto">
                     <table class="academic-table w-full text-left text-xs">
                         <thead>
                             <tr>
-                                <th class="py-3 px-4">Authorized Delegate</th>
-                                <th class="py-3 px-4">Delegate Role</th>
-                                <th class="py-3 px-4">Managed Faculty Profile</th>
+                                <th class="py-3 px-4">Faculty Scholar</th>
                                 <th class="py-3 px-4">Department</th>
-                                <th class="py-3 px-4">Authorized Date</th>
-                                <th class="py-3 px-4 text-right">Revoke Access</th>
+                                <th class="py-3 px-4">Supervising Administrator</th>
+                                <th class="py-3 px-4">Data Health & Completeness</th>
+                                <th class="py-3 px-4">Missing / Delayed Records Alert</th>
+                                <th class="py-3 px-4 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-700">
-                            <?php foreach ($delegations as $del): ?>
+                            <?php foreach ($allFacultiesAudit as $fRow): ?>
+                                <?php 
+                                    $fHealth = $fRow['health'];
+                                    $fBadgeColor = $fHealth['score'] >= 85 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : ($fHealth['score'] >= 60 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-rose-50 text-rose-800 border-rose-200');
+                                ?>
                                 <tr class="hover:bg-slate-50/70 transition">
                                     <td class="py-3.5 px-4 font-semibold text-oxford-navy whitespace-nowrap">
-                                        <div><?= e($del['delegate_name']) ?></div>
-                                        <div class="text-[11px] font-mono text-slate-400 font-normal"><?= e($del['delegate_email']) ?></div>
-                                    </td>
-                                    <td class="py-3.5 px-4 whitespace-nowrap">
-                                        <span class="academic-tag font-mono text-[10px] uppercase font-bold bg-amber-50 text-amber-800 border-amber-200">
-                                            <?= e($del['delegate_role']) ?>
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-4 whitespace-nowrap font-medium text-oxford-navy">
-                                        <a href="<?= url('researchers/' . (!empty($del['profile_slug']) ? $del['profile_slug'] : $del['profile_id'])) ?>" target="_blank" class="text-oxford-blue hover:underline inline-flex items-center gap-1 font-semibold">
-                                            <span><?= e($del['faculty_name']) ?></span>
+                                        <a href="<?= url('researchers/' . (!empty($fRow['profile_slug']) ? $fRow['profile_slug'] : $fRow['profile_id'])) ?>" target="_blank" class="text-oxford-blue hover:underline inline-flex items-center gap-1">
+                                            <span><?= e(($fRow['salutation'] ? $fRow['salutation'] . ' ' : '') . $fRow['full_name']) ?></span>
                                             <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                                         </a>
-                                        <div class="text-[11px] text-slate-400"><?= e($del['designation'] ?? 'Faculty Scholar') ?></div>
+                                        <div class="text-[11px] font-mono text-slate-400 font-normal"><?= e($fRow['email']) ?></div>
                                     </td>
                                     <td class="py-3.5 px-4 text-slate-600 whitespace-nowrap">
-                                        <?= e($del['dept_name'] ?? '—') ?>
+                                        <?= e($fRow['dept_name'] ?? '—') ?>
                                     </td>
-                                    <td class="py-3.5 px-4 font-mono text-slate-500 whitespace-nowrap">
-                                        <?= date('M d, Y', strtotime($del['granted_date'])) ?>
+                                    <td class="py-3.5 px-4 whitespace-nowrap">
+                                        <?php if (!empty($fRow['assigned_admin_name'])): ?>
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 text-oxford-navy border border-blue-200 font-semibold text-[11px]">
+                                                <i class="fa-solid fa-user-check text-emerald-600 text-[10px]"></i>
+                                                <span><?= e($fRow['assigned_admin_name']) ?></span>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-semibold">
+                                                <i class="fa-solid fa-circle-exclamation text-[9px]"></i>
+                                                <span>Unassigned</span>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="py-3.5 px-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <span class="academic-tag font-mono text-[10px] font-bold border <?= $fBadgeColor ?>">
+                                                <?= $fHealth['score'] ?>%
+                                            </span>
+                                            <div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                                <div class="bg-oxford-slate h-full rounded-full" style="width: <?= $fHealth['score'] ?>%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3.5 px-4 min-w-[200px]">
+                                        <?php if (empty($fHealth['missing_items'])): ?>
+                                            <span class="text-emerald-700 text-[11px] font-semibold flex items-center gap-1">
+                                                <i class="fa-solid fa-circle-check text-xs"></i> Up to Date
+                                            </span>
+                                        <?php else: ?>
+                                            <div class="flex flex-wrap gap-1">
+                                                <?php foreach ($fHealth['missing_items'] as $m): ?>
+                                                    <?php 
+                                                        $badgeCls = match ($m['severity']) {
+                                                            'danger' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                            'warning' => 'bg-amber-50 text-amber-800 border-amber-200',
+                                                            default => 'bg-slate-50 text-slate-700 border-slate-200'
+                                                        };
+                                                    ?>
+                                                    <span class="text-[10px] px-2 py-0.5 rounded border <?= $badgeCls ?> font-medium inline-flex items-center gap-1">
+                                                        <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
+                                                        <?= e($m['label']) ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="py-3.5 px-4 text-right whitespace-nowrap">
-                                        <form action="<?= url('admin/index.php') ?>" method="POST" class="inline m-0"
-                                              onsubmit="return confirm('Revoke delegate access for <?= addslashes(e($del['delegate_name'])) ?> on <?= addslashes(e($del['faculty_name'])) ?>?');">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="action" value="revoke_delegation">
-                                            <input type="hidden" name="delegation_id" value="<?= (int)$del['delegation_id'] ?>">
-                                            <button type="submit" class="text-rose-700 hover:text-rose-900 font-semibold text-xs inline-flex items-center gap-1">
-                                                <i class="fa-solid fa-ban text-[10px]"></i> Revoke
-                                            </button>
-                                        </form>
+                                        <a href="<?= url('dashboard/edit_profile.php?id=' . $fRow['profile_id']) ?>"
+                                           class="btn-academic-secondary text-xs !py-1 !px-2.5 shadow-xs">
+                                            <span>Edit Profile</span>
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
-            <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Assign Faculty to Admin Modal -->
+        <div id="assignFacultyAdminModal" class="fixed inset-0 z-50 flex items-center justify-center bg-oxford-navy/50 backdrop-blur-xs hidden p-4">
+            <div class="academic-card max-w-lg w-full p-6 shadow-xl relative bg-white" onclick="event.stopPropagation()">
+                <div class="flex items-center justify-between pb-3 border-b border-scholar-border mb-4">
+                    <h3 class="font-serif font-bold text-lg text-oxford-navy flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear text-oxford-blue"></i>
+                        <span>Assign Faculty to Administrator</span>
+                    </h3>
+                    <button type="button" onclick="document.getElementById('assignFacultyAdminModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                    Select an Administrator or Research Assistant and choose the Faculty Scholar whose profile, publications, and records they will supervise.
+                </p>
+
+                <form action="<?= url('admin/index.php') ?>" method="POST" class="space-y-4">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="assign_faculty_admin">
+
+                    <div>
+                        <label class="block font-semibold text-oxford-navy mb-1.5 font-mono uppercase tracking-wider text-[11px]">
+                            Select Administrator / Assistant
+                        </label>
+                        <select name="admin_user_id" class="academic-input w-full text-xs font-semibold" required>
+                            <option value="">— Choose an Administrator —</option>
+                            <?php foreach ($adminUsersList as $adm): ?>
+                                <option value="<?= (int)$adm['id'] ?>">
+                                    <?= e($adm['full_name']) ?> (<?= e($adm['role']) ?> — <?= e($adm['email']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-oxford-navy mb-1.5 font-mono uppercase tracking-wider text-[11px]">
+                            Select Faculty Scholar
+                        </label>
+                        <select name="faculty_user_id" class="academic-input w-full text-xs font-semibold" required>
+                            <option value="">— Choose Faculty Scholar —</option>
+                            <?php foreach ($allFacultiesAudit as $fOpt): ?>
+                                <option value="<?= (int)$fOpt['user_id'] ?>">
+                                    <?= e(($fOpt['salutation'] ? $fOpt['salutation'] . ' ' : '') . $fOpt['full_name']) ?> 
+                                    (<?= e($fOpt['dept_code'] ?? 'Faculty') ?> — <?= e($fOpt['designation']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <button type="button" onclick="document.getElementById('assignFacultyAdminModal').classList.add('hidden')" class="btn-academic-secondary text-xs !py-1.5 !px-3">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-academic-primary text-xs !py-1.5 !px-3.5 bg-oxford-navy">
+                            <i class="fa-solid fa-check mr-1"></i> Confirm Assignment
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
     <?php endif; ?>

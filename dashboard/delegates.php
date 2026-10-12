@@ -10,19 +10,10 @@ require_once __DIR__ . '/../includes/auth.php';
 
 require_login();
 
-$db = Database::getConnection();
+// Hierarchy Rule: Faculty cannot self-assign delegates; administrators manage assignments.
+set_flash('info', 'Faculty profile assignments are managed by Department Administrators.');
+redirect('dashboard/index.php');
 
-$pStmt = $db->prepare("SELECT id, user_id FROM faculty_profiles WHERE user_id = ?");
-$pStmt->execute([user_id()]);
-$faculty = $pStmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$faculty) {
-    set_flash('danger', 'Faculty profile not found.');
-    redirect('dashboard/index.php');
-}
-
-$facultyUserId = (int)$faculty['user_id'];
-$error = null;
 
 // Handle Add Delegate
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_delegate') {

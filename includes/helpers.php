@@ -717,6 +717,110 @@ function get_academic_indexing_details(): array {
     ];
 }
 
+/**
+ * Calculates profile health score and detects missing/delayed scholarly details.
+ */
+function get_profile_completeness_report(array $faculty, ?array $publications = null, ?array $experience = null, ?array $education = null): array {
+    $db = Database::getConnection();
+    $profileId = (int)($faculty['id'] ?? $faculty['profile_id'] ?? 0);
+
+    // Fetch counts if arrays not provided
+    if ($publications === null) {
+        $pStmt = $db->prepare("SELECT id, publication_year FROM publications WHERE faculty_profile_id = ? ORDER BY publication_year DESC");
+        $pStmt->execute([$profileId]);
+        $publications = $pStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    if ($experience === null) {
+        $eStmt = $db->prepare("SELECT id FROM academic_experience WHERE faculty_profile_id = ?");
+        $eStmt->execute([$profileId]);
+        $experience = $eStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    if ($education === null) {
+        $edStmt = $db->prepare("SELECT id FROM education WHERE faculty_profile_id = ?");
+        $edStmt->execute([$profileId]);
+        $education = $edStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    $currentYear = (int)date('Y');
+    $missingItems = [];
+    $totalChecks = 8;
+    $passedChecks = 0;
+
+    // 1. Photo
+    if (!empty($faculty['photo_url'])) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = ['field' => 'photo', 'label' => 'Missing Photo', 'severity' => 'warning'];
+    }
+
+    // 2. Biography
+    if (!empty($faculty['bio']) && strlen(trim($faculty['bio'])) > 30) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = ['field' => 'bio', 'label' => 'Missing Bio', 'severity' => 'danger'];
+    }
+
+    // 3. Research Interests
+    if (!empty($faculty['research_interests'])) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = ['field' => 'research_interests', 'label' => 'Missing Interests', 'severity' => 'warning'];
+    }
+
+    // 4. ORCID iD
+    if (!empty($faculty['orcid_id'])) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = ['field' => 'orcid_id', 'label' => 'Missing ORCID', 'severity' => 'warning'];
+    }
+
+    // 5. Contact Details (Phone or Cabin)
+    if (!empty($faculty['cabin']) || !empty($faculty['phone'])) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = ['field' => 'contact', 'label' => 'Missing Office/Phone', 'severity' => 'info'];
+    }
+
+    // 6. Publications recorded
+    $pubCount = count($publications);
+    if ($pubCount > 0) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = ['field' => 'publications', 'label' => 'No Publications', 'severity' => 'danger'];
+    }
+
+    // 7. Recent publications (Delayed filling check!)
+    $mostRecentYear = !empty($publications) ? (int)($publications[0]['publication_year'] ?? 0) : 0;
+    if ($mostRecentYear >= ($currentYear - 1)) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = [
+            'field' => 'recent_pubs', 
+            'label' => $pubCount > 0 ? "No recent works ({$currentYear}/" . ($currentYear-1) . ")" : "Publications Overdue", 
+            'severity' => 'danger'
+        ];
+    }
+
+    // 8. Education / Career History
+    if (count($experience) > 0 || count($education) > 0) {
+        $passedChecks++;
+    } else {
+        $missingItems[] = ['field' => 'career', 'label' => 'Missing Education/Experience', 'severity' => 'warning'];
+    }
+
+    $score = round(($passedChecks / $totalChecks) * 100);
+
+    return [
+        'score'           => $score,
+        'passed_count'    => $passedChecks,
+        'total_checks'    => $totalChecks,
+        'missing_items'   => $missingItems,
+        'has_critical'    => in_array('danger', array_column($missingItems, 'severity'), true),
+        'latest_pub_year' => $mostRecentYear,
+    ];
+}
+
+
 
 
 
