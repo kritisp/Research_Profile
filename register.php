@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Create Faculty Account — Scholarly Portal';
+$pageTitle = 'Create Faculty Account - Scholarly Portal';
 $activeNav = 'register';
 require_once __DIR__ . '/includes/header.php';
 ?>

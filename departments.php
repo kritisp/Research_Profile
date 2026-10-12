@@ -23,7 +23,7 @@ $deptStmt = $db->query("
 ");
 $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Academic Departments — Faculty Profiles';
+$pageTitle = 'Academic Departments - Faculty Profiles';
 $activeNav = 'departments';
 require_once __DIR__ . '/includes/header.php';
 ?>

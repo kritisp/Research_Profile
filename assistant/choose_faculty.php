@@ -171,7 +171,7 @@ if ($isSuperAdmin) {
     $allAdminsList = $db->query("SELECT id, full_name, email, role FROM users WHERE role IN ('admin', 'super_admin') AND status = 'active' ORDER BY full_name ASC")->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$pageTitle = 'Assign Faculty Scholars — Department Administrator Portal';
+$pageTitle = 'Assign Faculty Scholars - Department Administrator Portal';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

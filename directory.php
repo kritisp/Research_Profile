@@ -81,7 +81,7 @@ function filter_url_without($key) {
 
 $hasActiveFilters = (!empty($q) || !empty($dept) || !empty($inst));
 
-$pageTitle = 'Faculty Directory — Scholarly Profiles';
+$pageTitle = 'Faculty Directory - Scholarly Profiles';
 $activeNav = 'directory';
 require_once __DIR__ . '/includes/header.php';
 ?>

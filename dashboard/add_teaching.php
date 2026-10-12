@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Teaching Assignment — Dashboard';
+$pageTitle = 'Add Teaching Assignment - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

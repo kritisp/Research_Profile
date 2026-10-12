@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Sponsored Research Project — Dashboard';
+$pageTitle = 'Add Sponsored Research Project - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

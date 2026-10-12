@@ -105,7 +105,7 @@ $experience = $expStmt->fetchAll(PDO::FETCH_ASSOC);
 $healthReport = get_profile_completeness_report($faculty, $publications, $experience, $education);
 $completenessPercent = $healthReport['score'];
 
-$pageTitle = 'Faculty Dashboard — ' . $faculty['full_name'];
+$pageTitle = 'Faculty Dashboard - ' . $faculty['full_name'];
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

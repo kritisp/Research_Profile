@@ -1,6 +1,6 @@
 <?php
 /**
- * Departmental Scholar - Academic Research Portal Homepage
+ * Departmental Research - Academic Research Portal Homepage
  * Style: Oxford-Ivy Modernity x Swiss Academic Editorial
  * Focus: High Legibility, Typographic Hierarchy, Refined Borders, Subdued Academic Elevation
  */
@@ -59,7 +59,7 @@ if (!empty($featuredFaculty)) {
     }
 }
 
-$pageTitle = 'Home — Faculty Research Directory & Repository';
+$pageTitle = 'Home - Faculty Research Directory & Repository';
 $activeNav = 'home';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/preloader.php';

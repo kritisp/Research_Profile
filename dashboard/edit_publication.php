@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Edit Publication — Dashboard';
+$pageTitle = 'Edit Publication - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

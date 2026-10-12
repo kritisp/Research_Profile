@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Edit Profile — ' . $profile['full_name'];
+$pageTitle = 'Edit Profile - ' . $profile['full_name'];
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Patent / IP — Dashboard';
+$pageTitle = 'Add Patent / IP - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

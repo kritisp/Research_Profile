@@ -75,7 +75,7 @@ $availStmt = $db->prepare("
 $availStmt->execute([$facultyUserId]);
 $availableAssistants = $availStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Manage Research Assistants & Delegates — Dashboard';
+$pageTitle = 'Manage Research Assistants & Delegates - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

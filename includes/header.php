@@ -17,7 +17,7 @@ $flashes   = get_flashes();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($pageTitle) ?> | Departmental Scholar</title>
+    <title><?= e($pageTitle) ?> - Departmental Research</title>
 
     <!-- Google Fonts: EB Garamond (Scholar Serif), Plus Jakarta Sans (UI Body), JetBrains Mono (Identifiers) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,7 +97,7 @@ $flashes   = get_flashes();
     <div class="bg-oxford-navy text-slate-300 text-xs py-2 px-4 border-b border-oxford-blue/50">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
             <div class="flex items-center gap-3">
-                <span class="font-bold tracking-wider text-amber-300 font-mono text-[11px] uppercase">Departmental Scholar</span>
+                <span class="font-bold tracking-wider text-amber-300 font-mono text-[11px] uppercase">Departmental Research</span>
                 <span class="text-slate-600">|</span>
                 <span class="text-slate-300 font-medium text-[11px] hidden sm:inline">Faculty Scholarly Directory &amp; Research Repository</span>
             </div>
@@ -122,12 +122,12 @@ $flashes   = get_flashes();
                 
                 <!-- Brand / Seal -->
                 <div class="flex items-center gap-6">
-                    <a href="<?= url() ?>" class="flex items-center gap-3 group focus:outline-none" aria-label="Departmental Scholar Home">
+                    <a href="<?= url() ?>" class="flex items-center gap-3 group focus:outline-none" aria-label="Departmental Research Home">
                         <div class="w-10 h-10 rounded-[6px] bg-white border border-scholar-border flex items-center justify-center p-0.5 shadow-xs transition group-hover:border-oxford-slate group-hover:bg-slate-50">
                             <img src="<?= url('assets/img/soa_logo.png') ?>" alt="SOA Logo" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-serif font-bold text-lg text-oxford-navy tracking-tight leading-tight group-hover:text-oxford-blue transition">Departmental Scholar</span>
+                            <span class="font-serif font-bold text-lg text-oxford-navy tracking-tight leading-tight group-hover:text-oxford-blue transition">Departmental Research</span>
                             <span class="text-[10px] font-semibold text-scholar-muted tracking-wider uppercase font-mono">Faculty Research Repository</span>
                         </div>
                     </a>

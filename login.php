@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Sign In — Faculty & Researcher Portal';
+$pageTitle = 'Sign In - Faculty & Researcher Portal';
 $activeNav = 'login';
 require_once __DIR__ . '/includes/header.php';
 ?>

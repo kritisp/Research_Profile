@@ -10,7 +10,7 @@
                         <div class="w-8 h-8 rounded-[4px] bg-white border border-slate-700 p-0.5 flex items-center justify-center">
                             <img src="<?= url('assets/img/soa_logo.png') ?>" alt="SOA Logo" class="w-full h-full object-contain">
                         </div>
-                        <span class="font-serif font-bold text-lg tracking-tight">Departmental Scholar</span>
+                        <span class="font-serif font-bold text-lg tracking-tight">Departmental Research</span>
                     </div>
                     <p class="text-xs text-slate-400 leading-relaxed">
                         Institutional scholarly repository and faculty research indexing system showcasing peer-reviewed contributions, sponsored grants, and intellectual property.
@@ -117,7 +117,7 @@
 
             <!-- Bottom Institutional Bar -->
             <div class="mt-12 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
-                <p>&copy; <?= date('Y') ?> Departmental Scholar. Institutional Academic Repository. All rights reserved.</p>
+                <p>&copy; <?= date('Y') ?> Departmental Research. Institutional Academic Repository. All rights reserved.</p>
                 <div class="flex items-center gap-4 text-[11px]">
                     <span class="text-slate-400">Peer-Reviewed Academic Repository</span>
                 </div>
@@ -154,7 +154,7 @@
 
             <!-- Notice Message -->
             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans mb-6">
-                <strong id="pNotFoundAuthorName" class="font-bold text-oxford-navy"></strong> is an external co-author / collaborator without an institutional profile in Departmental Scholar.
+                <strong id="pNotFoundAuthorName" class="font-bold text-oxford-navy"></strong> is an external co-author / collaborator without an institutional profile in Departmental Research.
             </p>
 
             <!-- Actions -->

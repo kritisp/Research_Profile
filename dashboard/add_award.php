@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Honor / Award — Dashboard';
+$pageTitle = 'Add Honor / Award - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

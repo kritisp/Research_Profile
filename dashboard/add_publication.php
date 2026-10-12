@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Research Publication — Dashboard';
+$pageTitle = 'Add Research Publication - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

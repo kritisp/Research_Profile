@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Academic Appointment — Dashboard';
+$pageTitle = 'Add Academic Appointment - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

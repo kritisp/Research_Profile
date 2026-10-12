@@ -414,7 +414,7 @@ $adminOwnStmt = $db->prepare("
 $adminOwnStmt->execute([user_id()]);
 $adminOwnFaculty = $adminOwnStmt->fetch(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Super Admin Console — Institutional Research System';
+$pageTitle = 'Super Admin Console - Institutional Research System';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

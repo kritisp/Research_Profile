@@ -154,7 +154,7 @@
                 <span>Faculty Research Network</span>
             </span>
             <h1 class="text-xl sm:text-2xl font-bold font-serif tracking-wider text-slate-100 uppercase drop-shadow-sm pt-1">
-                Departmental Scholar
+                Departmental Research
             </h1>
             <p class="text-[11px] font-mono tracking-widest text-slate-400 uppercase">
                 Faculty Research Directory & Profile System
@@ -213,7 +213,7 @@
         { upTo: 52, text: 'Synchronizing faculty directory...' },
         { upTo: 78, text: 'Loading indexed research publications...' },
         { upTo: 95, text: 'Preparing scholar analytics...' },
-        { upTo: 100, text: 'Welcome to Departmental Scholar' }
+        { upTo: 100, text: 'Welcome to Departmental Research' }
     ];
 
     const updateDisplay = (p) => {

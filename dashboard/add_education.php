@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Add Educational Qualification — Dashboard';
+$pageTitle = 'Add Educational Qualification - Dashboard';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

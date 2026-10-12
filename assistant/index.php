@@ -277,7 +277,7 @@ if ($isSuperAdmin) {
     $totalAdminsCount = count($adminList);
 }
 
-$pageTitle = 'Department Administrator Portal — Faculty Portfolio & Analytics';
+$pageTitle = 'Department Administrator Portal - Faculty Portfolio & Analytics';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
