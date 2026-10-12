@@ -7,8 +7,8 @@
                 <!-- Col 1: Institutional Repository Summary -->
                 <div class="space-y-4 md:pr-4">
                     <div class="flex items-center gap-2.5 text-white">
-                        <div class="w-8 h-8 rounded-[4px] bg-slate-800 border border-slate-700 p-1 flex items-center justify-center">
-                            <img src="<?= url('assets/img/scholar_hat.svg') ?>" alt="Scholar Logo" class="w-full h-full object-contain">
+                        <div class="w-8 h-8 rounded-[4px] bg-white border border-slate-700 p-0.5 flex items-center justify-center">
+                            <img src="<?= url('assets/img/soa_logo.png') ?>" alt="SOA Logo" class="w-full h-full object-contain">
                         </div>
                         <span class="font-serif font-bold text-lg tracking-tight">Departmental Scholar</span>
                     </div>
@@ -77,12 +77,6 @@
                                 <a href="<?= url('dashboard/edit_profile.php') ?>" class="hover:text-white transition flex items-center gap-2">
                                     <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                                     <span>Edit Scholarly Profile</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="<?= url('logout.php') ?>" class="hover:text-rose-400 transition flex items-center gap-2">
-                                    <i class="fa-solid fa-right-from-bracket text-[10px] text-slate-600"></i>
-                                    <span>Sign Out</span>
                                 </a>
                             </li>
                         <?php else: ?>

@@ -138,8 +138,8 @@ require_once __DIR__ . '/includes/header.php';
         
         <!-- Header Banner -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-[6px] bg-oxford-navy text-academic-gold shadow-xs border border-oxford-slate/30 mb-3">
-                <i class="fa-solid fa-id-badge text-lg"></i>
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white shadow-sm border border-slate-200 p-1 mb-3">
+                <img src="<?= url('assets/img/soa_logo.png') ?>" alt="SOA Logo" class="w-full h-full object-contain">
             </div>
             <div class="inline-block text-[10px] font-mono uppercase tracking-widest text-oxford-slate font-semibold mb-1">Academic Roster</div>
             <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-oxford-navy">Create Faculty Profile</h1>

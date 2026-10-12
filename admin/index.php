@@ -146,11 +146,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     if ($adminUserId > 0 && $facultyUserId > 0) {
         try {
-            $ins = $db->prepare("INSERT IGNORE INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
+            $db->beginTransaction();
+            $db->prepare("DELETE FROM faculty_delegates WHERE faculty_user_id = ?")->execute([$facultyUserId]);
+            $ins = $db->prepare("INSERT INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
             $ins->execute([$facultyUserId, $adminUserId, user_id()]);
+            $db->commit();
             record_audit('portfolio_assigned', 'faculty_delegates', $facultyUserId, "Super Admin assigned faculty user {$facultyUserId} to admin {$adminUserId}");
             set_flash('success', "Faculty scholar successfully assigned to administrator portfolio.");
         } catch (Exception $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             error_log("Error assigning faculty to admin: " . $e->getMessage());
             set_flash('danger', 'Failed to assign faculty to administrator.');
         }

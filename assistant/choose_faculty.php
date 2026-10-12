@@ -39,10 +39,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $targetUser = $uChk->fetch(PDO::FETCH_ASSOC);
 
         if ($targetUser) {
-            $ins = $db->prepare("INSERT IGNORE INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
-            $ins->execute([$targetUserId, $assigneeAdminId, $currentUserId]);
-            record_audit('portfolio_claimed', 'faculty_delegates', $targetUserId, "Assigned faculty {$targetUser['full_name']} to admin ID {$assigneeAdminId}");
-            set_flash('success', "Added {$targetUser['full_name']} to management portfolio.");
+            // Check if this faculty is already assigned to any administrator
+            $delChk = $db->prepare("
+                SELECT fd.delegate_user_id, u.full_name as admin_name 
+                FROM faculty_delegates fd 
+                JOIN users u ON fd.delegate_user_id = u.id 
+                WHERE fd.faculty_user_id = ?
+            ");
+            $delChk->execute([$targetUserId]);
+            $existingDel = $delChk->fetch(PDO::FETCH_ASSOC);
+
+            if ($existingDel) {
+                if ((int)$existingDel['delegate_user_id'] === $assigneeAdminId) {
+                    set_flash('info', "{$targetUser['full_name']} is already in this portfolio.");
+                } elseif ($isSuperAdmin) {
+                    // Super Admin is permitted to transfer / reassign
+                    $db->beginTransaction();
+                    $db->prepare("DELETE FROM faculty_delegates WHERE faculty_user_id = ?")->execute([$targetUserId]);
+                    $ins = $db->prepare("INSERT INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
+                    $ins->execute([$targetUserId, $assigneeAdminId, $currentUserId]);
+                    $db->commit();
+                    record_audit('portfolio_reassigned', 'faculty_delegates', $targetUserId, "Super Admin reassigned faculty {$targetUser['full_name']} from {$existingDel['admin_name']} to admin ID {$assigneeAdminId}");
+                    set_flash('success', "Reassigned {$targetUser['full_name']} to administrator portfolio.");
+                } else {
+                    // Regular admin: strictly blocked from assigning an already-assigned faculty
+                    set_flash('danger', "Cannot assign {$targetUser['full_name']}: Already assigned to {$existingDel['admin_name']}. Each faculty profile can only be assigned to one administrator.");
+                }
+            } else {
+                $ins = $db->prepare("INSERT INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
+                $ins->execute([$targetUserId, $assigneeAdminId, $currentUserId]);
+                record_audit('portfolio_claimed', 'faculty_delegates', $targetUserId, "Assigned faculty {$targetUser['full_name']} to admin ID {$assigneeAdminId}");
+                set_flash('success', "Added {$targetUser['full_name']} to management portfolio.");
+            }
         }
     }
     $redir = 'assistant/choose_faculty.php';
@@ -75,6 +103,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $cStmt = $db->prepare("SELECT faculty_user_id FROM faculty_delegates WHERE delegate_user_id = ?");
 $cStmt->execute([$adminId]);
 $myClaimedUserIds = $cStmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Fetch all existing delegations across the institution to identify already-assigned faculties
+$allDelStmt = $db->query("
+    SELECT fd.faculty_user_id, fd.delegate_user_id, u.full_name as admin_name, u.email as admin_email
+    FROM faculty_delegates fd
+    JOIN users u ON fd.delegate_user_id = u.id
+");
+$allAssignments = [];
+while ($delRow = $allDelStmt->fetch(PDO::FETCH_ASSOC)) {
+    $allAssignments[(int)$delRow['faculty_user_id']] = $delRow;
+}
 
 // Fetch departments for filtering
 $departments = $db->query("SELECT id, code, name FROM departments ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -122,6 +161,7 @@ $facultiesList = $stmt->fetchAll(PDO::FETCH_ASSOC);
 foreach ($facultiesList as &$item) {
     $item['health'] = get_profile_completeness_report($item);
     $item['is_claimed'] = in_array((int)$item['user_id'], array_map('intval', $myClaimedUserIds), true);
+    $item['assigned_to'] = $allAssignments[(int)$item['user_id']] ?? null;
 }
 unset($item);
 
@@ -345,6 +385,24 @@ require_once __DIR__ . '/../includes/header.php';
                                     <span class="hidden group-hover:inline">Remove</span>
                                 </button>
                             </form>
+                        <?php elseif (!empty($fac['assigned_to'])): ?>
+                            <?php if ($isSuperAdmin): ?>
+                                <form action="<?= url('assistant/choose_faculty.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Reassign <?= e($fac['full_name']) ?> from <?= e($fac['assigned_to']['admin_name']) ?> to this portfolio?');">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="action" value="claim_faculty">
+                                    <input type="hidden" name="target_user_id" value="<?= (int)$fac['user_id'] ?>">
+                                    <input type="hidden" name="admin_id" value="<?= $adminId ?>">
+                                    <button type="submit" class="btn-academic-secondary text-xs !py-1.5 !px-2.5 !bg-amber-50 !border-amber-300 !text-amber-800 hover:!bg-amber-100 shadow-xs flex items-center gap-1.5" title="Currently assigned to <?= e($fac['assigned_to']['admin_name']) ?>. Click to transfer.">
+                                        <i class="fa-solid fa-arrow-right-arrow-left text-[10px]"></i>
+                                        <span>Reassign (<?= e($fac['assigned_to']['admin_name']) ?>)</span>
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <span class="academic-tag !py-1.5 !px-2.5 bg-slate-100 text-slate-600 border-slate-300 shadow-xs flex items-center gap-1.5 cursor-not-allowed" title="Already assigned to <?= e($fac['assigned_to']['admin_name']) ?>">
+                                    <i class="fa-solid fa-lock text-[10px] text-slate-500"></i>
+                                    <span class="truncate max-w-[140px]">Already Assigned (<?= e($fac['assigned_to']['admin_name']) ?>)</span>
+                                </span>
+                            <?php endif; ?>
                         <?php else: ?>
                             <form action="<?= url('assistant/choose_faculty.php') ?>" method="POST" class="inline m-0">
                                 <?= csrf_field() ?>

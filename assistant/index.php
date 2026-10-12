@@ -75,10 +75,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $targetUser = $uChk->fetch(PDO::FETCH_ASSOC);
 
         if ($targetUser) {
-            $ins = $db->prepare("INSERT IGNORE INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
-            $ins->execute([$targetUserId, $assigneeAdminId, $currentUserId]);
-            record_audit('portfolio_claimed', 'faculty_delegates', $targetUserId, "Assigned faculty {$targetUser['full_name']} to admin ID {$assigneeAdminId}");
-            set_flash('success', "Added {$targetUser['full_name']} to active management portfolio.");
+            // Check if this faculty is already assigned to any administrator
+            $delChk = $db->prepare("
+                SELECT fd.delegate_user_id, u.full_name as admin_name 
+                FROM faculty_delegates fd 
+                JOIN users u ON fd.delegate_user_id = u.id 
+                WHERE fd.faculty_user_id = ?
+            ");
+            $delChk->execute([$targetUserId]);
+            $existingDel = $delChk->fetch(PDO::FETCH_ASSOC);
+
+            if ($existingDel) {
+                if ((int)$existingDel['delegate_user_id'] === $assigneeAdminId) {
+                    set_flash('info', "{$targetUser['full_name']} is already in this portfolio.");
+                } elseif ($isSuperAdmin) {
+                    // Super Admin reassigns cleanly
+                    $db->beginTransaction();
+                    $db->prepare("DELETE FROM faculty_delegates WHERE faculty_user_id = ?")->execute([$targetUserId]);
+                    $ins = $db->prepare("INSERT INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
+                    $ins->execute([$targetUserId, $assigneeAdminId, $currentUserId]);
+                    $db->commit();
+                    record_audit('portfolio_reassigned', 'faculty_delegates', $targetUserId, "Super Admin reassigned faculty {$targetUser['full_name']} from {$existingDel['admin_name']} to admin ID {$assigneeAdminId}");
+                    set_flash('success', "Reassigned {$targetUser['full_name']} to administrator portfolio.");
+                } else {
+                    set_flash('danger', "Cannot assign {$targetUser['full_name']}: Already assigned to {$existingDel['admin_name']}. Each faculty member can only be managed by one administrator.");
+                }
+            } else {
+                $ins = $db->prepare("INSERT INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
+                $ins->execute([$targetUserId, $assigneeAdminId, $currentUserId]);
+                record_audit('portfolio_claimed', 'faculty_delegates', $targetUserId, "Assigned faculty {$targetUser['full_name']} to admin ID {$assigneeAdminId}");
+                set_flash('success', "Added {$targetUser['full_name']} to active management portfolio.");
+            }
         }
     }
     $redirUrl = 'assistant/index.php';
@@ -94,12 +121,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'unclaim_faculty') {
     require_csrf();
     $targetUserId = (int)($_POST['target_user_id'] ?? 0);
-    $assigneeAdminId = ($isSuperAdmin && !empty($_POST['admin_id'])) ? (int)$_POST['admin_id'] : $currentUserId;
+    $assigneeAdminId = ($isSuperAdmin && !empty($_POST['admin_id'])) ? (int)$_POST['admin_id'] : ($isSuperAdmin ? 0 : $currentUserId);
 
     if ($targetUserId > 0) {
-        $del = $db->prepare("DELETE FROM faculty_delegates WHERE faculty_user_id = ? AND delegate_user_id = ?");
-        $del->execute([$targetUserId, $assigneeAdminId]);
-        record_audit('portfolio_unclaimed', 'faculty_delegates', $targetUserId, "Removed faculty {$targetUserId} from admin ID {$assigneeAdminId} portfolio");
+        if ($assigneeAdminId > 0) {
+            $del = $db->prepare("DELETE FROM faculty_delegates WHERE faculty_user_id = ? AND delegate_user_id = ?");
+            $del->execute([$targetUserId, $assigneeAdminId]);
+            record_audit('portfolio_unclaimed', 'faculty_delegates', $targetUserId, "Removed faculty {$targetUserId} from admin ID {$assigneeAdminId} portfolio");
+        } elseif ($isSuperAdmin) {
+            $del = $db->prepare("DELETE FROM faculty_delegates WHERE faculty_user_id = ?");
+            $del->execute([$targetUserId]);
+            record_audit('portfolio_unclaimed', 'faculty_delegates', $targetUserId, "Super Admin removed delegation assignment for faculty {$targetUserId}");
+        }
         set_flash('info', "Faculty profile removed from management portfolio.");
     }
     $redirUrl = 'assistant/index.php';
@@ -752,17 +785,19 @@ require_once __DIR__ . '/../includes/header.php';
                                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                                     </a>
 
-                                    <form action="<?= url('assistant/index.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove <?= e($fac['full_name']) ?> from portfolio?');">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="action" value="unclaim_faculty">
-                                        <input type="hidden" name="target_user_id" value="<?= (int)$fac['user_id'] ?>">
-                                        <?php if ($isSuperAdmin && $viewAdminId > 0): ?>
-                                            <input type="hidden" name="admin_id" value="<?= $viewAdminId ?>">
-                                        <?php endif; ?>
-                                        <button type="submit" class="btn-academic-secondary text-xs !py-1.5 !px-2.5 text-rose-700 hover:text-rose-900 shadow-xs" title="Remove from portfolio">
-                                            <i class="fa-solid fa-user-minus text-[10px]"></i>
-                                        </button>
-                                    </form>
+                                    <?php if ($activeTab !== 'all_faculties' || !empty($fac['assigned_admins_names'])): ?>
+                                        <form action="<?= url('assistant/index.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove assignment for <?= e($fac['full_name']) ?>?');">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="action" value="unclaim_faculty">
+                                            <input type="hidden" name="target_user_id" value="<?= (int)$fac['user_id'] ?>">
+                                            <?php if ($isSuperAdmin && $viewAdminId > 0): ?>
+                                                <input type="hidden" name="admin_id" value="<?= $viewAdminId ?>">
+                                            <?php endif; ?>
+                                            <button type="submit" class="btn-academic-secondary text-xs !py-1.5 !px-2.5 text-rose-700 hover:text-rose-900 shadow-xs" title="Remove assignment">
+                                                <i class="fa-solid fa-user-minus text-[10px]"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                 </div>
 
                                 <form action="<?= url('assistant/switch.php') ?>" method="POST" class="inline m-0">

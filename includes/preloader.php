@@ -134,15 +134,15 @@
 
     <div class="relative z-10 flex flex-col items-center text-center px-6 max-w-md w-full">
 
-        <!-- Pure Floating Scholar Hat (Clean, Not a Round Coin) -->
+        <!-- Floating Official SOA University Seal / Emblem -->
         <div class="relative mb-5 flex items-center justify-center">
             <!-- Subtle luminous ambient glow -->
-            <div class="absolute w-32 h-32 rounded-full bg-gradient-to-tr from-blue-600/30 via-amber-500/20 to-cyan-500/30 blur-2xl soa-aura"></div>
+            <div class="absolute w-36 h-36 rounded-full bg-gradient-to-tr from-blue-600/30 via-amber-500/20 to-cyan-500/30 blur-2xl soa-aura"></div>
 
-            <!-- Clean floating scholar cap -->
-            <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center filter drop-shadow-[0_12px_24px_rgba(37,99,235,0.45)]">
-                <img src="<?= url('assets/img/scholar_hat.svg') ?>" 
-                     alt="Departmental Scholar" 
+            <!-- Clean floating SOA Crest Emblem -->
+            <div class="relative w-28 h-28 sm:w-32 sm:h-32 p-2 rounded-full bg-white/95 shadow-2xl border border-white/20 flex items-center justify-center filter drop-shadow-[0_12px_24px_rgba(37,99,235,0.45)]">
+                <img src="<?= url('assets/img/soa_logo.png') ?>" 
+                     alt="Siksha 'O' Anusandhan" 
                      class="w-full h-full object-contain transform hover:scale-105 transition duration-300">
             </div>
         </div>

@@ -82,6 +82,9 @@ $flashes   = get_flashes();
     <!-- FontAwesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?= url('assets/img/soa_logo.png') ?>">
+
     <!-- Design System CSS Foundation -->
     <link rel="stylesheet" href="<?= url('assets/css/scholar.css') ?>">
 </head>
@@ -120,8 +123,8 @@ $flashes   = get_flashes();
                 <!-- Brand / Seal -->
                 <div class="flex items-center gap-6">
                     <a href="<?= url() ?>" class="flex items-center gap-3 group focus:outline-none" aria-label="Departmental Scholar Home">
-                        <div class="w-10 h-10 rounded-[6px] bg-slate-50 border border-scholar-border flex items-center justify-center p-1.5 shadow-xs transition group-hover:border-oxford-slate group-hover:bg-slate-100">
-                            <img src="<?= url('assets/img/scholar_hat.svg') ?>" alt="Departmental Scholar Logo" class="w-full h-full object-contain">
+                        <div class="w-10 h-10 rounded-[6px] bg-white border border-scholar-border flex items-center justify-center p-0.5 shadow-xs transition group-hover:border-oxford-slate group-hover:bg-slate-50">
+                            <img src="<?= url('assets/img/soa_logo.png') ?>" alt="SOA Logo" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
                             <span class="font-serif font-bold text-lg text-oxford-navy tracking-tight leading-tight group-hover:text-oxford-blue transition">Departmental Scholar</span>
