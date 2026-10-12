@@ -2,6 +2,7 @@
 /**
  * Departmental Scholar — Choose / Assign Faculty to Portfolio
  * Dedicated page with search, department filtering, minimal profile metrics, and one-click assignment.
+ * Supports Super Admin multi-admin delegation and Admin self-management.
  */
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -11,42 +12,68 @@ require_role(['admin', 'super_admin']);
 
 $db = Database::getConnection();
 $currentUserId = user_id();
+$isSuperAdmin = has_role('super_admin');
+
+// Target Admin ID for assignment: either explicitly passed by Super Admin, or defaulting to current user
+$adminId = $currentUserId;
+$targetAdminUser = null;
+if ($isSuperAdmin && isset($_REQUEST['admin_id']) && (int)$_REQUEST['admin_id'] > 0) {
+    $requestedAdminId = (int)$_REQUEST['admin_id'];
+    $aChk = $db->prepare("SELECT id, full_name, email, role FROM users WHERE id = ? AND role IN ('admin', 'super_admin') AND status = 'active'");
+    $aChk->execute([$requestedAdminId]);
+    $targetAdminUser = $aChk->fetch(PDO::FETCH_ASSOC);
+    if ($targetAdminUser) {
+        $adminId = $requestedAdminId;
+    }
+}
 
 // Handle Assign Action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'claim_faculty') {
     require_csrf();
     $targetUserId = (int)($_POST['target_user_id'] ?? 0);
-    if ($targetUserId > 0 && $targetUserId !== $currentUserId) {
+    $assigneeAdminId = ($isSuperAdmin && !empty($_POST['admin_id'])) ? (int)$_POST['admin_id'] : $adminId;
+
+    if ($targetUserId > 0 && $targetUserId !== $assigneeAdminId) {
         $uChk = $db->prepare("SELECT id, full_name FROM users WHERE id = ? AND status = 'active'");
         $uChk->execute([$targetUserId]);
         $targetUser = $uChk->fetch(PDO::FETCH_ASSOC);
 
         if ($targetUser) {
             $ins = $db->prepare("INSERT IGNORE INTO faculty_delegates (faculty_user_id, delegate_user_id, granted_by) VALUES (?, ?, ?)");
-            $ins->execute([$targetUserId, $currentUserId, $currentUserId]);
-            record_audit('portfolio_claimed', 'faculty_delegates', $targetUserId, "Admin assigned faculty {$targetUser['full_name']} to management portfolio");
-            set_flash('success', "Added {$targetUser['full_name']} to your active management portfolio.");
+            $ins->execute([$targetUserId, $assigneeAdminId, $currentUserId]);
+            record_audit('portfolio_claimed', 'faculty_delegates', $targetUserId, "Assigned faculty {$targetUser['full_name']} to admin ID {$assigneeAdminId}");
+            set_flash('success', "Added {$targetUser['full_name']} to management portfolio.");
         }
     }
-    redirect('assistant/choose_faculty.php');
+    $redir = 'assistant/choose_faculty.php';
+    if ($isSuperAdmin && $adminId !== $currentUserId) {
+        $redir .= "?admin_id={$adminId}";
+    }
+    redirect($redir);
 }
 
 // Handle Unassign Action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'unclaim_faculty') {
     require_csrf();
     $targetUserId = (int)($_POST['target_user_id'] ?? 0);
+    $assigneeAdminId = ($isSuperAdmin && !empty($_POST['admin_id'])) ? (int)$_POST['admin_id'] : $adminId;
+
     if ($targetUserId > 0) {
         $del = $db->prepare("DELETE FROM faculty_delegates WHERE faculty_user_id = ? AND delegate_user_id = ?");
-        $del->execute([$targetUserId, $currentUserId]);
-        record_audit('portfolio_unclaimed', 'faculty_delegates', $targetUserId, "Admin removed faculty {$targetUserId} from management portfolio");
-        set_flash('info', "Faculty removed from your management portfolio.");
+        $del->execute([$targetUserId, $assigneeAdminId]);
+        record_audit('portfolio_unclaimed', 'faculty_delegates', $targetUserId, "Removed faculty {$targetUserId} from admin ID {$assigneeAdminId} portfolio");
+        set_flash('info', "Faculty removed from management portfolio.");
     }
-    redirect('assistant/choose_faculty.php');
+    $redir = 'assistant/choose_faculty.php';
+    if ($isSuperAdmin && $adminId !== $currentUserId) {
+        $redir .= "?admin_id={$adminId}";
+    }
+    redirect($redir);
 }
 
-// Fetch currently claimed faculty user IDs by this admin
+// Fetch currently claimed faculty user IDs by target admin
 $cStmt = $db->prepare("SELECT faculty_user_id FROM faculty_delegates WHERE delegate_user_id = ?");
-$cStmt->execute([$currentUserId]);
+$cStmt->execute([$adminId]);
 $myClaimedUserIds = $cStmt->fetchAll(PDO::FETCH_COLUMN);
 
 // Fetch departments for filtering
@@ -57,7 +84,7 @@ $searchQ   = trim($_GET['q'] ?? '');
 $deptFilter = (int)($_GET['dept_id'] ?? 0);
 
 $where = ["u.status = 'active'", "u.id != ?"];
-$params = [$currentUserId];
+$params = [$adminId];
 
 if (!empty($searchQ)) {
     $where[] = "(u.full_name LIKE ? OR u.email LIKE ? OR fp.designation LIKE ?)";
@@ -98,6 +125,12 @@ foreach ($facultiesList as &$item) {
 }
 unset($item);
 
+// Super admin list of admins for quick switching
+$allAdminsList = [];
+if ($isSuperAdmin) {
+    $allAdminsList = $db->query("SELECT id, full_name, email, role FROM users WHERE role IN ('admin', 'super_admin') AND status = 'active' ORDER BY full_name ASC")->fetchAll(PDO::FETCH_ASSOC);
+}
+
 $pageTitle = 'Assign Faculty Scholars — Department Administrator Portal';
 require_once __DIR__ . '/../includes/header.php';
 ?>
@@ -107,19 +140,27 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <a href="<?= url('assistant/index.php') ?>" class="text-xs text-amber-300 hover:text-white inline-flex items-center gap-1.5 font-semibold mb-2 transition">
+                <a href="<?= url($isSuperAdmin && $targetAdminUser ? "assistant/index.php?tab=admins&admin_id={$adminId}" : 'assistant/index.php') ?>" 
+                   class="text-xs text-amber-300 hover:text-white inline-flex items-center gap-1.5 font-semibold mb-2 transition">
                     <i class="fa-solid fa-arrow-left text-[10px]"></i>
-                    <span>Back to Management Portfolio</span>
+                    <span>Back to Portfolio Overview</span>
                 </a>
-                <h1 class="font-serif text-2xl sm:text-3xl font-bold text-white">Assign Faculty to Portfolio</h1>
+                <h1 class="font-serif text-2xl sm:text-3xl font-bold text-white">
+                    Assign Faculty to Portfolio
+                    <?php if ($targetAdminUser): ?>
+                        <span class="text-base text-amber-300 font-sans font-normal block sm:inline sm:ml-2">
+                            (For Admin: <?= e($targetAdminUser['full_name']) ?>)
+                        </span>
+                    <?php endif; ?>
+                </h1>
                 <p class="text-xs text-slate-300 mt-1 font-sans">
-                    Browse all institutional faculty profiles, filter by department or name, and assign scholars to your supervision portfolio.
+                    Browse all institutional faculty profiles, filter by department or name, and assign scholars to portfolio oversight.
                 </p>
             </div>
             <div class="flex items-center gap-2">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] bg-white/10 border border-white/15 text-xs font-mono text-slate-200">
                     <i class="fa-solid fa-user-check text-emerald-400"></i>
-                    <span>Currently Assigned: <?= count($myClaimedUserIds) ?></span>
+                    <span>Assigned in this Portfolio: <?= count($myClaimedUserIds) ?></span>
                 </span>
             </div>
         </div>
@@ -128,9 +169,41 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
+    <!-- Super Admin Target Admin Selector Strip -->
+    <?php if ($isSuperAdmin): ?>
+        <div class="academic-card p-3.5 bg-slate-50 border-l-4 border-l-oxford-navy flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-user-gear text-oxford-blue text-sm"></i>
+                <span class="text-xs font-bold text-oxford-navy uppercase font-mono">Managing Assignments For:</span>
+            </div>
+            <form action="<?= url('assistant/choose_faculty.php') ?>" method="GET" class="flex items-center gap-2 m-0">
+                <?php if (!empty($searchQ)): ?>
+                    <input type="hidden" name="q" value="<?= e($searchQ) ?>">
+                <?php endif; ?>
+                <?php if ($deptFilter > 0): ?>
+                    <input type="hidden" name="dept_id" value="<?= $deptFilter ?>">
+                <?php endif; ?>
+                <select name="admin_id" onchange="this.form.submit()" class="academic-input text-xs !py-1 !px-2.5">
+                    <?php foreach ($allAdminsList as $adm): ?>
+                        <option value="<?= (int)$adm['id'] ?>" <?= $adminId === (int)$adm['id'] ? 'selected' : '' ?>>
+                            <?= e($adm['full_name']) ?> (<?= e(strtoupper($adm['role'])) ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <noscript>
+                    <button type="submit" class="btn-academic-secondary text-xs !py-1 !px-2">Switch</button>
+                </noscript>
+            </form>
+        </div>
+    <?php endif; ?>
+
     <!-- Search & Filter Controls -->
     <div class="academic-card p-4 shadow-xs bg-white">
         <form action="<?= url('assistant/choose_faculty.php') ?>" method="GET" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <?php if ($isSuperAdmin && $adminId !== $currentUserId): ?>
+                <input type="hidden" name="admin_id" value="<?= $adminId ?>">
+            <?php endif; ?>
+
             <div class="sm:col-span-6 relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                 <input type="text" name="q" value="<?= e($searchQ) ?>"
@@ -155,7 +228,8 @@ require_once __DIR__ . '/../includes/header.php';
                     <span>Filter</span>
                 </button>
                 <?php if (!empty($searchQ) || $deptFilter > 0): ?>
-                    <a href="<?= url('assistant/choose_faculty.php') ?>" class="btn-academic-secondary text-xs !py-2 px-3" title="Clear Filters">
+                    <a href="<?= url('assistant/choose_faculty.php' . ($isSuperAdmin && $adminId !== $currentUserId ? "?admin_id={$adminId}" : '')) ?>" 
+                       class="btn-academic-secondary text-xs !py-2 px-3" title="Clear Filters">
                         <i class="fa-solid fa-rotate-left text-[10px]"></i>
                     </a>
                 <?php endif; ?>
@@ -166,7 +240,7 @@ require_once __DIR__ . '/../includes/header.php';
     <!-- Results Header -->
     <div class="flex items-center justify-between text-xs text-slate-500 font-sans px-1">
         <span>Found <strong><?= count($facultiesList) ?></strong> faculty profile(s)</span>
-        <span class="font-mono text-[11px]">Click "Assign" to add directly to your active oversight list</span>
+        <span class="font-mono text-[11px]">Click "Assign" to add directly to active oversight list</span>
     </div>
 
     <!-- Faculty Cards Grid -->
@@ -177,7 +251,7 @@ require_once __DIR__ . '/../includes/header.php';
             <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                 Try adjusting your search query or clear the department filter to view all scholars.
             </p>
-            <a href="<?= url('assistant/choose_faculty.php') ?>" class="btn-academic-secondary text-xs mt-3 inline-flex">
+            <a href="<?= url('assistant/choose_faculty.php' . ($isSuperAdmin && $adminId !== $currentUserId ? "?admin_id={$adminId}" : '')) ?>" class="btn-academic-secondary text-xs mt-3 inline-flex">
                 Reset Filters
             </a>
         </div>
@@ -257,10 +331,13 @@ require_once __DIR__ . '/../includes/header.php';
                         </a>
 
                         <?php if ($fac['is_claimed']): ?>
-                            <form action="<?= url('assistant/choose_faculty.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove <?= e($fac['full_name']) ?> from your portfolio?');">
+                            <form action="<?= url('assistant/choose_faculty.php') ?>" method="POST" class="inline m-0" onsubmit="return confirm('Remove <?= e($fac['full_name']) ?> from portfolio?');">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="unclaim_faculty">
                                 <input type="hidden" name="target_user_id" value="<?= (int)$fac['user_id'] ?>">
+                                <?php if ($isSuperAdmin): ?>
+                                    <input type="hidden" name="admin_id" value="<?= $adminId ?>">
+                                <?php endif; ?>
                                 <button type="submit" class="btn-academic-secondary text-xs !py-1.5 !px-3 !bg-emerald-50 !text-emerald-800 !border-emerald-300 hover:!bg-rose-50 hover:!text-rose-800 hover:!border-rose-300 shadow-xs flex items-center gap-1.5 group">
                                     <i class="fa-solid fa-check text-emerald-600 group-hover:hidden"></i>
                                     <i class="fa-solid fa-user-minus text-rose-600 hidden group-hover:inline"></i>
@@ -273,6 +350,9 @@ require_once __DIR__ . '/../includes/header.php';
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="claim_faculty">
                                 <input type="hidden" name="target_user_id" value="<?= (int)$fac['user_id'] ?>">
+                                <?php if ($isSuperAdmin): ?>
+                                    <input type="hidden" name="admin_id" value="<?= $adminId ?>">
+                                <?php endif; ?>
                                 <button type="submit" class="btn-academic-primary text-xs !py-1.5 !px-3 shadow-xs bg-emerald-700 hover:bg-emerald-800 border-emerald-800 flex items-center gap-1.5">
                                     <i class="fa-solid fa-plus text-[10px]"></i>
                                     <span>Assign to Portfolio</span>
